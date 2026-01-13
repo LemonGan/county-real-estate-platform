@@ -1,0 +1,212 @@
+/* pages/property/vr/vr.wxss */
+.vr-page {
+  width: 100%;
+  height: 100vh;
+  background-color: #000;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 加载状态 */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+  z-index: 100;
+}
+
+.loading-spinner {
+  width: 80rpx;
+  height: 80rpx;
+  border: 6rpx solid rgba(255, 255, 255, 0.2);
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 32rpx;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 错误状态 */
+.error-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+  z-index: 100;
+}
+
+.error-icon {
+  width: 120rpx;
+  height: 120rpx;
+  margin-bottom: 24rpx;
+  opacity: 0.6;
+}
+
+.error-text {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 48rpx;
+}
+
+.retry-btn {
+  padding: 20rpx 48rpx;
+  background-color: #667eea;
+  color: #fff;
+  font-size: 28rpx;
+  border-radius: 8rpx;
+  border: none;
+}
+
+.retry-btn::after {
+  border: none;
+}
+
+/* VR容器 */
+.vr-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.vr-viewer {
+  width: 100%;
+  height: 100%;
+}
+
+/* 顶部工具栏 */
+.top-toolbar {
+  position: absolute;
+  top: 24rpx;
+  left: 24rpx;
+  right: 24rpx;
+  display: flex;
+  justify-content: flex-end;
+  gap: 16rpx;
+  z-index: 10;
+}
+
+.toolbar-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16rpx 24rpx;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 8rpx;
+  backdrop-filter: blur(10px);
+}
+
+.btn-icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-bottom: 8rpx;
+}
+
+.btn-text {
+  font-size: 22rpx;
+  color: #fff;
+}
+
+/* 场景切换器 */
+.scene-switcher {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 160rpx;
+  z-index: 10;
+}
+
+.scene-list {
+  display: flex;
+  padding: 0 24rpx;
+  white-space: nowrap;
+}
+
+.scene-item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 16rpx;
+  padding: 12rpx;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 12rpx;
+  border: 2rpx solid transparent;
+  transition: all 0.3s;
+}
+
+.scene-item.active {
+  border-color: #667eea;
+  background-color: rgba(102, 126, 234, 0.3);
+}
+
+.scene-thumb {
+  width: 120rpx;
+  height: 90rpx;
+  border-radius: 8rpx;
+  margin-bottom: 8rpx;
+}
+
+.scene-name {
+  font-size: 22rpx;
+  color: #fff;
+  white-space: nowrap;
+}
+
+/* 底部控制栏 */
+.bottom-toolbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 24rpx;
+  z-index: 10;
+}
+
+.toolbar-group {
+  display: flex;
+  justify-content: center;
+  gap: 24rpx;
+  padding: 0 24rpx;
+}
+
+.control-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx 32rpx;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 12rpx;
+  backdrop-filter: blur(10px);
+}
+
+.control-icon {
+  width: 48rpx;
+  height: 48rpx;
+  margin-bottom: 8rpx;
+}
+
+.control-text {
+  font-size: 24rpx;
+  color: #fff;
+}

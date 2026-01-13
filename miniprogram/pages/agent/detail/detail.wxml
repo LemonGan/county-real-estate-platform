@@ -1,0 +1,116 @@
+<!--pages/agent/detail/detail.wxml-->
+<view class="agent-page">
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+  </view>
+
+  <!-- 经纪人详情 -->
+  <view class="agent-detail" wx:if="{{!loading && agent}}">
+    <!-- 经纪人信息卡片 -->
+    <view class="agent-card">
+      <view class="agent-header">
+        <image class="agent-avatar" src="{{agent.avatar || '/assets/images/default-avatar.png'}}" />
+        <view class="agent-info">
+          <view class="agent-name-row">
+            <text class="agent-name">{{agent.nickname}}</text>
+            <image class="verified-icon" src="/assets/icons/verified.png" wx:if="{{agent.is_verified}}" />
+          </view>
+          <view class="agent-company">{{agent.company}}</view>
+          <view class="agent-tags">
+            <text class="tag" wx:for="{{agent.tags}}" wx:key="*this">{{item}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 服务数据 -->
+      <view class="service-stats">
+        <view class="stat-item">
+          <text class="stat-value">{{agent.sales_count}}</text>
+          <text class="stat-label">成交</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <text class="stat-value">{{agent.service_count}}</text>
+          <text class="stat-label">服务</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <text class="stat-value">{{agent.experience}}</text>
+          <text class="stat-label">年限</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <text class="stat-value">{{agent.rating}}</text>
+          <text class="stat-label">评分</text>
+        </view>
+      </view>
+
+      <!-- 个人简介 -->
+      <view class="agent-intro" wx:if="{{agent.introduction}}">
+        <text class="intro-text">{{agent.introduction}}</text>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-buttons">
+      <button class="action-btn primary" bindtap="contactAgent">
+        <image class="btn-icon" src="/assets/icons/phone-white.png" />
+        <text>电话咨询</text>
+      </button>
+      <button class="action-btn secondary" bindtap="startChat">
+        <image class="btn-icon" src="/assets/icons/chat.png" />
+        <text>在线咨询</text>
+      </button>
+      <button
+        class="action-btn {{isFollowed ? 'following' : ''}}"
+        bindtap="followAgent"
+      >
+        <image class="btn-icon" src="{{isFollowed ? '/assets/icons/check.png' : '/assets/icons/plus.png'}}" />
+        <text>{{isFollowed ? '已关注' : '关注'}}</text>
+      </button>
+    </view>
+
+    <!-- 房源列表 -->
+    <view class="properties-section">
+      <view class="section-header">
+        <text class="section-title">Ta的房源</text>
+        <text class="section-count">共{{agent.sales_count}}套</text>
+      </view>
+
+      <view class="property-list">
+        <view
+          class="property-item"
+          wx:for="{{properties}}"
+          wx:key="id"
+          bindtap="goToPropertyDetail"
+          data-id="{{item.id}}"
+        >
+          <image class="property-thumb" src="{{item.cover_image_url || '/assets/images/placeholder.png'}}" mode="aspectFill" />
+          <view class="property-content">
+            <view class="property-title ellipsis">{{item.title}}</view>
+            <view class="property-meta">
+              <text class="meta-item">{{item.area}}㎡</text>
+              <text class="meta-item" wx:if="{{item.rooms}}">{{item.rooms}}室</text>
+            </view>
+            <view class="property-price">
+              <text class="price-value">{{item.total_price_text}}</text>
+              <text class="price-unit">万</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 加载更多 -->
+      <view class="load-more" wx:if="{{hasMore}}" bindtap="loadMore">
+        <text class="load-more-text">查看更多房源</text>
+      </view>
+
+      <!-- 空状态 -->
+      <view class="empty-state" wx:if="{{properties.length === 0}}">
+        <image class="empty-icon" src="/assets/icons/empty-property.png" />
+        <view class="empty-text">暂无房源</view>
+      </view>
+    </view>
+  </view>
+</view>

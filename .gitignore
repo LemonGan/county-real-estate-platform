@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+*.egg-info/
+dist/
+build/
+
+# FastAPI / Backend
+.env
+*.log
+*.db
+*.sqlite
+*.sqlite3
+
+# WeChat Mini Program
+miniprogram/.vscode/
+miniprogram/node_modules/
+miniprogram/miniprogram_npm/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/
+tmpclaude-*/
+
+# Temporary files
+*.tmp
+*.temp
+*.rar
+response_times.txt

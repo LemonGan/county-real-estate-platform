@@ -1,0 +1,328 @@
+/* 房源列表页样式 */
+.page-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+/* 搜索栏 */
+.search-bar {
+  background-color: #fff;
+  padding: 20rpx 24rpx;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f5f5f5;
+  border-radius: 40rpx;
+  padding: 16rpx 24rpx;
+}
+
+.search-placeholder {
+  color: #8c8c8c;
+  font-size: 28rpx;
+}
+
+.search-icon {
+  width: 32rpx;
+  height: 32rpx;
+}
+
+/* 筛选栏 */
+.filter-bar {
+  background-color: #fff;
+  padding: 20rpx 0;
+  margin-bottom: 20rpx;
+}
+
+.filter-scroll {
+  white-space: nowrap;
+  padding: 0 24rpx;
+}
+
+.filter-item {
+  display: inline-block;
+  padding: 12rpx 24rpx;
+  margin-right: 16rpx;
+  background-color: #f5f5f5;
+  border-radius: 24rpx;
+  font-size: 26rpx;
+  color: #666;
+  transition: all 0.3s;
+}
+
+.filter-item.active {
+  background-color: #1890ff;
+  color: #fff;
+}
+
+.filter-icon {
+  width: 24rpx;
+  height: 24rpx;
+  margin-left: 8rpx;
+  vertical-align: middle;
+}
+
+/* 房源列表 */
+.property-list {
+  background-color: #fff;
+  margin: 20rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.property-item {
+  display: flex;
+  padding: 24rpx;
+  border-bottom: 1rpx solid #e8e8e8;
+}
+
+.property-item:last-child {
+  border-bottom: none;
+}
+
+.property-thumb {
+  width: 240rpx;
+  height: 180rpx;
+  border-radius: 12rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+  background-color: #f5f5f5;
+}
+
+.property-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.property-title {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.property-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin: 8rpx 0;
+}
+
+.meta-item {
+  font-size: 24rpx;
+  color: #666;
+  background-color: #f5f5f5;
+  padding: 4rpx 12rpx;
+  border-radius: 4rpx;
+}
+
+.property-location {
+  display: flex;
+  align-items: center;
+  margin: 8rpx 0;
+}
+
+.location-icon {
+  width: 24rpx;
+  height: 24rpx;
+  margin-right: 8rpx;
+}
+
+.location-text {
+  font-size: 24rpx;
+  color: #8c8c8c;
+}
+
+.property-tags {
+  margin: 8rpx 0;
+}
+
+.property-tags .tag {
+  margin-right: 8rpx;
+}
+
+.property-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8rpx;
+}
+
+.property-unitprice {
+  font-size: 24rpx;
+  color: #8c8c8c;
+}
+
+/* 空状态 */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+}
+
+.empty-icon {
+  width: 160rpx;
+  height: 160rpx;
+  margin-bottom: 32rpx;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #8c8c8c;
+  margin-bottom: 40rpx;
+}
+
+.empty-btn {
+  padding: 16rpx 40rpx;
+  background-color: #1890ff;
+  color: #fff;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+}
+
+/* 加载状态 */
+.loading {
+  padding: 40rpx 0;
+  text-align: center;
+  color: #8c8c8c;
+}
+
+/* 没有更多 */
+.no-more {
+  padding: 32rpx 0;
+  text-align: center;
+  font-size: 24rpx;
+  color: #8c8c8c;
+}
+
+/* 筛选面板 */
+.filter-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.filter-panel.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.filter-content {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 560rpx;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s;
+}
+
+.filter-panel.show .filter-content {
+  transform: translateX(0);
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32rpx;
+  border-bottom: 1rpx solid #e8e8e8;
+}
+
+.filter-title {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.close-icon {
+  width: 32rpx;
+  height: 32rpx;
+}
+
+.filter-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32rpx;
+}
+
+.filter-section {
+  margin-bottom: 40rpx;
+}
+
+.filter-section-title {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.filter-input {
+  flex: 1;
+  background-color: #f5f5f5;
+  border-radius: 8rpx;
+  padding: 16rpx 20rpx;
+  font-size: 28rpx;
+}
+
+.filter-separator {
+  color: #8c8c8c;
+}
+
+.filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.filter-option {
+  padding: 12rpx 24rpx;
+  background-color: #f5f5f5;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+  color: #666;
+  border: 1rpx solid transparent;
+}
+
+.filter-option.active {
+  background-color: #e6f7ff;
+  color: #1890ff;
+  border-color: #1890ff;
+}
+
+.filter-footer {
+  display: flex;
+  gap: 20rpx;
+  padding: 32rpx;
+  border-top: 1rpx solid #e8e8e8;
+}
+
+.filter-btn {
+  flex: 1;
+  padding: 20rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  text-align: center;
+}

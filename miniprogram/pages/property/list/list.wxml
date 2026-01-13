@@ -1,0 +1,191 @@
+<!-- 房源列表页 -->
+<view class="page-container">
+  <!-- 搜索栏 -->
+  <view class="search-bar" bindtap="goToSearch">
+    <view class="search-input">
+      <text class="search-placeholder">搜索房源关键词...</text>
+      <image class="search-icon" src="/assets/icons/search.png" mode="aspectFit"></image>
+    </view>
+  </view>
+
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <scroll-view class="filter-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="filter-item {{filters.transactionType ? 'active' : ''}}"
+            bindtap="onFilterChange"
+            data-field="transactionType"
+            data-value="{{filters.transactionType === 1 ? null : 1}}">
+        <text>{{filters.transactionType === 1 ? '出售' : '出租'}}</text>
+      </view>
+
+      <view class="filter-item {{filters.propertyType ? 'active' : ''}}"
+            bindtap="onFilterChange"
+            data-field="propertyType"
+            data-value="1">
+        <text>住宅</text>
+      </view>
+
+      <view class="filter-item {{filters.propertyType === 2 ? 'active' : ''}}"
+            bindtap="onFilterChange"
+            data-field="propertyType"
+            data-value="2">
+        <text>商铺</text>
+      </view>
+
+      <view class="filter-item {{filters.propertyType === 3 ? 'active' : ''}}"
+            bindtap="onFilterChange"
+            data-field="propertyType"
+            data-value="3">
+        <text>写字楼</text>
+      </view>
+
+      <view class="filter-item {{filters.propertyType === 4 ? 'active' : ''}}"
+            bindtap="onFilterChange"
+            data-field="propertyType"
+            data-value="4">
+        <text>别墅</text>
+      </view>
+
+      <view class="filter-item" bindtap="showFilterPanel">
+        <text>筛选</text>
+        <image class="filter-icon" src="/assets/icons/filter.png" mode="aspectFit"></image>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 房源列表 -->
+  <view class="property-list" wx:if="{{propertyList.length > 0}}">
+    <view class="property-item" wx:for="{{propertyList}}" wx:key="id"
+          bindtap="goToDetail" data-id="{{item.id}}">
+      <image class="property-thumb"
+             src="{{item.cover_image_url || '/assets/images/placeholder.png'}}"
+             mode="aspectFill"
+             lazy-load></image>
+
+      <view class="property-content">
+        <view class="property-title ellipsis">{{item.title}}</view>
+
+        <view class="property-meta">
+          <text class="meta-item">{{item.area_text}}</text>
+          <text class="meta-item" wx:if="{{item.room_type}}">{{item.room_type}}</text>
+          <text class="meta-item" wx:if="{{item.build_year}}">{{item.build_year}}年建</text>
+        </view>
+
+        <view class="property-location" wx:if="{{item.city || item.district}}">
+          <image class="location-icon" src="/assets/icons/location.png" mode="aspectFit"></image>
+          <text class="location-text">{{item.city}}{{item.district}}{{item.town}}</text>
+        </view>
+
+        <view class="property-tags" wx:if="{{item.property_type_text || item.transaction_type_text}}">
+          <text class="tag tag-primary" wx:if="{{item.property_type_text}}">{{item.property_type_text}}</text>
+          <text class="tag tag-success" wx:if="{{item.transaction_type_text}}">{{item.transaction_type_text}}</text>
+        </view>
+
+        <view class="property-footer">
+          <view class="property-price">
+            <text class="price-integer">{{item.total_price_text}}</text>
+            <text class="price-unit" wx:if="{{item.total_price >= 10000}}">万</text>
+          </view>
+          <text class="property-unitprice" wx:if="{{item.unit_price}}">{{item.unit_price}}元/㎡</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty" wx:if="{{!loading && propertyList.length === 0}}">
+    <image class="empty-icon" src="/assets/icons/empty.png" mode="aspectFit"></image>
+    <text class="empty-text">暂无房源</text>
+    <view class="empty-btn" bindtap="resetFilters">
+      <text>重新筛选</text>
+    </view>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 没有更多 -->
+  <view class="no-more" wx:if="{{!hasMore && propertyList.length > 0}}">
+    <text>没有更多了</text>
+  </view>
+</view>
+
+<!-- 筛选面板 -->
+<view class="filter-panel {{showFilter ? 'show' : ''}}" catchtap="hideFilterPanel">
+  <view class="filter-content" catchtap="stopPropagation">
+    <view class="filter-header">
+      <text class="filter-title">筛选条件</text>
+      <image class="close-icon" src="/assets/icons/close.png"
+             mode="aspectFit" catchtap="hideFilterPanel"></image>
+    </view>
+
+    <scroll-view class="filter-body" scroll-y enhanced show-scrollbar="{{false}}">
+      <!-- 价格区间 -->
+      <view class="filter-section">
+        <view class="filter-section-title">价格区间（万）</view>
+        <view class="filter-row">
+          <input class="filter-input" type="digit" placeholder="最低价"
+                 value="{{filters.minPrice}}"
+                 bindinput="onFilterChange"
+                 data-field="minPrice" />
+          <text class="filter-separator">-</text>
+          <input class="filter-input" type="digit" placeholder="最高价"
+                 value="{{filters.maxPrice}}"
+                 bindinput="onFilterChange"
+                 data-field="maxPrice" />
+        </view>
+      </view>
+
+      <!-- 面积区间 -->
+      <view class="filter-section">
+        <view class="filter-section-title">面积区间（㎡）</view>
+        <view class="filter-row">
+          <input class="filter-input" type="digit" placeholder="最小面积"
+                 value="{{filters.minArea}}"
+                 bindinput="onFilterChange"
+                 data-field="minArea" />
+          <text class="filter-separator">-</text>
+          <input class="filter-input" type="digit" placeholder="最大面积"
+                 value="{{filters.maxArea}}"
+                 bindinput="onFilterChange"
+                 data-field="maxArea" />
+        </view>
+      </view>
+
+      <!-- 房源类型 -->
+      <view class="filter-section">
+        <view class="filter-section-title">房源类型</view>
+        <view class="filter-options">
+          <view class="filter-option {{filters.propertyType === item.value ? 'active' : ''}}"
+                wx:for="{{filterOptions.propertyTypes}}" wx:key="value"
+                bindtap="onFilterChange"
+                data-field="propertyType"
+                data-value="{{item.value}}">
+            <text>{{item.label}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 交易类型 -->
+      <view class="filter-section">
+        <view class="filter-section-title">交易类型</view>
+        <view class="filter-options">
+          <view class="filter-option {{filters.transactionType === item.value ? 'active' : ''}}"
+                wx:for="{{filterOptions.transactionTypes}}" wx:key="value"
+                bindtap="onFilterChange"
+                data-field="transactionType"
+                data-value="{{item.value}}">
+            <text>{{item.label}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <view class="filter-footer">
+      <button class="filter-btn btn-default" bindtap="resetFilters">重置</button>
+      <button class="filter-btn btn-primary" bindtap="applyFilters">确定</button>
+    </view>
+  </view>
+</view>

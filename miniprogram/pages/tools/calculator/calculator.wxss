@@ -1,0 +1,209 @@
+/* 计算器样式 */
+.calculator-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding-bottom: 40rpx;
+}
+
+/* 输入区域 */
+.input-section {
+  padding: 20rpx;
+}
+
+.input-card {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 32rpx;
+  margin-bottom: 20rpx;
+}
+
+.card-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 32rpx;
+}
+
+.form-item {
+  margin-bottom: 32rpx;
+}
+
+.form-item:last-child {
+  margin-bottom: 0;
+}
+
+.label {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+}
+
+.input {
+  width: 100%;
+  height: 80rpx;
+  background-color: #f5f5f5;
+  border-radius: 8rpx;
+  padding: 0 24rpx;
+  font-size: 28rpx;
+  color: #333;
+  box-sizing: border-box;
+}
+
+/* 还款方式选择 */
+.payment-type-tabs {
+  display: flex;
+  background-color: #f5f5f5;
+  border-radius: 8rpx;
+  overflow: hidden;
+}
+
+.tab-item {
+  flex: 1;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: #666;
+  background-color: #f5f5f5;
+  transition: all 0.3s;
+}
+
+.tab-item.active {
+  background-color: #667eea;
+  color: #fff;
+}
+
+/* 操作按钮 */
+.action-buttons {
+  display: flex;
+  gap: 20rpx;
+}
+
+.calculate-btn,
+.reset-btn {
+  flex: 1;
+  height: 88rpx;
+  border-radius: 12rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  border: none;
+}
+
+.calculate-btn {
+  background-color: #667eea;
+  color: #fff;
+}
+
+.calculate-btn::after {
+  border: none;
+}
+
+.reset-btn {
+  background-color: #fff;
+  color: #666;
+  border: 1rpx solid #e8e8e8;
+}
+
+.reset-btn::after {
+  border: none;
+}
+
+/* 计算结果 */
+.result-section {
+  padding: 0 20rpx;
+}
+
+.result-card {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 32rpx;
+}
+
+.result-summary {
+  display: flex;
+  padding: 32rpx 0;
+  margin-bottom: 32rpx;
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+  border-radius: 12rpx;
+}
+
+.summary-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 16rpx;
+}
+
+.summary-label {
+  font-size: 24rpx;
+  color: #8c8c8c;
+  margin-bottom: 8rpx;
+}
+
+.summary-value {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #667eea;
+}
+
+.summary-divider {
+  width: 1rpx;
+  background-color: rgba(102, 126, 234, 0.2);
+}
+
+/* 还款计划表 */
+.payment-schedule {
+  margin-top: 32rpx;
+}
+
+.schedule-title {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.schedule-table {
+  border: 1rpx solid #e8e8e8;
+  border-radius: 8rpx;
+  overflow: hidden;
+}
+
+.table-header {
+  display: flex;
+  background-color: #fafafa;
+  border-bottom: 1rpx solid #e8e8e8;
+}
+
+.header-cell {
+  flex: 1;
+  padding: 20rpx 8rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #666;
+  font-weight: 500;
+}
+
+.table-body {
+  max-height: 600rpx;
+}
+
+.table-row {
+  display: flex;
+  border-bottom: 1rpx solid #e8e8e8;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.body-cell {
+  flex: 1;
+  padding: 20rpx 8rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #333;
+}

@@ -1,0 +1,146 @@
+<!-- 预约看房页 -->
+<view class="appointment-container">
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 预约表单 -->
+  <view class="appointment-content" wx:if="{{!loading && property}}">
+    <!-- 房源信息 -->
+    <view class="property-card">
+      <view class="card-header">
+        <text class="card-title">房源信息</text>
+      </view>
+      <view class="property-info" bindtap="goToDetail" data-id="{{property.id}}">
+        <image class="property-image"
+               src="{{property.images[0] ? property.images[0].url : '/assets/images/default-property.png'}}"
+               mode="aspectFill"></image>
+        <view class="property-detail">
+          <text class="property-title">{{property.title}}</text>
+          <text class="property-address">{{property.address}}</text>
+          <view class="property-price">
+            <text class="price">{{property.price/10000}}万</text>
+            <text class="unit">元/套</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 预约时间 -->
+    <view class="form-card">
+      <view class="card-header">
+        <text class="card-title">预约时间</text>
+        <text class="required">*</text>
+      </view>
+
+      <!-- 日期选择 -->
+      <view class="form-item">
+        <text class="form-label">选择日期</text>
+        <picker class="form-picker"
+                mode="date"
+                value="{{appointmentDate}}"
+                start="{{minDate}}"
+                bindchange="onDateChange">
+          <view class="picker-value {{appointmentDate ? '' : 'placeholder'}}">
+            {{appointmentDate || '请选择预约日期'}}
+          </view>
+        </picker>
+      </view>
+
+      <!-- 时间选择 -->
+      <view class="form-item">
+        <text class="form-label">选择时间</text>
+        <picker class="form-picker"
+                mode="selector"
+                range="{{timeOptions}}"
+                value="{{appointmentTime}}"
+                bindchange="onTimeChange">
+          <view class="picker-value {{appointmentTime ? '' : 'placeholder'}}">
+            {{appointmentTime || '请选择预约时间'}}
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 联系信息 -->
+    <view class="form-card">
+      <view class="card-header">
+        <text class="card-title">联系信息</text>
+        <text class="required">*</text>
+      </view>
+
+      <!-- 联系人姓名 -->
+      <view class="form-item">
+        <text class="form-label">联系人</text>
+        <input class="form-input"
+               type="text"
+               value="{{contactName}}"
+               data-field="contactName"
+               bindinput="onInputChange"
+               placeholder="请输入联系人姓名" />
+      </view>
+
+      <!-- 联系电话 -->
+      <view class="form-item">
+        <text class="form-label">联系电话</text>
+        <input class="form-input"
+               type="number"
+               value="{{contactPhone}}"
+               data-field="contactPhone"
+               bindinput="onInputChange"
+               placeholder="请输入联系电话"
+               maxlength="11" />
+      </view>
+
+      <!-- 备注 -->
+      <view class="form-item">
+        <text class="form-label">备注</text>
+        <textarea class="form-textarea"
+                  value="{{remark}}"
+                  data-field="remark"
+                  bindinput="onInputChange"
+                  placeholder="有什么特别要求可以告诉我们（选填）"
+                  maxlength="200"></textarea>
+      </view>
+    </view>
+
+    <!-- 经纪人信息 -->
+    <view class="agent-card" wx:if="{{property.agent}}">
+      <view class="card-header">
+        <text class="card-title">房源经纪人</text>
+      </view>
+      <view class="agent-info">
+        <image class="agent-avatar" src="{{property.agent.avatar || '/assets/images/default-avatar.png'}}"></image>
+        <view class="agent-detail">
+          <text class="agent-name">{{property.agent.nickname}}</text>
+          <text class="agent-title">金牌经纪人</text>
+        </view>
+        <button class="contact-btn" bindtap="contactAgent">联系</button>
+      </view>
+    </view>
+
+    <!-- 温馨提示 -->
+    <view class="tips-card">
+      <view class="card-header">
+        <image class="tips-icon" src="/assets/icons/tips.png"></image>
+        <text class="card-title">温馨提示</text>
+      </view>
+      <view class="tips-content">
+        <text class="tip-item">• 请提前安排好时间，准时到达</text>
+        <text class="tip-item">• 如需改期请提前联系经纪人</text>
+        <text class="tip-item">• 我们将在24小时内确认您的预约</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部按钮 -->
+  <view class="bottom-actions">
+    <button class="submit-btn"
+            bindtap="submitAppointment"
+            disabled="{{submitting}}">
+      {{submitting ? '提交中...' : '提交预约'}}
+    </button>
+  </view>
+</view>

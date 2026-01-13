@@ -1,0 +1,105 @@
+<!--pages/login/register/register.wxml-->
+<view class="register-container">
+  <!-- 头部 -->
+  <view class="header">
+    <text class="title">欢迎注册</text>
+    <text class="subtitle">县域房产平台</text>
+  </view>
+
+  <!-- 注册表单 -->
+  <view class="form-container">
+    <!-- 手机号 -->
+    <view class="form-item">
+      <view class="input-wrapper">
+        <image class="input-icon" src="/assets/icons/phone.png" />
+        <input
+          class="input-field"
+          type="number"
+          placeholder="请输入手机号"
+          placeholder-class="input-placeholder"
+          data-field="phone"
+          value="{{phone}}"
+          bindinput="onInputChange"
+          maxlength="11"
+        />
+      </view>
+    </view>
+
+    <!-- 密码 -->
+    <view class="form-item">
+      <view class="input-wrapper">
+        <image class="input-icon" src="/assets/icons/lock.png" />
+        <input
+          class="input-field"
+          type="password"
+          placeholder="请设置密码（6位以上）"
+          placeholder-class="input-placeholder"
+          data-field="password"
+          value="{{password}}"
+          bindinput="onInputChange"
+        />
+      </view>
+    </view>
+
+    <!-- 确认密码 -->
+    <view class="form-item">
+      <view class="input-wrapper">
+        <image class="input-icon" src="/assets/icons/lock.png" />
+        <input
+          class="input-field"
+          type="password"
+          placeholder="请再次输入密码"
+          placeholder-class="input-placeholder"
+          data-field="confirmPassword"
+          value="{{confirmPassword}}"
+          bindinput="onInputChange"
+        />
+      </view>
+    </view>
+
+    <!-- 验证码（预留） -->
+    <view class="form-item">
+      <view class="input-wrapper code-wrapper">
+        <image class="input-icon" src="/assets/icons/code.png" />
+        <input
+          class="input-field code-input"
+          type="text"
+          placeholder="验证码（可选）"
+          placeholder-class="input-placeholder"
+          data-field="code"
+          value="{{code}}"
+          bindinput="onInputChange"
+        />
+        <button
+          class="code-btn"
+          bindtap="sendCode"
+          disabled="{{countdown > 0}}"
+        >
+          {{countdown > 0 ? countdown + 's' : '获取验证码'}}
+        </button>
+      </view>
+    </view>
+
+    <!-- 用户协议 -->
+    <view class="agreement">
+      <checkbox-group bindchange="onAgreeChange">
+        <label class="agreement-label">
+          <checkbox value="agree" checked="{{agree}}" />
+          <text class="agreement-text">我已阅读并同意</text>
+          <text class="agreement-link">《用户协议》</text>
+          <text class="agreement-text">和</text>
+          <text class="agreement-link">《隐私政策》</text>
+        </label>
+      </checkbox-group>
+    </view>
+
+    <!-- 注册按钮 -->
+    <button class="register-btn" bindtap="handleRegister">注册</button>
+
+    <!-- 返回登录 -->
+    <view class="back-login">
+      <text class="back-text">已有账号？</text>
+      <text class="back-link" bindtap="goBack">立即登录</text>
+    </view>
+  </view>
+</view>

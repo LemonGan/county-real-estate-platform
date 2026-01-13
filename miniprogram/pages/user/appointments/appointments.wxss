@@ -1,0 +1,266 @@
+/* 看房预约样式 */
+.appointments-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+/* 标签切换 */
+.tabs-container {
+  background-color: #fff;
+  border-bottom: 1rpx solid #e8e8e8;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tabs-scroll {
+  white-space: nowrap;
+}
+
+.tabs {
+  display: flex;
+  padding: 0 32rpx;
+}
+
+.tab-item {
+  position: relative;
+  padding: 32rpx 24rpx;
+  font-size: 28rpx;
+  color: #666;
+  white-space: nowrap;
+}
+
+.tab-item.active {
+  color: #667eea;
+  font-weight: 500;
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40rpx;
+  height: 4rpx;
+  background-color: #667eea;
+  border-radius: 2rpx;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+}
+
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid #f3f3f3;
+  border-top: 4rpx solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-top: 24rpx;
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 预约列表 */
+.appointments-list {
+  padding: 20rpx;
+}
+
+.appointment-item {
+  background-color: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+  margin-bottom: 20rpx;
+}
+
+/* 房源信息 */
+.property-header {
+  display: flex;
+  padding: 24rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.property-thumb {
+  width: 160rpx;
+  height: 120rpx;
+  border-radius: 8rpx;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.property-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.property-title {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 8rpx;
+}
+
+.property-address {
+  font-size: 24rpx;
+  color: #8c8c8c;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-badge {
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  white-space: nowrap;
+  margin-left: 16rpx;
+}
+
+.status-pending {
+  background-color: #fff7e6;
+  color: #fa8c16;
+}
+
+.status-confirmed {
+  background-color: #e6f7ff;
+  color: #1890ff;
+}
+
+.status-completed {
+  background-color: #f6ffed;
+  color: #52c41a;
+}
+
+.status-cancelled {
+  background-color: #f5f5f5;
+  color: #8c8c8c;
+}
+
+/* 预约信息 */
+.appointment-info {
+  padding: 24rpx;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+}
+
+.info-icon {
+  width: 28rpx;
+  height: 28rpx;
+  margin-right: 12rpx;
+}
+
+.info-label {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.info-value {
+  flex: 1;
+  font-size: 26rpx;
+  color: #333;
+}
+
+/* 操作按钮 */
+.action-buttons {
+  display: flex;
+  gap: 16rpx;
+  padding: 0 24rpx 24rpx;
+}
+
+.action-btn {
+  flex: 1;
+  height: 72rpx;
+  border-radius: 36rpx;
+  font-size: 28rpx;
+  border: none;
+}
+
+.action-btn::after {
+  border: none;
+}
+
+.cancel-btn {
+  background-color: #fff;
+  color: #8c8c8c;
+  border: 1rpx solid #e8e8e8;
+}
+
+.contact-btn {
+  background-color: #667eea;
+  color: #fff;
+}
+
+.rebook-btn {
+  background-color: #52c41a;
+  color: #fff;
+}
+
+/* 空状态 */
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 0 32rpx;
+}
+
+.empty-icon {
+  width: 240rpx;
+  height: 240rpx;
+  margin-bottom: 32rpx;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.empty-tip {
+  font-size: 28rpx;
+  color: #8c8c8c;
+  margin-bottom: 48rpx;
+}
+
+.empty-btn {
+  width: 280rpx;
+  height: 80rpx;
+  background-color: #667eea;
+  color: #fff;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  border: none;
+}
+
+.empty-btn::after {
+  border: none;
+}

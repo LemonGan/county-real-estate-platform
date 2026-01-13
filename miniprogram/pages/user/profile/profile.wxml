@@ -1,0 +1,64 @@
+<!-- 用户个人中心页 -->
+<view class="profile-container">
+  <!-- 用户信息卡片 -->
+  <view class="user-card" wx:if="{{isLogin}}">
+    <view class="user-info" bindtap="goToEdit">
+      <image class="user-avatar"
+             src="{{userInfo.avatar || '/assets/images/default-avatar.png'}}"
+             mode="aspectFill"></image>
+      <view class="user-detail">
+        <view class="user-name">{{userInfo.nickname || userInfo.phone || '用户'}}</view>
+        <view class="user-phone" wx:if="{{userInfo.phone}}">{{userInfo.phone}}</view>
+      </view>
+      <image class="edit-icon" src="/assets/icons/edit.png" mode="aspectFit"></image>
+    </view>
+  </view>
+
+  <!-- 未登录状态 -->
+  <view class="login-card" wx:else>
+    <image class="login-avatar" src="/assets/images/default-avatar.png" mode="aspectFill"></image>
+    <text class="login-tip">登录后查看更多功能</text>
+    <button class="login-btn btn-primary" bindtap="goToLogin">立即登录</button>
+  </view>
+
+  <!-- 统计信息 -->
+  <view class="stats-card" wx:if="{{isLogin}}">
+    <view class="stat-item" bindtap="goToFavorites">
+      <text class="stat-value">{{stats.favorites || 0}}</text>
+      <text class="stat-label">收藏</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item" bindtap="goToAppointments">
+      <text class="stat-value">{{stats.appointments || 0}}</text>
+      <text class="stat-label">预约</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item" bindtap="goToHistory">
+      <text class="stat-value">{{stats.views || 0}}</text>
+      <text class="stat-label">浏览</text>
+    </view>
+  </view>
+
+  <!-- 菜单列表 -->
+  <view class="menu-section">
+    <view class="menu-item"
+          wx:for="{{menuList}}"
+          wx:key="title"
+          bindtap="onMenuClick"
+          data-url="{{item.url}}">
+      <image class="menu-icon" src="{{item.icon}}" mode="aspectFit"></image>
+      <text class="menu-title">{{item.title}}</text>
+      <image class="menu-arrow" src="/assets/icons/arrow-right.png" mode="aspectFit"></image>
+    </view>
+  </view>
+
+  <!-- 退出登录 -->
+  <view class="logout-section" wx:if="{{isLogin}}">
+    <button class="logout-btn" bindtap="handleLogout">退出登录</button>
+  </view>
+
+  <!-- 版本信息 -->
+  <view class="version-info">
+    <text class="version-text">县域房产信息平台 v1.0.0</text>
+  </view>
+</view>

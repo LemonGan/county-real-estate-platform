@@ -1,0 +1,184 @@
+<!-- 房源详情页 -->
+<view class="detail-container">
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 房源详情 -->
+  <view class="detail-content" wx:if="{{!loading && property}}">
+    <!-- 图片轮播 -->
+    <view class="image-swiper">
+      <swiper class="swiper"
+              current="{{currentImageIndex}}"
+              bindchange="onImageChange"
+              indicator-dots="{{property.images.length > 1}}"
+              indicator-color="rgba(255,255,255,0.5)"
+              indicator-active-color="#fff"
+              autoplay>
+        <swiper-item wx:for="{{property.images}}"
+                     wx:key="id"
+                     wx:for-item="image">
+          <image class="swiper-image"
+                 src="{{image.url}}"
+                 mode="aspectFill"
+                 data-url="{{image.url}}"
+                 data-urls="{{imageUrls}}"
+                 bindtap="previewImage"></image>
+        </swiper-item>
+      </swiper>
+
+      <!-- VR/视频按钮 -->
+      <view class="media-buttons" wx:if="{{property.vr_url || property.video_url}}">
+        <view class="media-btn" wx:if="{{property.vr_url}}" bindtap="viewVR">
+          <image class="btn-icon" src="/assets/icons/vr.png"></image>
+          <text>VR看房</text>
+        </view>
+        <view class="media-btn" wx:if="{{property.video_url}}" bindtap="viewVideo">
+          <image class="btn-icon" src="/assets/icons/video.png"></image>
+          <text>视频</text>
+        </view>
+      </view>
+
+      <!-- 图片计数 -->
+      <view class="image-counter">
+        {{currentImageIndex + 1}}/{{property.images.length}}
+      </view>
+    </view>
+
+    <!-- 价格区域 -->
+    <view class="price-section">
+      <view class="price-row">
+        <text class="price">{{property.price/10000}}万</text>
+        <text class="price-unit">元/套</text>
+      </view>
+      <view class="price-tags">
+        <text class="tag" wx:if="{{property.decoration_type}}">{{property.decoration_type}}</text>
+        <text class="tag" wx:if="{{property.orientation}}">{{property.orientation}}</text>
+        <text class="tag highlight">{{property.property_type}}</text>
+      </view>
+    </view>
+
+    <!-- 基本信息 -->
+    <view class="info-section">
+      <view class="section-title">基本信息</view>
+      <view class="info-grid">
+        <view class="info-item">
+          <text class="info-label">房型</text>
+          <text class="info-value">{{property.rooms}}室{{property.halls}}厅{{property.bathrooms}}卫</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">面积</text>
+          <text class="info-value">{{property.area}}㎡</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">楼层</text>
+          <text class="info-value">{{property.floor}}/{{property.total_floors}}层</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">建筑年代</text>
+          <text class="info-value">{{property.build_year}}年</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">朝向</text>
+          <text class="info-value">{{property.orientation || '--'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">装修</text>
+          <text class="info-value">{{property.decoration_type || '--'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 房源标题 -->
+    <view class="title-section">
+      <text class="title">{{property.title}}</text>
+      <text class="subtitle">{{property.community_name}}</text>
+    </view>
+
+    <!-- 位置信息 -->
+    <view class="location-section" bindtap="viewMap">
+      <view class="location-header">
+        <image class="location-icon" src="/assets/icons/location.png"></image>
+        <view class="location-info">
+          <text class="location-name">{{property.community_name}}</text>
+          <text class="location-address">{{property.address}}</text>
+        </view>
+        <image class="arrow-icon" src="/assets/icons/arrow-right.png"></image>
+      </view>
+    </view>
+
+    <!-- 房源描述 -->
+    <view class="description-section" wx:if="{{property.description}}">
+      <view class="section-title">房源描述</view>
+      <text class="description-text">{{property.description}}</text>
+    </view>
+
+    <!-- 配套设施 -->
+    <view class="facilities-section" wx:if="{{property.facilities && property.facilities.length > 0}}">
+      <view class="section-title">配套设施</view>
+      <view class="facilities-grid">
+        <view class="facility-item" wx:for="{{property.facilities}}" wx:key="*this">
+          <image class="facility-icon" src="/assets/icons/facility.png"></image>
+          <text class="facility-name">{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 周边配套 -->
+    <view class="surrounding-section" wx:if="{{property.school_district || property.subway_distance}}">
+      <view class="section-title">周边配套</view>
+      <view class="surrounding-item" wx:if="{{property.school_district}}">
+        <image class="surrounding-icon" src="/assets/icons/school.png"></image>
+        <view class="surrounding-info">
+          <text class="surrounding-label">学区</text>
+          <text class="surrounding-value">{{property.school_district}}</text>
+        </view>
+      </view>
+      <view class="surrounding-item" wx:if="{{property.subway_distance}}">
+        <image class="surrounding-icon" src="/assets/icons/subway.png"></image>
+        <view class="surrounding-info">
+          <text class="surrounding-label">地铁</text>
+          <text class="surrounding-value">{{property.subway_distance}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 经纪人信息 -->
+    <view class="agent-section" wx:if="{{property.agent}}">
+      <view class="section-title">房源经纪人</view>
+      <view class="agent-info">
+        <image class="agent-avatar" src="{{property.agent.avatar || '/assets/images/default-avatar.png'}}"></image>
+        <view class="agent-detail">
+          <text class="agent-name">{{property.agent.nickname}}</text>
+          <text class="agent-title">金牌经纪人</text>
+        </view>
+        <button class="contact-btn" bindtap="contactAgent">联系</button>
+      </view>
+    </view>
+
+    <!-- 发布时间 -->
+    <view class="publish-time">
+      发布于 {{property.created_at}}
+    </view>
+
+    <!-- 底部操作栏 -->
+    <view class="bottom-bar">
+      <view class="bar-left">
+        <view class="bar-icon-btn" bindtap="toggleFavorite">
+          <image class="bar-icon" src="{{isFavorite ? '/assets/icons/favorite-filled.png' : '/assets/icons/favorite.png'}}"></image>
+          <text class="bar-text">{{isFavorite ? '已收藏' : '收藏'}}</text>
+        </view>
+        <button class="bar-icon-btn share-btn" open-type="share">
+          <image class="bar-icon" src="/assets/icons/share.png"></image>
+          <text class="bar-text">分享</text>
+        </button>
+      </view>
+      <view class="bar-right">
+        <button class="bar-btn contact-btn" bindtap="contactAgent">电话咨询</button>
+        <button class="bar-btn appointment-btn" bindtap="makeAppointment">预约看房</button>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,177 @@
+<!--pages/video/detail/detail.wxml-->
+<view class="video-detail-page" wx:if="{{!loading}}">
+  <!-- 视频播放器 -->
+  <view class="video-player-wrapper">
+    <video
+      id="video-player"
+      class="video-player"
+      src="{{video.video_url}}"
+      poster="{{video.cover_url}}"
+      controls="{{true}}"
+      autoplay="{{false}}"
+      loop="{{false}}"
+      object-fit="contain"
+      bindplay="onPlayStateChange"
+      bindpause="onPlayStateChange"
+      bindended="onPlayStateChange"
+    />
+  </view>
+
+  <!-- 视频信息 -->
+  <view class="video-info-section">
+    <view class="info-main">
+      <view class="video-title">{{video.title}}</view>
+      <view class="video-stats">
+        <text class="stat-item">{{video.play_count}}次播放</text>
+        <text class="stat-item">{{video.create_time}}</text>
+      </view>
+    </view>
+
+    <!-- 作者信息 -->
+    <view class="author-info" bindtap="goToAgent">
+      <image class="author-avatar" src="{{video.agent_avatar || '/assets/images/default-avatar.png'}}" />
+      <view class="author-detail">
+        <view class="author-name">{{video.agent_name}}</view>
+        <view class="author-stats">{{video.follower_count}}粉丝</view>
+      </view>
+      <button
+        class="follow-btn {{video.is_followed ? 'following' : ''}}"
+        bindtap="onFollow"
+        catchtap="onFollow"
+      >
+        {{video.is_followed ? '已关注' : '+ 关注'}}
+      </button>
+    </view>
+
+    <!-- 操作栏 -->
+    <view class="action-bar">
+      <view class="action-item" bindtap="onLike">
+        <image class="action-icon" src="{{video.is_liked ? '/assets/icons/heart-filled.png' : '/assets/icons/heart.png'}}" />
+        <text class="action-text">{{video.like_count}}</text>
+      </view>
+      <view class="action-item" bindtap="showCommentInput">
+        <image class="action-icon" src="/assets/icons/comment.png" />
+        <text class="action-text">{{video.comment_count}}</text>
+      </view>
+      <view class="action-item" bindtap="onFavorite">
+        <image class="action-icon" src="{{video.is_favorited ? '/assets/icons/star-filled.png' : '/assets/icons/star.png'}}" />
+        <text class="action-text">{{video.favorite_count}}</text>
+      </view>
+      <view class="action-item">
+        <button open-type="share" class="share-button">
+          <image class="action-icon" src="/assets/icons/share.png" />
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 关联房源 -->
+  <view class="property-section" wx:if="{{video.property}}" bindtap="goToProperty">
+    <view class="section-title">相关房源</view>
+    <view class="property-card">
+      <image class="property-image" src="{{video.property.cover_url}}" />
+      <view class="property-info">
+        <view class="property-title">{{video.property.title}}</view>
+        <view class="property-desc">{{video.property.area}}㎡ | {{video.property.rooms}}室</view>
+        <view class="property-price">
+          <text class="price-value">{{video.property.price}}</text>
+          <text class="price-unit">万</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 评论区 -->
+  <view class="comments-section">
+    <view class="section-header">
+      <text class="section-title">评论 {{video.comment_count}}</text>
+    </view>
+
+    <!-- 评论列表 -->
+    <scroll-view
+      class="comments-list"
+      scroll-y="{{true}}"
+      bindscrolltolower="loadMoreComments"
+    >
+      <view class="comment-item" wx:for="{{comments}}" wx:key="id">
+        <image class="comment-avatar" src="{{item.user_avatar || '/assets/images/default-avatar.png'}}" />
+        <view class="comment-content-wrapper">
+          <view class="comment-header">
+            <text class="comment-user">{{item.user_name}}</text>
+            <text class="comment-time">{{item.create_time}}</text>
+          </view>
+          <view class="comment-text">{{item.content}}</view>
+
+          <!-- 回复 -->
+          <view class="comment-replies" wx:if="{{item.replies && item.replies.length > 0}}">
+            <view class="reply-item" wx:for="{{item.replies}}" wx:key="id" wx:for-item="reply">
+              <text class="reply-user">{{reply.user_name}}</text>
+              <text class="reply-text">回复 {{reply.reply_to_name}}: {{reply.content}}</text>
+            </view>
+          </view>
+
+          <!-- 评论操作 -->
+          <view class="comment-actions">
+            <view class="comment-action" bindtap="onLikeComment" data-id="{{item.id}}" data-index="{{index}}">
+              <image class="action-icon-sm" src="{{item.is_liked ? '/assets/icons/heart-filled.png' : '/assets/icons/heart.png'}}" />
+              <text class="action-text-sm">{{item.like_count || ''}}</text>
+            </view>
+            <view class="comment-action" bindtap="showCommentInput" data-comment-id="{{item.id}}" data-reply-to="{{item.user_name}}">
+              <text class="action-text-sm">回复</text>
+            </view>
+            <view class="comment-action" bindtap="onDeleteComment" data-id="{{item.id}}" data-index="{{index}}" wx:if="{{item.is_owner}}">
+              <text class="action-text-sm text-danger">删除</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 加载更多 -->
+      <view class="load-more" wx:if="{{hasMoreComments}}">
+        <view class="loading-spinner" wx:if="{{commentLoading}}"></view>
+        <text class="load-more-text">{{commentLoading ? '加载中...' : '上拉加载更多'}}</text>
+      </view>
+
+      <!-- 没有更多 -->
+      <view class="no-more" wx:if="{{!hasMoreComments && comments.length > 0}}">
+        <text>没有更多评论了</text>
+      </view>
+
+      <!-- 空状态 -->
+      <view class="empty-comments" wx:if="{{comments.length === 0}}">
+        <image class="empty-icon" src="/assets/icons/empty-comment.png" />
+        <text class="empty-text">还没有评论，快来抢沙发吧~</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 评论输入框 -->
+  <view class="comment-input-modal" wx:if="{{showCommentInput}}">
+    <view class="modal-mask" bindtap="hideCommentInput"></view>
+    <view class="comment-input-wrapper">
+      <view class="reply-to" wx:if="{{replyTo}}">
+        <text>回复 {{replyTo.user}}</text>
+        <image class="close-icon" src="/assets/icons/close.png" bindtap="hideCommentInput" />
+      </view>
+      <view class="input-row">
+        <input
+          class="comment-input"
+          placeholder="{{replyTo ? '回复 ' + replyTo.user : '说点什么...'}}"
+          value="{{commentText}}"
+          bindinput="onCommentInput"
+          focus="{{showCommentInput}}"
+          confirm-type="send"
+          bindconfirm="sendComment"
+        />
+        <button class="send-btn" bindtap="sendComment" disabled="{{commentLoading}}">
+          {{commentLoading ? '发送中' : '发送'}}
+        </button>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 加载中 -->
+<view class="loading-page" wx:if="{{loading}}">
+  <view class="loading-spinner"></view>
+</view>

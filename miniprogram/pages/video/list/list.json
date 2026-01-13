@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "房源视频",
+  "backgroundColor": "#000000",
+  "navigationBarTextStyle": "white",
+  "navigationBarBackgroundColor": "#000000",
+  "enablePullDownRefresh": true
+}

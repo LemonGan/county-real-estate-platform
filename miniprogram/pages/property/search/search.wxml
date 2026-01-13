@@ -1,0 +1,102 @@
+<!-- 房源搜索页 -->
+<view class="search-container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-wrapper">
+      <image class="search-icon" src="/assets/icons/search.png"></image>
+      <input class="search-input"
+             type="text"
+             value="{{keyword}}"
+             placeholder="搜索小区、地址、房源..."
+             bindinput="onInputChange"
+             bindconfirm="onConfirm" />
+      <image class="clear-icon"
+             src="/assets/icons/close.png"
+             wx:if="{{keyword}}"
+             bindtap="clearInput"></image>
+    </view>
+    <text class="search-btn" bindtap="onConfirm">搜索</text>
+  </view>
+
+  <!-- 搜索历史和热门 -->
+  <view class="search-content" wx:if="{{showHistory}}">
+    <!-- 搜索历史 -->
+    <view class="history-section" wx:if="{{history.length > 0}}">
+      <view class="section-header">
+        <text class="section-title">搜索历史</text>
+        <image class="delete-icon"
+               src="/assets/icons/delete.png"
+               bindtap="clearHistory"></image>
+      </view>
+      <view class="history-list">
+        <view class="history-item"
+              wx:for="{{history}}"
+              wx:key="*this"
+              bindtap="onHistoryTap"
+              data-keyword="{{item}}">
+          {{item}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 热门搜索 -->
+    <view class="hot-section">
+      <view class="section-header">
+        <image class="hot-icon" src="/assets/icons/hot.png"></image>
+        <text class="section-title">热门搜索</text>
+      </view>
+      <view class="hot-list">
+        <view class="hot-item"
+              wx:for="{{hotSearches}}"
+              wx:key="*this"
+              bindtap="onHotTap"
+              data-keyword="{{item}}">
+          {{item}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 搜索结果 -->
+  <view class="search-results" wx:if="{{!showHistory}}">
+    <!-- 搜索中 -->
+    <view class="loading-container" wx:if="{{searching}}">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">搜索中...</text>
+    </view>
+
+    <!-- 结果列表 -->
+    <view class="results-list" wx:if="{{!searching && hasResults}}">
+      <view class="result-item"
+            wx:for="{{searchResults}}"
+            wx:key="id"
+            bindtap="goToDetail"
+            data-id="{{item.id}}">
+        <image class="result-image"
+               src="{{item.images[0] ? item.images[0].url : '/assets/images/default-property.png'}}"
+               mode="aspectFill"></image>
+        <view class="result-info">
+          <view class="result-title">{{item.title}}</view>
+          <view class="result-tags">
+            <text class="tag">{{item.rooms}}室{{item.halls}}厅</text>
+            <text class="tag">{{item.area}}㎡</text>
+            <text class="tag" wx:if="{{item.orientation}}">{{item.orientation}}</text>
+          </view>
+          <view class="result-address">{{item.community_name}}</view>
+          <view class="result-price">
+            <text class="price">{{item.price/10000}}万</text>
+            <text class="unit">元/套</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 无结果 -->
+    <view class="empty-container" wx:if="{{!searching && !hasResults}}">
+      <image class="empty-icon" src="/assets/images/empty-search.png"></image>
+      <text class="empty-text">没有找到相关房源</text>
+      <text class="empty-tip">换个关键词试试吧</text>
+      <button class="filter-btn" bindtap="goToFilter">去筛选</button>
+    </view>
+  </view>
+</view>

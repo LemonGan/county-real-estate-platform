@@ -1,0 +1,116 @@
+<!-- 房贷计算器页 -->
+<view class="calculator-container">
+  <!-- 输入区域 -->
+  <view class="input-section">
+    <view class="input-card">
+      <view class="card-title">贷款信息</view>
+
+      <!-- 贷款本金 -->
+      <view class="form-item">
+        <text class="label">贷款本金（元）</text>
+        <input class="input"
+               type="digit"
+               value="{{principal}}"
+               data-field="principal"
+               bindinput="onInputChange"
+               placeholder="请输入贷款本金" />
+      </view>
+
+      <!-- 年利率 -->
+      <view class="form-item">
+        <text class="label">年利率（%）</text>
+        <input class="input"
+               type="digit"
+               value="{{annualRate}}"
+               data-field="annualRate"
+               bindinput="onInputChange"
+               placeholder="请输入年利率" />
+      </view>
+
+      <!-- 贷款年限 -->
+      <view class="form-item">
+        <text class="label">贷款年限（年）</text>
+        <input class="input"
+               type="number"
+               value="{{years}}"
+               data-field="years"
+               bindinput="onInputChange"
+               placeholder="请输入贷款年限" />
+      </view>
+
+      <!-- 还款方式 -->
+      <view class="form-item">
+        <text class="label">还款方式</text>
+        <view class="payment-type-tabs">
+          <view class="tab-item {{paymentType === 'equal_principal_interest' ? 'active' : ''}}"
+                data-type="equal_principal_interest"
+                bindtap="switchPaymentType">
+            等额本息
+          </view>
+          <view class="tab-item {{paymentType === 'equal_principal' ? 'active' : ''}}"
+                data-type="equal_principal"
+                bindtap="switchPaymentType">
+            等额本金
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-buttons">
+      <button class="btn-primary calculate-btn" bindtap="calculate">
+        {{calculating ? '计算中...' : '开始计算'}}
+      </button>
+      <button class="btn-secondary reset-btn" bindtap="reset">重置</button>
+    </view>
+  </view>
+
+  <!-- 计算结果 -->
+  <view class="result-section" wx:if="{{showResult}}">
+    <view class="result-card">
+      <view class="card-title">计算结果</view>
+
+      <view class="result-summary">
+        <view class="summary-item">
+          <text class="summary-label">月供（元）</text>
+          <text class="summary-value">{{monthlyPayment}}</text>
+        </view>
+        <view class="summary-divider"></view>
+        <view class="summary-item">
+          <text class="summary-label">总利息（元）</text>
+          <text class="summary-value">{{totalInterest}}</text>
+        </view>
+        <view class="summary-divider"></view>
+        <view class="summary-item">
+          <text class="summary-label">总还款额（元）</text>
+          <text class="summary-value">{{totalPayment}}</text>
+        </view>
+      </view>
+
+      <!-- 还款计划表 -->
+      <view class="payment-schedule" wx:if="{{paymentSchedule.length > 0}}">
+        <view class="schedule-title">还款计划表</view>
+        <view class="schedule-table">
+          <view class="table-header">
+            <text class="header-cell">期数</text>
+            <text class="header-cell">月供</text>
+            <text class="header-cell">本金</text>
+            <text class="header-cell">利息</text>
+            <text class="header-cell">余额</text>
+          </view>
+          <scroll-view class="table-body" scroll-y>
+            <view class="table-row"
+                  wx:for="{{paymentSchedule}}"
+                  wx:key="period">
+              <text class="body-cell">{{item.period}}</text>
+              <text class="body-cell">{{item.payment}}</text>
+              <text class="body-cell">{{item.principal}}</text>
+              <text class="body-cell">{{item.interest}}</text>
+              <text class="body-cell">{{item.balance}}</text>
+            </view>
+          </scroll-view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

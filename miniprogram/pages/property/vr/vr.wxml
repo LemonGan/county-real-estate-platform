@@ -1,0 +1,83 @@
+<!--pages/property/vr/vr.wxml-->
+<view class="vr-page">
+  <!-- 加载状态 -->
+  <view class="loading-overlay" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">加载VR场景中...</view>
+  </view>
+
+  <!-- 错误状态 -->
+  <view class="error-overlay" wx:if="{{error}}">
+    <image class="error-icon" src="/assets/icons/error.png" />
+    <view class="error-text">{{errorMessage}}</view>
+    <button class="retry-btn" bindtap="loadVRScene">重试</button>
+  </view>
+
+  <!-- VR查看器 -->
+  <view class="vr-container" wx:if="{{!loading && !error}}">
+    <!-- 使用web-view加载全景图查看器 -->
+    <web-view
+      id="vr-viewer"
+      class="vr-viewer"
+      src="{{vrUrl}}"
+      bindmessage="onVRMessage"
+    >
+      <!-- 备用：使用panorama-viewer组件（如果有自定义组件） -->
+      <!-- <panorama-viewer
+        src="{{vrUrl}}"
+        hotspots="{{hotspots}}"
+        bindready="onVRReady"
+        binderror="onVRError"
+        bindhotspottap="onHotspotTap"
+      /> -->
+    </web-view>
+
+    <!-- 顶部工具栏 -->
+    <view class="top-toolbar">
+      <view class="toolbar-btn" bindtap="showHelp">
+        <image class="btn-icon" src="/assets/icons/help-white.png" />
+        <text class="btn-text">帮助</text>
+      </view>
+      <view class="toolbar-btn" bindtap="resetView">
+        <image class="btn-icon" src="/assets/icons/reset-white.png" />
+        <text class="btn-text">重置</text>
+      </view>
+    </view>
+
+    <!-- 场景切换器 -->
+    <view class="scene-switcher" wx:if="{{scenes.length > 1}}">
+      <scroll-view class="scene-list" scroll-x="{{true}}">
+        <view
+          class="scene-item {{currentScene === item.id ? 'active' : ''}}"
+          wx:for="{{scenes}}"
+          wx:key="id"
+          data-scene-id="{{item.id}}"
+          bindtap="switchScene"
+        >
+          <image class="scene-thumb" src="{{item.panorama}}" mode="aspectFill" />
+          <text class="scene-name">{{item.name}}</text>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!-- 底部控制栏 -->
+    <view class="bottom-toolbar">
+      <view class="toolbar-group">
+        <view
+          class="control-btn"
+          bindtap="{{gyroEnabled ? 'disableGyroscope' : 'enableGyroscope'}}"
+        >
+          <image
+            class="control-icon"
+            src="{{gyroEnabled ? '/assets/icons/gyro-on.png' : '/assets/icons/gyro-off.png'}}"
+          />
+          <text class="control-text">体感</text>
+        </view>
+        <view class="control-btn" bindtap="toggleFullscreen">
+          <image class="control-icon" src="/assets/icons/fullscreen.png" />
+          <text class="control-text">全屏</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,53 @@
+<!-- 我的收藏页 -->
+<view class="favorites-container">
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 收藏列表 -->
+  <view class="favorites-list" wx:if="{{!loading && !empty}}">
+    <view class="favorite-item"
+          wx:for="{{favorites}}"
+          wx:key="id"
+          bindtap="goToDetail"
+          data-id="{{item.property.id}}">
+      <!-- 房源图片 -->
+      <image class="property-image"
+             src="{{item.property.images[0] ? item.property.images[0].url : '/assets/images/default-property.png'}}"
+             mode="aspectFill"></image>
+
+      <!-- 房源信息 -->
+      <view class="property-info">
+        <view class="property-title">{{item.property.title}}</view>
+        <view class="property-tags">
+          <text class="tag">{{item.property.rooms}}室{{item.property.halls}}厅</text>
+          <text class="tag">{{item.property.area}}㎡</text>
+          <text class="tag">{{item.property.orientation || '南北'}}</text>
+        </view>
+        <view class="property-price">
+          <text class="price">{{item.property.price/10000}}万</text>
+          <text class="unit">元/套</text>
+        </view>
+        <view class="favorite-time">收藏于 {{item.created_at}}</view>
+      </view>
+
+      <!-- 取消收藏按钮 -->
+      <view class="remove-btn"
+            catchtap="removeFavorite"
+            data-id="{{item.id}}"
+            data-index="{{index}}">
+        <image class="remove-icon" src="/assets/icons/close.png"></image>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-container" wx:if="{{!loading && empty}}">
+    <image class="empty-icon" src="/assets/images/empty-favorites.png"></image>
+    <text class="empty-text">暂无收藏</text>
+    <text class="empty-tip">快去看看心仪的房子吧</text>
+    <button class="empty-btn" bindtap="goToList">去逛逛</button>
+  </view>
+</view>

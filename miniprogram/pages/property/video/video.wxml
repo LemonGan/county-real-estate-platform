@@ -1,0 +1,42 @@
+<!--pages/property/video/video.wxml-->
+<view class="video-page">
+  <!-- 加载状态 -->
+  <view class="loading-overlay" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">加载视频中...</view>
+  </view>
+
+  <!-- 错误状态 -->
+  <view class="error-overlay" wx:if="{{error}}">
+    <image class="error-icon" src="/assets/icons/error.png" />
+    <view class="error-text">{{errorMessage}}</view>
+    <button class="back-btn" bindtap="goBack">返回</button>
+  </view>
+
+  <!-- 视频播放器 -->
+  <video
+    id="property-video"
+    class="video-player"
+    src="{{videoUrl}}"
+    controls="{{true}}"
+    autoplay="{{false}}"
+    loop="{{false}}"
+    muted="{{false}}"
+    show-center-play-btn="{{true}}"
+    show-play-btn="{{true}}"
+    enable-play-gesture="{{true}}"
+    object-fit="contain"
+    bindload="onVideoLoaded"
+    binderror="onVideoError"
+    bindplay="onPlayStateChange"
+    bindpause="onPlayStateChange"
+    bindended="onPlayStateChange"
+    bindtimeupdate="onTimeUpdate"
+    wx:if="{{!loading && !error}}"
+  />
+
+  <!-- 返回按钮 -->
+  <view class="back-btn-floating" bindtap="goBack" wx:if="{{!loading && !error}}">
+    <image class="back-icon" src="/assets/icons/back-white.png" />
+  </view>
+</view>

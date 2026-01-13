@@ -1,0 +1,181 @@
+<!--pages/property/map/map.wxml-->
+<view class="map-page">
+  <!-- 地图容器 -->
+  <map
+    id="propertyMap"
+    class="property-map"
+    longitude="{{longitude}}"
+    latitude="{{latitude}}"
+    scale="{{scale}}"
+    markers="{{markers}}"
+    polyline="{{polyline}}"
+    show-location="{{true}}"
+    bindregionchange="onRegionChange"
+    bindmarkertap="onMarkerTap"
+  >
+
+    <!-- 当前位置按钮 -->
+    <cover-view class="location-btn" bindtap="moveToLocation">
+      <cover-image class="location-icon" src="/assets/icons/location.png" />
+    </cover-view>
+
+    <!-- 筛选按钮 -->
+    <cover-view class="filter-btn" bindtap="showFilter">
+      <cover-image class="filter-icon" src="/assets/icons/filter.png" />
+      <cover-view class="filter-text">筛选</cover-view>
+    </cover-view>
+
+    <!-- 切换视图按钮 -->
+    <cover-view class="switch-btn" bindtap="switchToListView">
+      <cover-view class="switch-text">列表</cover-view>
+    </cover-view>
+  </map>
+
+  <!-- 房源卡片 -->
+  <view class="property-card {{showPropertyCard ? 'show' : ''}}" wx:if="{{selectedProperty}}">
+    <view class="card-close" bindtap="closePropertyCard">
+      <image class="close-icon" src="/assets/icons/close.png" />
+    </view>
+
+    <view class="card-content" bindtap="goToPropertyDetail">
+      <image class="property-image" src="{{selectedProperty.cover_url}}" mode="aspectFill" />
+
+      <view class="property-info">
+        <view class="property-title">{{selectedProperty.title}}</view>
+        <view class="property-tags">
+          <text class="tag tag-primary">{{selectedProperty.rooms}}室</text>
+          <text class="tag tag-success">{{selectedProperty.area}}㎡</text>
+          <text class="tag tag-warning">{{selectedProperty.orientation}}</text>
+        </view>
+        <view class="property-address">
+          <image class="address-icon" src="/assets/icons/location-gray.png" />
+          <text class="address-text">{{selectedProperty.address}}</text>
+        </view>
+        <view class="property-price">
+          <text class="price-value">{{selectedProperty.price}}</text>
+          <text class="price-unit">万</text>
+          <text class="price-per-sqm" wx:if="{{selectedProperty.unit_price}}">
+            {{selectedProperty.unit_price}}元/㎡
+          </text>
+        </view>
+      </view>
+
+      <view class="card-actions">
+        <button class="action-btn primary" bindtap="goToPropertyDetail" catchtap="goToPropertyDetail">
+          查看详情
+        </button>
+        <button class="action-btn secondary" bindtap="navigateToProperty" catchtap="navigateToProperty">
+          <image class="btn-icon" src="/assets/icons/navigation.png" />
+          导航
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 筛选面板 -->
+  <view class="filter-panel {{filterVisible ? 'show' : ''}}">
+    <view class="filter-mask" bindtap="hideFilter"></view>
+    <view class="filter-content">
+      <view class="filter-header">
+        <text class="filter-title">筛选条件</text>
+        <view class="filter-actions">
+          <text class="reset-btn" bindtap="resetFilters">重置</text>
+          <text class="close-filter" bindtap="hideFilter">关闭</text>
+        </view>
+      </view>
+
+      <scroll-view class="filter-body" scroll-y="{{true}}">
+        <!-- 价格区间 -->
+        <view class="filter-section">
+          <view class="section-label">价格区间（万）</view>
+          <view class="price-range">
+            <input
+              class="range-input"
+              type="digit"
+              placeholder="最低价"
+              value="{{filters.minPrice}}"
+              data-field="minPrice"
+              bindinput="onFilterChange"
+            />
+            <text class="range-separator">-</text>
+            <input
+              class="range-input"
+              type="digit"
+              placeholder="最高价"
+              value="{{filters.maxPrice}}"
+              data-field="maxPrice"
+              bindinput="onFilterChange"
+            />
+          </view>
+        </view>
+
+        <!-- 面积区间 -->
+        <view class="filter-section">
+          <view class="section-label">面积区间（㎡）</view>
+          <view class="price-range">
+            <input
+              class="range-input"
+              type="digit"
+              placeholder="最小面积"
+              value="{{filters.minArea}}"
+              data-field="minArea"
+              bindinput="onFilterChange"
+            />
+            <text class="range-separator">-</text>
+            <input
+              class="range-input"
+              type="digit"
+              placeholder="最大面积"
+              value="{{filters.maxArea}}"
+              data-field="maxArea"
+              bindinput="onFilterChange"
+            />
+          </view>
+        </view>
+
+        <!-- 户型 -->
+        <view class="filter-section">
+          <view class="section-label">户型</view>
+          <view class="option-grid">
+            <view
+              class="option-item {{filters.rooms === item.value ? 'active' : ''}}"
+              wx:for="{{roomsOptions}}"
+              wx:key="value"
+              data-field="rooms"
+              data-value="{{item.value}}"
+              bindtap="onFilterChange"
+            >
+              {{item.label}}
+            </view>
+          </view>
+        </view>
+
+        <!-- 房源类型 -->
+        <view class="filter-section">
+          <view class="section-label">房源类型</view>
+          <view class="option-grid">
+            <view
+              class="option-item {{filters.propertyType === item.value ? 'active' : ''}}"
+              wx:for="{{propertyTypeOptions}}"
+              wx:key="value"
+              data-field="propertyType"
+              data-value="{{item.value}}"
+              bindtap="onFilterChange"
+            >
+              {{item.label}}
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+
+      <view class="filter-footer">
+        <button class="apply-btn" bindtap="applyFilters">确定</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-overlay" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+  </view>
+</view>

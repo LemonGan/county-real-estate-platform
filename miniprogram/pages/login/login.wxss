@@ -1,0 +1,184 @@
+/* 登录页样式 */
+.login-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 80rpx 48rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Logo区域 */
+.logo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 80rpx;
+  margin-bottom: 80rpx;
+}
+
+.logo {
+  width: 160rpx;
+  height: 160rpx;
+  margin-bottom: 32rpx;
+  border-radius: 50%;
+  background-color: #fff;
+  padding: 20rpx;
+}
+
+.app-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 16rpx;
+}
+
+.app-slogan {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 登录表单 */
+.login-form {
+  background-color: #fff;
+  border-radius: 24rpx;
+  padding: 48rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+}
+
+.form-section {
+  margin-bottom: 32rpx;
+}
+
+.form-section:last-child {
+  margin-bottom: 0;
+}
+
+.form-item {
+  margin-bottom: 32rpx;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+  color: #333;
+  font-size: 28rpx;
+}
+
+.form-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 12rpx;
+}
+
+.form-input {
+  width: 100%;
+  padding: 24rpx;
+  background-color: #f5f5f5;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 32rpx;
+}
+
+.action-link {
+  font-size: 26rpx;
+  color: #1890ff;
+}
+
+.login-btn {
+  width: 100%;
+  height: 88rpx;
+  background-color: #1890ff;
+  color: #fff;
+  border-radius: 12rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+}
+
+.login-btn::after {
+  border: none;
+}
+
+.form-footer {
+  text-align: center;
+  margin-top: 32rpx;
+}
+
+.footer-text {
+  font-size: 26rpx;
+  color: #8c8c8c;
+}
+
+.link {
+  color: #1890ff;
+  margin: 0 8rpx;
+}
+
+/* 微信登录 */
+.wechat-login {
+  text-align: center;
+}
+
+.wechat-tip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 48rpx;
+}
+
+.wechat-icon {
+  width: 96rpx;
+  height: 96rpx;
+  margin-bottom: 16rpx;
+}
+
+.wechat-text {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.wechat-login-btn {
+  width: 100%;
+  height: 88rpx;
+  background-color: #07c160;
+  color: #fff;
+  border-radius: 12rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+}
+
+.wechat-login-btn::after {
+  border: none;
+}
+
+.btn-icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 12rpx;
+}
+
+/* 切换登录方式 */
+.switch-login {
+  margin-top: 48rpx;
+  text-align: center;
+}
+
+.switch-text {
+  font-size: 28rpx;
+  color: #fff;
+  text-decoration: underline;
+}

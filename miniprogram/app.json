@@ -1,0 +1,68 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/property/list/list",
+    "pages/property/detail/detail",
+    "pages/property/search/search",
+    "pages/property/appointment/appointment",
+    "pages/property/map/map",
+    "pages/property/vr/vr",
+    "pages/property/video/video",
+    "pages/user/profile/profile",
+    "pages/user/favorites/favorites",
+    "pages/user/appointments/appointments",
+    "pages/user/setting/setting",
+    "pages/user/about/about",
+    "pages/tools/calculator/calculator",
+    "pages/login/login",
+    "pages/login/register/register",
+    "pages/video/list/list",
+    "pages/video/detail/detail",
+    "pages/news/list/list",
+    "pages/news/detail/detail",
+    "pages/agent/detail/detail"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#667eea",
+    "navigationBarTitleText": "县域房产平台",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f5f5",
+    "enablePullDownRefresh": true
+  },
+  "tabBar": {
+    "color": "#666666",
+    "selectedColor": "#667eea",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "assets/icons/home.png",
+        "selectedIconPath": "assets/icons/home-active.png"
+      },
+      {
+        "pagePath": "pages/property/list/list",
+        "text": "房源",
+        "iconPath": "assets/icons/property.png",
+        "selectedIconPath": "assets/icons/property-active.png"
+      },
+      {
+        "pagePath": "pages/user/profile/profile",
+        "text": "我的",
+        "iconPath": "assets/icons/user.png",
+        "selectedIconPath": "assets/icons/user-active.png"
+      }
+    ]
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "您的位置信息将用于为您推荐附近的房源"
+    }
+  },
+  "requiredBackgroundModes": ["audio", "location"],
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}

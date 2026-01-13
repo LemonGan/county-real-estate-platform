@@ -1,0 +1,58 @@
+<!-- 关于我们页 -->
+<scroll-view class="about-container" scroll-y>
+  <!-- Logo区域 -->
+  <view class="logo-section">
+    <image class="app-logo" src="/assets/images/app-logo.png"></image>
+    <text class="app-name">{{appName}}</text>
+    <text class="app-version">v{{version}}</text>
+  </view>
+
+  <!-- 简介 -->
+  <view class="intro-section">
+    <text class="intro-text">{{intro}}</text>
+  </view>
+
+  <!-- 特色功能 -->
+  <view class="features-section">
+    <view class="section-title">特色功能</view>
+    <view class="features-grid">
+      <view class="feature-item" wx:for="{{features}}" wx:key="title">
+        <image class="feature-icon" src="{{item.icon}}" mode="aspectFit"></image>
+        <text class="feature-title">{{item.title}}</text>
+        <text class="feature-desc">{{item.desc}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 联系方式 -->
+  <view class="contacts-section">
+    <view class="section-title">联系我们</view>
+    <view class="contact-list">
+      <view class="contact-item"
+            wx:for="{{contacts}}"
+            wx:key="label">
+        <image class="contact-icon" src="{{item.icon}}" mode="aspectFit"></image>
+        <view class="contact-info">
+          <text class="contact-label">{{item.label}}</text>
+          <text class="contact-value">{{item.value}}</text>
+        </view>
+        <view class="contact-copy"
+              bindtap="copyText"
+              data-text="{{item.value}}">
+          <image class="copy-icon" src="/assets/icons/copy.png"></image>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部按钮 -->
+  <view class="bottom-actions">
+    <button class="action-btn" bindtap="contactService">联系客服</button>
+  </view>
+
+  <!-- 版权信息 -->
+  <view class="copyright">
+    <text class="copyright-text">Copyright © 2024 {{appName}}</text>
+    <text class="copyright-text">All Rights Reserved</text>
+  </view>
+</scroll-view>

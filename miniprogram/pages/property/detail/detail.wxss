@@ -1,0 +1,449 @@
+/* 房源详情样式 */
+.detail-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding-bottom: 120rpx;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid #f3f3f3;
+  border-top: 4rpx solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-top: 24rpx;
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 图片轮播 */
+.image-swiper {
+  position: relative;
+  width: 100%;
+  height: 500rpx;
+  background-color: #000;
+}
+
+.swiper {
+  width: 100%;
+  height: 100%;
+}
+
+.swiper-image {
+  width: 100%;
+  height: 100%;
+}
+
+.media-buttons {
+  position: absolute;
+  top: 24rpx;
+  right: 24rpx;
+  display: flex;
+  gap: 16rpx;
+}
+
+.media-btn {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 12rpx 20rpx;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 24rpx;
+}
+
+.btn-icon {
+  width: 28rpx;
+  height: 28rpx;
+}
+
+.media-btn text {
+  font-size: 24rpx;
+  color: #fff;
+}
+
+.image-counter {
+  position: absolute;
+  bottom: 24rpx;
+  right: 24rpx;
+  padding: 8rpx 20rpx;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  color: #fff;
+}
+
+/* 价格区域 */
+.price-section {
+  background-color: #fff;
+  padding: 32rpx;
+  margin-bottom: 16rpx;
+}
+
+.price-row {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 16rpx;
+}
+
+.price {
+  font-size: 56rpx;
+  font-weight: bold;
+  color: #ff4d4f;
+  margin-right: 8rpx;
+}
+
+.price-unit {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.price-tags {
+  display: flex;
+  gap: 16rpx;
+}
+
+.tag {
+  padding: 8rpx 16rpx;
+  background-color: #f5f5f5;
+  border-radius: 6rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.tag.highlight {
+  background-color: #fff7e6;
+  color: #fa8c16;
+}
+
+/* 区域标题 */
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 24rpx;
+}
+
+/* 基本信息 */
+.info-section {
+  background-color: #fff;
+  padding: 32rpx;
+  margin-bottom: 16rpx;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32rpx;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.info-label {
+  font-size: 24rpx;
+  color: #8c8c8c;
+  margin-bottom: 8rpx;
+}
+
+.info-value {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+/* 房源标题 */
+.title-section {
+  background-color: #fff;
+  padding: 32rpx;
+  margin-bottom: 16rpx;
+}
+
+.title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  line-height: 1.5;
+  margin-bottom: 16rpx;
+}
+
+.subtitle {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+}
+
+/* 位置信息 */
+.location-section {
+  background-color: #fff;
+  padding: 32rpx;
+  margin-bottom: 16rpx;
+}
+
+.location-header {
+  display: flex;
+  align-items: center;
+}
+
+.location-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 16rpx;
+}
+
+.location-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.location-name {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.location-address {
+  font-size: 24rpx;
+  color: #8c8c8c;
+}
+
+.arrow-icon {
+  width: 24rpx;
+  height: 24rpx;
+}
+
+/* 房源描述 */
+.description-section {
+  background-color: #fff;
+  padding: 32rpx;
+  margin-bottom: 16rpx;
+}
+
+.description-text {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+/* 配套设施 */
+.facilities-section {
+  background-color: #fff;
+  padding: 32rpx;
+  margin-bottom: 16rpx;
+}
+
+.facilities-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32rpx;
+}
+
+.facility-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.facility-icon {
+  width: 48rpx;
+  height: 48rpx;
+  margin-bottom: 12rpx;
+}
+
+.facility-name {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 周边配套 */
+.surrounding-section {
+  background-color: #fff;
+  padding: 32rpx;
+  margin-bottom: 16rpx;
+}
+
+.surrounding-item {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+}
+
+.surrounding-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 16rpx;
+}
+
+.surrounding-info {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+}
+
+.surrounding-label {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.surrounding-value {
+  font-size: 28rpx;
+  color: #333;
+}
+
+/* 经纪人信息 */
+.agent-section {
+  background-color: #fff;
+  padding: 32rpx;
+  margin-bottom: 16rpx;
+}
+
+.agent-info {
+  display: flex;
+  align-items: center;
+}
+
+.agent-avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  margin-right: 24rpx;
+}
+
+.agent-detail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.agent-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.agent-title {
+  font-size: 24rpx;
+  color: #8c8c8c;
+}
+
+.contact-btn {
+  width: 140rpx;
+  height: 60rpx;
+  background-color: #667eea;
+  color: #fff;
+  border-radius: 30rpx;
+  font-size: 28rpx;
+  border: none;
+}
+
+.contact-btn::after {
+  border: none;
+}
+
+/* 发布时间 */
+.publish-time {
+  padding: 24rpx 32rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #8c8c8c;
+}
+
+/* 底部操作栏 */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 32rpx;
+  background-color: #fff;
+  border-top: 1rpx solid #e8e8e8;
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.05);
+}
+
+.bar-left {
+  display: flex;
+  gap: 48rpx;
+}
+
+.bar-icon-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+  padding: 0;
+  background: none;
+  border: none;
+  line-height: 1;
+}
+
+.bar-icon-btn::after {
+  border: none;
+}
+
+.bar-icon {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.bar-text {
+  font-size: 22rpx;
+  color: #666;
+}
+
+.bar-right {
+  display: flex;
+  gap: 16rpx;
+}
+
+.bar-btn {
+  width: 200rpx;
+  height: 72rpx;
+  border-radius: 36rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  border: none;
+}
+
+.bar-btn::after {
+  border: none;
+}
+
+.contact-btn {
+  background-color: #fff;
+  color: #667eea;
+  border: 1rpx solid #667eea;
+}
+
+.appointment-btn {
+  background-color: #667eea;
+  color: #fff;
+}

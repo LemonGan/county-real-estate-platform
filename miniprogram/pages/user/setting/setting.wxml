@@ -1,0 +1,86 @@
+<!-- 设置页 -->
+<view class="setting-container">
+  <!-- 设置列表 -->
+  <view class="setting-section">
+    <view class="setting-item" bindtap="clearCache">
+      <view class="setting-left">
+        <image class="setting-icon" src="/assets/icons/cache.png"></image>
+        <text class="setting-title">清除缓存</text>
+      </view>
+      <view class="setting-right">
+        <text class="setting-value">{{cacheSize}}</text>
+        <image class="arrow-icon" src="/assets/icons/arrow-right.png"></image>
+      </view>
+    </view>
+
+    <view class="setting-item" bindtap="checkUpdate">
+      <view class="setting-left">
+        <image class="setting-icon" src="/assets/icons/update.png"></image>
+        <text class="setting-title">检查更新</text>
+      </view>
+      <view class="setting-right">
+        <text class="setting-value">v{{version}}</text>
+        <image class="arrow-icon" src="/assets/icons/arrow-right.png"></image>
+      </view>
+    </view>
+  </view>
+
+  <view class="setting-section">
+    <view class="setting-item" bindtap="goToFeedback">
+      <view class="setting-left">
+        <image class="setting-icon" src="/assets/icons/feedback.png"></image>
+        <text class="setting-title">意见反馈</text>
+      </view>
+      <view class="setting-right">
+        <image class="arrow-icon" src="/assets/icons/arrow-right.png"></image>
+      </view>
+    </view>
+
+    <view class="setting-item" bindtap="contactService">
+      <view class="setting-left">
+        <image class="setting-icon" src="/assets/icons/service.png"></image>
+        <text class="setting-title">联系客服</text>
+      </view>
+      <view class="setting-right">
+        <image class="arrow-icon" src="/assets/icons/arrow-right.png"></image>
+      </view>
+    </view>
+  </view>
+
+  <view class="setting-section">
+    <view class="setting-item" bindtap="goToAbout">
+      <view class="setting-left">
+        <image class="setting-icon" src="/assets/icons/about.png"></image>
+        <text class="setting-title">关于我们</text>
+      </view>
+      <view class="setting-right">
+        <image class="arrow-icon" src="/assets/icons/arrow-right.png"></image>
+      </view>
+    </view>
+
+    <view class="setting-item" bindtap="goToAgreement">
+      <view class="setting-left">
+        <image class="setting-icon" src="/assets/icons/agreement.png"></image>
+        <text class="setting-title">用户协议</text>
+      </view>
+      <view class="setting-right">
+        <image class="arrow-icon" src="/assets/icons/arrow-right.png"></image>
+      </view>
+    </view>
+
+    <view class="setting-item" bindtap="goToPrivacy">
+      <view class="setting-left">
+        <image class="setting-icon" src="/assets/icons/privacy.png"></image>
+        <text class="setting-title">隐私政策</text>
+      </view>
+      <view class="setting-right">
+        <image class="arrow-icon" src="/assets/icons/arrow-right.png"></image>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部信息 -->
+  <view class="footer-info">
+    <text class="footer-text">县域房产信息平台 v{{version}}</text>
+  </view>
+</view>
