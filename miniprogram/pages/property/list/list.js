@@ -11,6 +11,8 @@ Page({
     currentPage: 1,
     pageSize: 10,
     total: 0,
+    userLocation: null,  // 用户位置信息
+    centerLocation: null,  // 搜索中心位置 {latitude, longitude, name}
 
     // 筛选条件
     filters: {
@@ -20,6 +22,8 @@ Page({
       maxPrice: '',
       minArea: '',
       maxArea: '',
+      rooms: '',  // 户型筛选
+      distance: '',  // 距离筛选
       propertyType: null,
       transactionType: null,
       keyword: ''
@@ -28,6 +32,13 @@ Page({
     // 筛选面板
     showFilter: false,
     filterOptions: {
+      distances: [
+        { label: '不限', value: '' },
+        { label: '1公里', value: '1000' },
+        { label: '3公里', value: '3000' },
+        { label: '5公里', value: '5000' },
+        { label: '10公里', value: '10000' }
+      ],
       propertyTypes: [
         { label: '全部', value: null },
         { label: '住宅', value: 1 },
@@ -56,15 +67,72 @@ Page({
       })
     }
 
+    // 获取用户位置（用于距离筛选）
+    this.getUserLocation()
+
     this.loadPropertyList()
+  },
+
+  /**
+   * 获取用户位置
+   */
+  getUserLocation() {
+    wx.getLocation({
+      type: 'gcj02',
+      success: (res) => {
+        this.setData({
+          userLocation: {
+            latitude: res.latitude,
+            longitude: res.longitude
+          }
+        })
+        console.log('获取用户位置成功:', this.data.userLocation)
+      },
+      fail: (err) => {
+        console.log('获取用户位置失败:', err)
+        // 获取位置失败不影响其他功能
+      }
+    })
   },
 
   /**
    * 页面显示
    */
   onShow() {
-    // 刷新列表
-    this.refreshList()
+    // 检查是否有从地图页传来的筛选条件
+    const app = getApp()
+    if (app && app.globalFilters) {
+      console.log('检测到地图页传来的筛选条件:', app.globalFilters)
+
+      // 转换筛选条件格式（地图页的格式可能不同）
+      const mapFilters = app.globalFilters
+      const newFilters = {
+        ...this.data.filters
+      }
+
+      // 映射筛选字段
+      if (mapFilters.minPrice) newFilters.minPrice = mapFilters.minPrice
+      if (mapFilters.maxPrice) newFilters.maxPrice = mapFilters.maxPrice
+      if (mapFilters.minArea) newFilters.minArea = mapFilters.minArea
+      if (mapFilters.maxArea) newFilters.maxArea = mapFilters.maxArea
+      if (mapFilters.rooms) newFilters.rooms = mapFilters.rooms
+      if (mapFilters.propertyType) newFilters.propertyType = mapFilters.propertyType
+
+      this.setData({ filters: newFilters })
+
+      // 清除全局筛选条件
+      app.globalFilters = null
+
+      // 重置分页并加载
+      this.setData({
+        currentPage: 1,
+        hasMore: true
+      })
+      this.loadPropertyList()
+    } else {
+      // 正常刷新列表
+      this.refreshList()
+    }
   },
 
   /**
@@ -87,6 +155,42 @@ Page({
   },
 
   /**
+   * 构建API请求参数
+   */
+  buildAPIParams() {
+    const params = {
+      page: this.data.currentPage,
+      page_size: this.data.pageSize,
+      status_filter: 1  // 只获取在售房源
+    }
+
+    const { filters, userLocation, centerLocation } = this.data
+
+    // 转换字段名（驼峰转下划线）
+    if (filters.city) params.city = filters.city
+    if (filters.district) params.district = filters.district
+    if (filters.minPrice) params.min_price = filters.minPrice
+    if (filters.maxPrice) params.max_price = filters.maxPrice
+    if (filters.minArea) params.min_area = filters.minArea
+    if (filters.maxArea) params.max_area = filters.maxArea
+    if (filters.rooms) params.rooms = filters.rooms
+    if (filters.distance) {
+      params.max_distance = parseInt(filters.distance)
+      // 如果有距离筛选，需要传递用户位置或中心位置
+      let location = centerLocation || userLocation
+      if (location && location.latitude && location.longitude) {
+        params.latitude = location.latitude
+        params.longitude = location.longitude
+      }
+    }
+    if (filters.propertyType) params.property_type = filters.propertyType
+    if (filters.transactionType) params.transaction_type = filters.transactionType
+    if (filters.keyword) params.keyword = filters.keyword
+
+    return params
+  },
+
+  /**
    * 加载房源列表
    */
   async loadPropertyList() {
@@ -95,12 +199,9 @@ Page({
     this.setData({ loading: true })
 
     try {
-      const params = {
-        page: this.data.currentPage,
-        page_size: this.data.pageSize,
-        status_filter: 1, // 只获取在售房源
-        ...this.data.filters
-      }
+      const params = this.buildAPIParams()
+
+      console.log('列表页 API 请求参数:', params)
 
       const res = await api.get('/properties', params, false)
 
@@ -234,6 +335,76 @@ Page({
     wx.navigateTo({
       url: '/pages/property/search/search'
     })
+  },
+
+  /**
+   * 选择搜索中心位置
+   */
+  chooseCenterLocation() {
+    const that = this
+    wx.showActionSheet({
+      itemList: ['使用当前位置', '在地图上选择'],
+      success: (res) => {
+        if (res.tapIndex === 0) {
+          // 使用当前位置
+          that.useCurrentLocationAsCenter()
+        } else if (res.tapIndex === 1) {
+          // 在地图上选择
+          wx.navigateTo({
+            url: '/pages/property/map/map?mode=select'
+          })
+        }
+      }
+    })
+  },
+
+  /**
+   * 使用当前位置作为中心
+   */
+  useCurrentLocationAsCenter() {
+    wx.getLocation({
+      type: 'gcj02',
+      success: (res) => {
+        this.setData({
+          centerLocation: {
+            latitude: res.latitude,
+            longitude: res.longitude,
+            name: '当前位置'
+          }
+        })
+        wx.showToast({
+          title: '已设置为中心位置',
+          icon: 'success'
+        })
+        // 如果有距离筛选，重新加载列表
+        if (this.data.filters.distance) {
+          this.refreshList()
+        }
+      },
+      fail: () => {
+        wx.showToast({
+          title: '获取位置失败',
+          icon: 'none'
+        })
+      }
+    })
+  },
+
+  /**
+   * 清除中心位置设置
+   */
+  clearCenterLocation() {
+    this.setData({
+      centerLocation: null
+    })
+    wx.showToast({
+      title: '已恢复当前位置',
+      icon: 'success'
+    })
+    // 如果有距离筛选，重新加载列表
+    if (this.data.filters.distance) {
+      this.refreshList()
+    }
   },
 
   /**

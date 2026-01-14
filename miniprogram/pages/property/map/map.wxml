@@ -1,5 +1,18 @@
 <!--pages/property/map/map.wxml-->
 <view class="map-page">
+  <!-- 顶部搜索栏 -->
+  <cover-view class="map-search-bar">
+    <cover-view class="search-bar-content" bindtap="goToLocationSearch">
+      <cover-image class="search-icon" src="/assets/icons/search.png" mode="aspectFit"></cover-image>
+      <cover-view class="search-input-placeholder">
+        {{centerLocation ? centerLocation.name : '搜索地点、地址、小区'}}
+      </cover-view>
+      <cover-view class="clear-search" wx:if="{{centerLocation}}" catchtap="clearCenterLocation">
+        <cover-image class="close-icon-small" src="/assets/icons/close.png" mode="aspectFit"></cover-image>
+      </cover-view>
+    </cover-view>
+  </cover-view>
+
   <!-- 地图容器 -->
   <map
     id="propertyMap"
@@ -10,10 +23,24 @@
     markers="{{markers}}"
     polyline="{{polyline}}"
     show-location="{{true}}"
+    enable-3D="{{true}}"
+    show-compass="{{true}}"
+    enable-overlooking="{{true}}"
+    enable-zoom="{{true}}"
+    enable-scroll="{{true}}"
     bindregionchange="onRegionChange"
     bindmarkertap="onMarkerTap"
+    bindtap="onMapTap"
   >
+    <!-- 选择模式提示 -->
+    <cover-view class="select-mode-tip" wx:if="{{selectMode}}">
+      <cover-view class="tip-text">{{selectModeTip}}</cover-view>
+      <cover-view class="tip-cancel" bindtap="cancelSelectMode">取消</cover-view>
+    </cover-view>
+  </map>
 
+  <!-- 地图按钮 (使用cover-view作为overlay) -->
+  <cover-view class="map-buttons-container">
     <!-- 当前位置按钮 -->
     <cover-view class="location-btn" bindtap="moveToLocation">
       <cover-image class="location-icon" src="/assets/icons/location.png" />
@@ -29,7 +56,7 @@
     <cover-view class="switch-btn" bindtap="switchToListView">
       <cover-view class="switch-text">列表</cover-view>
     </cover-view>
-  </map>
+  </cover-view>
 
   <!-- 房源卡片 -->
   <view class="property-card {{showPropertyCard ? 'show' : ''}}" wx:if="{{selectedProperty}}">
@@ -109,6 +136,26 @@
           </view>
         </view>
 
+        <!-- 搜索中心位置 -->
+        <view class="filter-section">
+          <view class="section-label">搜索中心位置</view>
+          <view class="center-location-display">
+            <view class="location-info" bindtap="chooseCenterLocation">
+              <image class="location-icon-small" src="/assets/icons/location.png" mode="aspectFit"></image>
+              <view class="location-text">
+                <text class="location-name">{{centerLocation ? centerLocation.name : '当前位置'}}</text>
+                <text class="location-coords" wx:if="{{centerLocation}}">
+                  {{centerLocation.latitude.toFixed(4)}}, {{centerLocation.longitude.toFixed(4)}}
+                </text>
+              </view>
+              <image class="arrow-right-icon" src="/assets/icons/arrow-right.png" mode="aspectFit"></image>
+            </view>
+            <view class="clear-location-btn" wx:if="{{centerLocation}}" bindtap="clearCenterLocation">
+              <text>清除</text>
+            </view>
+          </view>
+        </view>
+
         <!-- 面积区间 -->
         <view class="filter-section">
           <view class="section-label">面积区间（㎡）</view>
@@ -159,6 +206,23 @@
               wx:for="{{propertyTypeOptions}}"
               wx:key="value"
               data-field="propertyType"
+              data-value="{{item.value}}"
+              bindtap="onFilterChange"
+            >
+              {{item.label}}
+            </view>
+          </view>
+        </view>
+
+        <!-- 距离筛选 -->
+        <view class="filter-section">
+          <view class="section-label">距离范围</view>
+          <view class="option-grid">
+            <view
+              class="option-item {{filters.distance === item.value ? 'active' : ''}}"
+              wx:for="{{distanceOptions}}"
+              wx:key="value"
+              data-field="distance"
               data-value="{{item.value}}"
               bindtap="onFilterChange"
             >

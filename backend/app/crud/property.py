@@ -5,10 +5,44 @@ from typing import Optional, Tuple, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc, or_
 from sqlalchemy.orm import selectinload
+import math
 
 from app.models.property import Property
 from app.schemas.property import PropertyCreate
 from app.core.cache import cache_service, CacheKeys, CacheTTL
+
+
+def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """
+    使用Haversine公式计算两个经纬度点之间的距离（米）
+
+    Args:
+        lat1, lon1: 第一个点的纬度和经度
+        lat2, lon2: 第二个点的纬度和经度
+
+    Returns:
+        距离（米）
+    """
+    # 将角度转换为弧度
+    lat1_rad = math.radians(lat1)
+    lon1_rad = math.radians(lon1)
+    lat2_rad = math.radians(lat2)
+    lon2_rad = math.radians(lon2)
+
+    # Haversine公式
+    dlat = lat2_rad - lat1_rad
+    dlon = lon2_rad - lon1_rad
+
+    a = (math.sin(dlat / 2) ** 2 +
+         math.cos(lat1_rad) * math.cos(lat2_rad) *
+         math.sin(dlon / 2) ** 2)
+
+    c = 2 * math.asin(math.sqrt(a))
+
+    # 地球半径（米）
+    earth_radius = 6371000
+
+    return earth_radius * c
 
 
 async def get_property_by_id(db: AsyncSession, property_id: int, use_cache: bool = True) -> Optional[Property]:
@@ -48,10 +82,14 @@ async def get_properties(
     max_price: Optional[int] = None,
     min_area: Optional[float] = None,
     max_area: Optional[float] = None,
+    rooms: Optional[int] = None,
     property_type: Optional[int] = None,
     transaction_type: Optional[int] = None,
     status: Optional[int] = None,
-    keyword: Optional[str] = None
+    keyword: Optional[str] = None,
+    user_lat: Optional[float] = None,
+    user_lon: Optional[float] = None,
+    max_distance: Optional[int] = None
 ) -> Tuple[List[Property], int]:
     """获取房源列表（分页和筛选）"""
     # 构建查询
@@ -70,6 +108,8 @@ async def get_properties(
         query = query.where(Property.area >= min_area)
     if max_area is not None:
         query = query.where(Property.area <= max_area)
+    if rooms is not None:
+        query = query.where(Property.room_count == rooms)
     if property_type is not None:
         query = query.where(Property.property_type == property_type)
     if transaction_type is not None:
@@ -104,6 +144,8 @@ async def get_properties(
         count_query = count_query.where(Property.area >= min_area)
     if max_area is not None:
         count_query = count_query.where(Property.area <= max_area)
+    if rooms is not None:
+        count_query = count_query.where(Property.room_count == rooms)
     if property_type is not None:
         count_query = count_query.where(Property.property_type == property_type)
     if transaction_type is not None:
@@ -132,8 +174,34 @@ async def get_properties(
     
     result = await db.execute(query)
     properties = result.scalars().all()
-    
-    return list(properties), total
+
+    # 如果提供了用户位置，计算距离并进行筛选
+    if user_lat is not None and user_lon is not None:
+        properties_list = []
+        for prop in properties:
+            # 只计算有经纬度的房源的距离
+            if prop.longitude is not None and prop.latitude is not None:
+                distance = calculate_distance(
+                    user_lat, user_lon,
+                    float(prop.latitude), float(prop.longitude)
+                )
+                # 如果设置了最大距离且超过该距离，跳过
+                if max_distance is not None and distance > max_distance:
+                    continue
+                # 将距离附加到房源对象上（作为动态属性）
+                prop.distance = distance
+                properties_list.append(prop)
+            elif max_distance is None:
+                # 没有距离限制时，也包含没有坐标的房源
+                properties_list.append(prop)
+
+        # 更新total（如果有距离筛选）
+        if max_distance is not None:
+            total = len(properties_list)
+
+        return properties_list, total
+    else:
+        return list(properties), total
 
 
 async def create_property(

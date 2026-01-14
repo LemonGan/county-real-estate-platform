@@ -34,11 +34,11 @@ Page({
   async loadVideoDetail() {
     try {
       const [videoRes, commentsRes] = await Promise.all([
-        api.get(`/short-videos/${this.data.videoId}/`),
+        api.get(`/short-videos/${this.data.videoId}/`, {}, false),
         api.get(`/short-videos/${this.data.videoId}/comments/`, {
           page: 1,
           page_size: 20
-        })
+        }, false)
       ])
 
       this.setData({
@@ -191,7 +191,7 @@ Page({
       const res = await api.get(`/short-videos/${this.data.videoId}/comments/`, {
         page: this.data.currentPage,
         page_size: 20
-      })
+      }, false)
 
       const comments = [...this.data.comments, ...(res.items || [])]
       this.setData({

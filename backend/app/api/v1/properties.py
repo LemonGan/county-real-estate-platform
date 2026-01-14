@@ -40,6 +40,7 @@ async def get_properties_list(
     max_price: Optional[int] = Query(None, ge=0, description="最高价格（元）"),
     min_area: Optional[float] = Query(None, ge=0, description="最小面积（㎡）"),
     max_area: Optional[float] = Query(None, ge=0, description="最大面积（㎡）"),
+    rooms: Optional[str] = Query(None, description="户型筛选"),
     property_type: Optional[int] = Query(None, description="房产类型：1住宅，2商铺，3写字楼，4别墅"),
     transaction_type: Optional[int] = Query(None, description="交易类型：1出售，2出租"),
     status_filter: Optional[int] = Query(None, description="状态筛选：1在售，2已售，3下架"),
@@ -47,6 +48,9 @@ async def get_properties_list(
     db: AsyncSession = Depends(get_db)
 ):
     """获取房源列表（支持分页、筛选和关键词搜索）"""
+    # 转换户型
+    rooms_int = int(rooms) if rooms else None
+
     properties, total = await get_properties(
         db,
         page=page,
@@ -57,6 +61,7 @@ async def get_properties_list(
         max_price=max_price,
         min_area=min_area,
         max_area=max_area,
+        rooms=rooms_int,
         property_type=property_type,
         transaction_type=transaction_type,
         status=status_filter,
@@ -75,6 +80,7 @@ async def get_nearby_properties(
     longitude: float = Query(..., description="经度"),
     latitude: float = Query(..., description="纬度"),
     radius: int = Query(5000, ge=100, le=50000, description="搜索半径（米）"),
+    max_distance: Optional[int] = Query(None, ge=100, le=50000, description="最大距离（米）"),
     min_price: Optional[int] = Query(None, ge=0, description="最低价格（万）"),
     max_price: Optional[int] = Query(None, ge=0, description="最高价格（万）"),
     min_area: Optional[float] = Query(None, ge=0, description="最小面积（㎡）"),
@@ -85,7 +91,7 @@ async def get_nearby_properties(
 ):
     """
     根据地理位置获取附近房源
-    支持价格、面积、户型、类型等筛选条件
+    支持价格、面积、户型、类型、距离等筛选条件
     """
     # 转换价格单位（前端传万，后端存元）
     min_price_yuan = min_price * 10000 if min_price else None
@@ -93,6 +99,9 @@ async def get_nearby_properties(
 
     # 转换户型
     rooms_int = int(rooms) if rooms else None
+
+    # 使用 max_distance 参数（如果提供了）或 radius 参数
+    distance_limit = max_distance if max_distance is not None else radius
 
     properties, total = await get_properties(
         db,
@@ -102,13 +111,13 @@ async def get_nearby_properties(
         max_price=max_price_yuan,
         min_area=min_area,
         max_area=max_area,
+        rooms=rooms_int,
         property_type=int(property_type) if property_type else None,
-        status=1  # 只返回在售房源
+        status=1,  # 只返回在售房源
+        user_lat=latitude,
+        user_lon=longitude,
+        max_distance=distance_limit
     )
-
-    # TODO: 实现基于经纬度距离计算和筛选
-    # 这里暂时返回所有符合筛选条件的房源
-    # 实际应该使用 Haversine 公式计算距离并筛选
 
     return {
         "list": properties,

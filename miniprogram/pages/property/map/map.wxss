@@ -5,17 +5,72 @@
   position: relative;
 }
 
+/* 地图搜索栏 */
+.map-search-bar {
+  position: absolute;
+  top: 20rpx;
+  left: 24rpx;
+  right: 24rpx;
+  z-index: 200;
+  pointer-events: auto;
+}
+
+.search-bar-content {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 12rpx;
+  padding: 20rpx 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+}
+
+.search-icon {
+  width: 36rpx;
+  height: 36rpx;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+
+.search-input-placeholder {
+  flex: 1;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.clear-search {
+  margin-left: 16rpx;
+  padding: 8rpx;
+  flex-shrink: 0;
+}
+
+.close-icon-small {
+  width: 32rpx;
+  height: 32rpx;
+}
+
 /* 地图容器 */
 .property-map {
   width: 100%;
   height: 100%;
 }
 
-/* 地图按钮 */
+/* 地图按钮容器 - 作为地图的overlay */
+.map-buttons-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* 地图按钮 - 修改定位为相对于容器 */
 .location-btn {
   position: absolute;
   right: 24rpx;
-  bottom: 280rpx;
+  bottom: 320rpx;
   width: 88rpx;
   height: 88rpx;
   background-color: #fff;
@@ -24,17 +79,19 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.15);
+  pointer-events: auto;
 }
 
 .location-icon {
   width: 48rpx;
   height: 48rpx;
+  pointer-events: auto;
 }
 
 .filter-btn {
   position: absolute;
   right: 24rpx;
-  bottom: 380rpx;
+  bottom: 420rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -42,23 +99,26 @@
   border-radius: 12rpx;
   padding: 16rpx 24rpx;
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.15);
+  pointer-events: auto;
 }
 
 .filter-icon {
   width: 40rpx;
   height: 40rpx;
   margin-bottom: 8rpx;
+  pointer-events: auto;
 }
 
 .filter-text {
   font-size: 22rpx;
   color: #333;
+  pointer-events: auto;
 }
 
 .switch-btn {
   position: absolute;
   right: 24rpx;
-  bottom: 180rpx;
+  bottom: 220rpx;
   width: 88rpx;
   height: 88rpx;
   background-color: #667eea;
@@ -67,12 +127,14 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 4rpx 16rpx rgba(102, 126, 234, 0.4);
+  pointer-events: auto;
 }
 
 .switch-text {
   font-size: 24rpx;
   color: #fff;
   font-weight: bold;
+  pointer-events: auto;
 }
 
 /* 房源卡片 */
@@ -436,4 +498,86 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* 中心位置显示 */
+.center-location-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.location-info {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  padding: 20rpx;
+  background-color: #f5f5f5;
+  border-radius: 8rpx;
+}
+
+.location-icon-small {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 16rpx;
+}
+
+.location-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.location-name {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.location-coords {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 4rpx;
+}
+
+.arrow-right-icon {
+  width: 24rpx;
+  height: 24rpx;
+  margin-left: 16rpx;
+}
+
+.clear-location-btn {
+  margin-left: 16rpx;
+  padding: 16rpx 24rpx;
+  background-color: #ff4d4f;
+  color: #fff;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+}
+
+/* 选择模式提示 */
+.select-mode-tip {
+  position: absolute;
+  top: 20rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 16rpx 32rpx;
+  border-radius: 32rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  z-index: 100;
+}
+
+.tip-text {
+  font-size: 26rpx;
+}
+
+.tip-cancel {
+  padding: 8rpx 24rpx;
+  background-color: #ff4d4f;
+  border-radius: 20rpx;
+  font-size: 24rpx;
 }

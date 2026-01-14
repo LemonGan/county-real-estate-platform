@@ -31,7 +31,7 @@
       <image class="entry-icon" src="/assets/icons/rent.png" mode="aspectFit"></image>
       <text class="entry-text">租房</text>
     </view>
-    <view class="entry-item" bindtap="goToSearch">
+    <view class="entry-item" bindtap="goToMap">
       <image class="entry-icon" src="/assets/icons/map.png" mode="aspectFit"></image>
       <text class="entry-text">地图找房</text>
     </view>

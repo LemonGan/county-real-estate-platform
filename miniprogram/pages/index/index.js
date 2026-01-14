@@ -109,7 +109,7 @@ Page({
         page: 1,
         page_size: 5,
         status_filter: 1
-      })
+      }, false)
 
       this.setData({
         recommendProperties: res.list || []
@@ -224,6 +224,15 @@ Page({
   goToSearch() {
     wx.navigateTo({
       url: '/pages/property/search/search'
+    })
+  },
+
+  /**
+   * 跳转到地图找房
+   */
+  goToMap() {
+    wx.navigateTo({
+      url: '/pages/property/map/map'
     })
   },
 

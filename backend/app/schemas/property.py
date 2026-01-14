@@ -23,6 +23,10 @@ class PropertyBase(BaseModel):
     district: Optional[str] = Field(None, max_length=50, description="区县")
     town: Optional[str] = Field(None, max_length=50, description="镇/街道")
     detail_address: Optional[str] = Field(None, max_length=200, description="详细地址")
+    # 经纬度（地图功能需要）
+    longitude: Optional[float] = Field(None, description="经度")
+    latitude: Optional[float] = Field(None, description="纬度")
+    distance: Optional[float] = Field(None, description="距离当前位置（米）")
     # 房型信息
     property_type: Optional[int] = Field(None, description="房产类型：1住宅，2商铺，3写字楼，4别墅")
     transaction_type: Optional[int] = Field(None, description="交易类型：1出售，2出租")

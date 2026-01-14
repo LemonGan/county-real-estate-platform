@@ -40,7 +40,7 @@ Page({
     this.setData({ loading: true })
 
     try {
-      const res = await api.get(`/properties/${id}`)
+      const res = await api.get(`/properties/${id}`, {}, false)
 
       // 提取图片URL列表
       const imageUrls = (res.images || []).map(img => img.url)
@@ -65,16 +65,33 @@ Page({
   },
 
   /**
-   * 记录浏览行为
+   * 记录浏览行为（仅在登录时记录）
    */
   async recordView(propertyId) {
+    // 检查用户是否登录
+    const token = wx.getStorageSync('token')
+    if (!token) {
+      // 未登录，静默跳过
+      return
+    }
+
     try {
-      await api.post('/users/behaviors/', {
-        property_id: propertyId,
-        behavior_type: 'view'
-      }, false)
+      // 登录用户记录浏览
+      // behavior_type: 1=浏览, target_type: 1=房源
+      const result = await api.post('/users/behaviors', {
+        behavior_type: 1,
+        target_type: 1,
+        target_id: parseInt(propertyId)
+      }, true)
+      console.log('浏览记录成功:', result)
     } catch (err) {
-      console.error('记录浏览失败:', err)
+      // 静默处理错误，不影响用户体验
+      // 打印完整错误对象用于调试
+      console.log('浏览记录失败详情:', {
+        message: err.message,
+        stack: err.stack,
+        toString: err.toString()
+      })
     }
   },
 

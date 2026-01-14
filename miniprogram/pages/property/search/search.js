@@ -4,6 +4,7 @@ const { formatPrice } = require('../../../utils/format')
 
 Page({
   data: {
+    mode: 'property',  // 'property' 搜索房源, 'location' 选择位置
     keyword: '',
     history: [],
     hotSearches: [],
@@ -17,8 +18,70 @@ Page({
    * 页面加载
    */
   onLoad(options) {
-    this.loadSearchHistory()
-    this.loadHotSearches()
+    console.log('搜索页加载, options:', options)
+
+    // 检查模式
+    if (options.mode === 'select') {
+      this.setData({ mode: 'location' })
+      wx.setNavigationBarTitle({
+        title: '选择位置'
+      })
+      // 直接打开位置选择器
+      this.openLocationPicker()
+    } else {
+      this.setData({ mode: 'property' })
+      this.loadSearchHistory()
+      this.loadHotSearches()
+    }
+  },
+
+  /**
+   * 打开位置选择器
+   */
+  openLocationPicker() {
+    const that = this
+    wx.chooseLocation({
+      success: (res) => {
+        console.log('选择位置成功:', res)
+        // 返回地图页，携带位置信息
+        const pages = getCurrentPages()
+        const prevPage = pages[pages.length - 2]
+
+        if (prevPage) {
+          // 检查上一页是否是地图页
+          if (prevPage.route && prevPage.route.includes('pages/property/map/map')) {
+            // 调用地图页的方法设置中心位置
+            prevPage.setData({
+              centerLocation: {
+                latitude: res.latitude,
+                longitude: res.longitude,
+                name: res.name || res.address
+              },
+              longitude: res.latitude,
+              latitude: res.longitude
+            })
+            // 触发重新加载房源
+            if (prevPage.loadProperties) {
+              prevPage.loadProperties()
+            }
+          }
+        }
+
+        wx.navigateBack()
+      },
+      fail: (err) => {
+        console.error('选择位置失败:', err)
+        if (err.errMsg.includes('cancel')) {
+          // 用户取消，返回地图页
+          wx.navigateBack()
+        } else {
+          wx.showToast({
+            title: '打开位置选择失败',
+            icon: 'none'
+          })
+        }
+      }
+    })
   },
 
   /**
@@ -118,7 +181,7 @@ Page({
         keyword: searchKeyword,
         page: 1,
         page_size: 20
-      })
+      }, false)
 
       this.setData({
         searchResults: res.items || res,

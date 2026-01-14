@@ -1,5 +1,22 @@
 <!-- 房源搜索页 -->
 <view class="search-container">
+  <!-- 位置选择模式提示 -->
+  <view class="location-mode-container" wx:if="{{mode === 'location'}}">
+    <view class="location-mode-content">
+      <image class="location-icon-large" src="/assets/icons/location.png"></image>
+      <text class="location-mode-title">选择搜索中心位置</text>
+      <text class="location-mode-desc">请在打开的地图中选择位置</text>
+      <view class="location-mode-tips">
+        <text class="tip-item">• 可以搜索地点名称</text>
+        <text class="tip-item">• 可以移动地图选择位置</text>
+        <text class="tip-item">• 选择后自动返回地图页</text>
+      </view>
+      <button class="reopen-btn" bindtap="openLocationPicker">重新打开位置选择</button>
+    </view>
+  </view>
+
+  <!-- 房源搜索模式 -->
+  <view wx:if="{{mode === 'property'}}">
   <!-- 搜索栏 -->
   <view class="search-bar">
     <view class="search-input-wrapper">
@@ -98,5 +115,6 @@
       <text class="empty-tip">换个关键词试试吧</text>
       <button class="filter-btn" bindtap="goToFilter">去筛选</button>
     </view>
+  </view>
   </view>
 </view>

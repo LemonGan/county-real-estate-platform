@@ -61,6 +61,9 @@
       "desc": "您的位置信息将用于为您推荐附近的房源"
     }
   },
+  "requiredPrivateInfos": [
+    "getLocation"
+  ],
   "requiredBackgroundModes": ["audio", "location"],
   "sitemapLocation": "sitemap.json",
   "style": "v2",

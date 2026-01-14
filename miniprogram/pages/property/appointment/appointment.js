@@ -49,7 +49,7 @@ Page({
     this.setData({ loading: true })
 
     try {
-      const res = await api.get(`/properties/${id}`)
+      const res = await api.get(`/properties/${id}`, {}, false)
       this.setData({
         property: res,
         loading: false

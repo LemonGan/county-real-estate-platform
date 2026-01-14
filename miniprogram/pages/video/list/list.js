@@ -66,7 +66,7 @@ Page({
         page: this.data.page,
         page_size: 10,
         type: tabType
-      })
+      }, false)
 
       const videos = res.items || []
 
@@ -97,7 +97,7 @@ Page({
         page: this.data.page,
         page_size: 10,
         type: tabType
-      })
+      }, false)
 
       const videos = res.items || []
 

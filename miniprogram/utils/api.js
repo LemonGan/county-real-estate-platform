@@ -52,7 +52,8 @@ function request(url, method = 'GET', data = {}, needAuth = true) {
       success: (res) => {
         wx.hideLoading()
 
-        if (res.statusCode === 200) {
+        // 2xx状态码都表示成功
+        if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(res.data)
         } else if (res.statusCode === 401) {
           // token过期，清除登录信息
@@ -68,6 +69,12 @@ function request(url, method = 'GET', data = {}, needAuth = true) {
           }, 1500)
           reject(new Error('未授权'))
         } else {
+          // 打印完整响应用于调试
+          console.log('API错误响应:', {
+            statusCode: res.statusCode,
+            data: res.data,
+            header: res.header
+          })
           wx.showToast({
             title: res.data.message || '请求失败',
             icon: 'none'
