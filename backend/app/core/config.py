@@ -83,6 +83,10 @@ class Settings(BaseSettings):
         default="https://api.weixin.qq.com/sns/jscode2session",
         description="微信登录API地址"
     )
+
+    # 腾讯地图配置
+    TENCENT_MAP_KEY: Optional[str] = Field(default=None, description="腾讯地图Key")
+    TENCENT_MAP_SK: Optional[str] = Field(default=None, description="腾讯地图密钥（用于签名）")
     
     class Config:
         env_file = ".env"

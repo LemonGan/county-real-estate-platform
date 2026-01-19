@@ -101,12 +101,12 @@
           <scroll-view class="table-body" scroll-y>
             <view class="table-row"
                   wx:for="{{paymentSchedule}}"
-                  wx:key="period">
-              <text class="body-cell">{{item.period}}</text>
-              <text class="body-cell">{{item.payment}}</text>
-              <text class="body-cell">{{item.principal}}</text>
-              <text class="body-cell">{{item.interest}}</text>
-              <text class="body-cell">{{item.balance}}</text>
+                  wx:key="month">
+              <text class="body-cell">{{item.month}}</text>
+              <text class="body-cell">{{item.monthly_payment}}</text>
+              <text class="body-cell">{{item.principal_payment}}</text>
+              <text class="body-cell">{{item.interest_payment}}</text>
+              <text class="body-cell">{{item.remaining_principal}}</text>
             </view>
           </scroll-view>
         </view>

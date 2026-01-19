@@ -7,6 +7,7 @@ from sqlalchemy import select, func, desc
 from sqlalchemy.orm import selectinload
 
 from app.models.appointment import Appointment
+from app.models.property import Property
 from app.schemas.appointment import AppointmentCreate
 
 
@@ -71,23 +72,33 @@ async def create_appointment(
     appointment_data: AppointmentCreate,
     user_id: int
 ) -> Appointment:
-    """创建新预约（带冲突检测）"""
-    from app.utils.appointment import check_appointment_conflict
-    
-    # 检查时间冲突
-    if appointment_data.agent_id and appointment_data.appointment_date and appointment_data.appointment_time:
-        has_conflict = await check_appointment_conflict(
-            db,
-            agent_id=appointment_data.agent_id,
-            appointment_date=appointment_data.appointment_date,
-            appointment_time=appointment_data.appointment_time
-        )
-        if has_conflict:
-            raise ValueError("该时间段已被预约，请选择其他时间")
-    
+    """创建新预约"""
+    # 获取房源信息以获取agent_id
+    property_result = await db.execute(
+        select(Property).where(Property.id == appointment_data.property_id)
+    )
+    property_obj = property_result.scalar_one_or_none()
+    if not property_obj:
+        raise ValueError("房源不存在")
+
+    agent_id = property_obj.agent_id
+
+    # 从datetime中分离date和time
+    appointment_dt = appointment_data.appointment_time
+    appointment_date = appointment_dt.date()
+    appointment_time = appointment_dt.time()
+
+    # 创建预约对象
     db_appointment = Appointment(
-        **appointment_data.model_dump(),
-        user_id=user_id
+        user_id=user_id,
+        property_id=appointment_data.property_id,
+        agent_id=agent_id,
+        appointment_date=appointment_date,
+        appointment_time=appointment_time,
+        contact_name=appointment_data.contact_name or "用户",
+        contact_phone=appointment_data.contact_phone,
+        special_requirements=appointment_data.remark,
+        status=1  # 待确认
     )
     db.add(db_appointment)
     await db.commit()

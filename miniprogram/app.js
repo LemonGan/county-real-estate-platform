@@ -3,7 +3,7 @@ App({
   globalData: {
     userInfo: null,
     token: null,
-    baseUrl: 'http://localhost:8000/api/v1', // 开发环境API地址
+    baseUrl: 'http://192.168.1.122:8000/api/v1', // 开发环境API地址
     isLogin: false,
     location: null
   },

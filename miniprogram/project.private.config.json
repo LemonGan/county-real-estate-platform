@@ -10,5 +10,39 @@
     "autoAudits": false,
     "showShadowRootInWxmlPanel": true,
     "compileHotReLoad": true
+  },
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "pages/property/map/map",
+          "pathName": "pages/property/map/map",
+          "query": "",
+          "scene": null,
+          "launchMode": "default"
+        },
+        {
+          "name": "pages/property/detail/detail",
+          "pathName": "pages/property/detail/detail",
+          "query": "id=21",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/property/list/list",
+          "pathName": "pages/property/list/list",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/agent/detail/detail",
+          "pathName": "pages/agent/detail/detail",
+          "query": "id=1",
+          "launchMode": "default",
+          "scene": null
+        }
+      ]
+    }
   }
 }

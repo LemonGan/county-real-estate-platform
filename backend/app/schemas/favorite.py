@@ -12,10 +12,10 @@ class FavoriteResponse(BaseModel):
     id: int
     user_id: int
     property_id: int
-    price_alert: bool
+    price_alert: Optional[bool] = None
     created_at: datetime
     property: PropertyResponse
-    
+
     class Config:
         from_attributes = True
 

@@ -7,7 +7,8 @@ Page({
     newsId: null,
     news: null,
     loading: true,
-    isCollected: false
+    isCollected: false,
+    isLiked: false
   },
 
   onLoad(options) {
@@ -90,8 +91,9 @@ Page({
   async likeNews() {
     try {
       // TODO: 实现点赞功能
+      this.setData({ isLiked: !this.data.isLiked })
       wx.showToast({
-        title: '点赞成功',
+        title: this.data.isLiked ? '点赞成功' : '取消点赞',
         icon: 'success'
       })
     } catch (error) {

@@ -31,10 +31,11 @@
     "enablePullDownRefresh": true
   },
   "tabBar": {
+    "custom": false,
     "color": "#666666",
     "selectedColor": "#667eea",
     "backgroundColor": "#ffffff",
-    "borderStyle": "black",
+    "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/index/index",
@@ -62,7 +63,8 @@
     }
   },
   "requiredPrivateInfos": [
-    "getLocation"
+    "getLocation",
+    "chooseLocation"
   ],
   "requiredBackgroundModes": ["audio", "location"],
   "sitemapLocation": "sitemap.json",

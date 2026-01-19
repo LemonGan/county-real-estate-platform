@@ -3,7 +3,7 @@ API v1版本路由
 """
 from fastapi import APIRouter
 
-from app.api.v1 import auth, users, properties, appointments, tools, favorites, property_images, user_preferences, statistics, user_behaviors, short_videos, recommendations, news, agents
+from app.api.v1 import auth, users, properties, appointments, tools, favorites, property_images, user_preferences, statistics, user_behaviors, short_videos, recommendations, news, agents, map
 
 api_router = APIRouter()
 
@@ -22,3 +22,4 @@ api_router.include_router(recommendations.router, prefix="/recommendations", tag
 api_router.include_router(statistics.router, prefix="/statistics", tags=["数据统计"])
 api_router.include_router(news.router, prefix="/news", tags=["房产资讯"])
 api_router.include_router(agents.router, prefix="/agents", tags=["经纪人"])
+api_router.include_router(map.router, prefix="/map", tags=["地图"])

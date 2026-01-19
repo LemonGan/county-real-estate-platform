@@ -1,22 +1,5 @@
-<!-- 房源搜索页 -->
+<!-- 搜索页 -->
 <view class="search-container">
-  <!-- 位置选择模式提示 -->
-  <view class="location-mode-container" wx:if="{{mode === 'location'}}">
-    <view class="location-mode-content">
-      <image class="location-icon-large" src="/assets/icons/location.png"></image>
-      <text class="location-mode-title">选择搜索中心位置</text>
-      <text class="location-mode-desc">请在打开的地图中选择位置</text>
-      <view class="location-mode-tips">
-        <text class="tip-item">• 可以搜索地点名称</text>
-        <text class="tip-item">• 可以移动地图选择位置</text>
-        <text class="tip-item">• 选择后自动返回地图页</text>
-      </view>
-      <button class="reopen-btn" bindtap="openLocationPicker">重新打开位置选择</button>
-    </view>
-  </view>
-
-  <!-- 房源搜索模式 -->
-  <view wx:if="{{mode === 'property'}}">
   <!-- 搜索栏 -->
   <view class="search-bar">
     <view class="search-input-wrapper">
@@ -24,7 +7,7 @@
       <input class="search-input"
              type="text"
              value="{{keyword}}"
-             placeholder="搜索小区、地址、房源..."
+             placeholder="{{mode === 'location' ? '搜索地点、地址、小区' : '搜索小区、地址、房源'}}"
              bindinput="onInputChange"
              bindconfirm="onConfirm" />
       <image class="clear-icon"
@@ -60,7 +43,7 @@
     <view class="hot-section">
       <view class="section-header">
         <image class="hot-icon" src="/assets/icons/hot.png"></image>
-        <text class="section-title">热门搜索</text>
+        <text class="section-title">{{mode === 'location' ? '热门位置' : '热门搜索'}}</text>
       </view>
       <view class="hot-list">
         <view class="hot-item"
@@ -82,26 +65,42 @@
       <text class="loading-text">搜索中...</text>
     </view>
 
-    <!-- 结果列表 -->
-    <view class="results-list" wx:if="{{!searching && hasResults}}">
+    <!-- 位置搜索结果列表 -->
+    <view class="location-results-list" wx:if="{{mode === 'location' && !searching && locationResults.length > 0}}">
+      <view class="location-item"
+            wx:for="{{locationResults}}"
+            wx:key="id"
+            bindtap="selectLocation"
+            data-location="{{item}}">
+        <view class="location-info">
+          <view class="location-title">{{item.title}}</view>
+          <view class="location-address">{{item.address}}</view>
+          <view class="location-category" wx:if="{{item.category}}">{{item.category}}</view>
+        </view>
+        <image class="location-arrow" src="/assets/icons/arrow-right.png"></image>
+      </view>
+    </view>
+
+    <!-- 房源搜索结果列表 -->
+    <view class="results-list" wx:if="{{mode === 'property' && !searching && hasResults}}">
       <view class="result-item"
             wx:for="{{searchResults}}"
             wx:key="id"
             bindtap="goToDetail"
             data-id="{{item.id}}">
         <image class="result-image"
-               src="{{item.images[0] ? item.images[0].url : '/assets/images/default-property.png'}}"
+               src="{{item.images && item.images[0] ? item.images[0].url : '/assets/images/default-property.png'}}"
                mode="aspectFill"></image>
         <view class="result-info">
           <view class="result-title">{{item.title}}</view>
           <view class="result-tags">
-            <text class="tag">{{item.rooms}}室{{item.halls}}厅</text>
+            <text class="tag">{{item.rooms || item.room_count}}室{{item.halls || item.hall_count}}厅</text>
             <text class="tag">{{item.area}}㎡</text>
             <text class="tag" wx:if="{{item.orientation}}">{{item.orientation}}</text>
           </view>
-          <view class="result-address">{{item.community_name}}</view>
+          <view class="result-address">{{item.community_name || item.address || item.detail_address}}</view>
           <view class="result-price">
-            <text class="price">{{item.price/10000}}万</text>
+            <text class="price">{{(item.total_price || item.price) / 10000}}万</text>
             <text class="unit">元/套</text>
           </view>
         </view>
@@ -109,12 +108,11 @@
     </view>
 
     <!-- 无结果 -->
-    <view class="empty-container" wx:if="{{!searching && !hasResults}}">
+    <view class="empty-container" wx:if="{{!searching && ((mode === 'location' && locationResults.length === 0) || (mode === 'property' && !hasResults))}}">
       <image class="empty-icon" src="/assets/images/empty-search.png"></image>
-      <text class="empty-text">没有找到相关房源</text>
-      <text class="empty-tip">换个关键词试试吧</text>
-      <button class="filter-btn" bindtap="goToFilter">去筛选</button>
+      <text class="empty-text">{{mode === 'location' ? '没有找到相关位置' : '没有找到相关房源'}}</text>
+      <text class="empty-tip">{{mode === 'location' ? '换个关键词试试吧' : '试试筛选功能'}}</text>
+      <button class="filter-btn" wx:if="{{mode === 'property'}}" bindtap="goToFilter">去筛选</button>
     </view>
-  </view>
   </view>
 </view>

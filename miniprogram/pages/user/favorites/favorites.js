@@ -34,9 +34,9 @@ Page({
       const res = await api.get('/favorites/')
 
       this.setData({
-        favorites: res.items || res,
+        favorites: res.list || res.items || res,
         loading: false,
-        empty: (!res.items || res.items.length === 0) && (!res || res.length === 0)
+        empty: (!res.list || res.list.length === 0) && (!res.items || res.items.length === 0) && (!res || res.length === 0)
       })
     } catch (err) {
       console.error('加载收藏失败:', err)

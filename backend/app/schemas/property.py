@@ -1,10 +1,23 @@
 """
 房源相关Schema
 """
-from pydantic import BaseModel, Field, computed_field
-from typing import Optional
+from pydantic import BaseModel, Field, computed_field, model_validator
+from typing import Optional, List, Any
 from datetime import datetime
 from app.models.property import PropertyStatus
+
+
+class PropertyImage(BaseModel):
+    """房源图片Schema"""
+    id: int
+    url: str = Field(alias="image_url")
+    thumbnail_url: Optional[str] = None
+    is_cover: bool = False
+    sort_order: int = 0
+
+    class Config:
+        from_attributes = True
+        populate_by_name = True
 
 
 class PropertyBase(BaseModel):
@@ -86,19 +99,48 @@ class PropertyResponse(PropertyBase):
     id: int
     agent_id: int  # 经纪人ID
     status: int  # 使用int类型，因为数据库中是SmallInteger
-    view_count: int
-    favorite_count: int
-    inquiry_count: int = 0
-    share_count: int = 0
+    view_count: Optional[int] = 0
+    favorite_count: Optional[int] = 0
+    inquiry_count: Optional[int] = 0
+    share_count: Optional[int] = 0
+    images: List[PropertyImage] = []  # 房源图片列表
+    cover_url: Optional[str] = None  # 封面图片URL
     created_at: datetime
     updated_at: datetime
-    
+    # 覆盖Base中的字段，改为Optional
+    area: Optional[float] = None  # 面积改为可选
+
     @computed_field
     @property
     def owner_id(self) -> int:
         """兼容旧字段名，返回agent_id"""
         return self.agent_id
-    
+
+    @computed_field
+    @property
+    def rooms(self) -> Optional[int]:
+        """兼容旧字段名，返回room_count"""
+        return self.room_count
+
+    @computed_field
+    @property
+    def halls(self) -> Optional[int]:
+        """兼容旧字段名，返回hall_count"""
+        return self.hall_count
+
+    @model_validator(mode='wrap')
+    @classmethod
+    def set_price_field(cls, data: Any, handler) -> Any:
+        """设置price字段为total_price的值"""
+        # 先让Pydantic处理数据
+        result = handler(data)
+        # 如果是ORM对象转换来的，设置price=total_price
+        if isinstance(result, PropertyResponse):
+            if result.total_price is not None:
+                # 使用object.__setattr__来绕过Pydantic的冻结检查
+                object.__setattr__(result, 'price', result.total_price)
+        return result
+
     class Config:
         from_attributes = True
         populate_by_name = True

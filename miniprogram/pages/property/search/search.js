@@ -1,6 +1,5 @@
-// 房源搜索页
+// 搜索页
 const api = require('../../../utils/api')
-const { formatPrice } = require('../../../utils/format')
 
 Page({
   data: {
@@ -9,9 +8,11 @@ Page({
     history: [],
     hotSearches: [],
     searchResults: [],
+    locationResults: [],  // 位置搜索结果
     searching: false,
     hasResults: false,
-    showHistory: true
+    showHistory: true,
+    searchTimer: null  // 搜索防抖定时器
   },
 
   /**
@@ -24,10 +25,8 @@ Page({
     if (options.mode === 'select') {
       this.setData({ mode: 'location' })
       wx.setNavigationBarTitle({
-        title: '选择位置'
+        title: '搜索位置'
       })
-      // 直接打开位置选择器
-      this.openLocationPicker()
     } else {
       this.setData({ mode: 'property' })
       this.loadSearchHistory()
@@ -36,60 +35,12 @@ Page({
   },
 
   /**
-   * 打开位置选择器
-   */
-  openLocationPicker() {
-    const that = this
-    wx.chooseLocation({
-      success: (res) => {
-        console.log('选择位置成功:', res)
-        // 返回地图页，携带位置信息
-        const pages = getCurrentPages()
-        const prevPage = pages[pages.length - 2]
-
-        if (prevPage) {
-          // 检查上一页是否是地图页
-          if (prevPage.route && prevPage.route.includes('pages/property/map/map')) {
-            // 调用地图页的方法设置中心位置
-            prevPage.setData({
-              centerLocation: {
-                latitude: res.latitude,
-                longitude: res.longitude,
-                name: res.name || res.address
-              },
-              longitude: res.latitude,
-              latitude: res.longitude
-            })
-            // 触发重新加载房源
-            if (prevPage.loadProperties) {
-              prevPage.loadProperties()
-            }
-          }
-        }
-
-        wx.navigateBack()
-      },
-      fail: (err) => {
-        console.error('选择位置失败:', err)
-        if (err.errMsg.includes('cancel')) {
-          // 用户取消，返回地图页
-          wx.navigateBack()
-        } else {
-          wx.showToast({
-            title: '打开位置选择失败',
-            icon: 'none'
-          })
-        }
-      }
-    })
-  },
-
-  /**
    * 加载搜索历史
    */
   loadSearchHistory() {
     try {
-      const history = wx.getStorageSync('searchHistory') || []
+      const historyKey = this.data.mode === 'location' ? 'locationSearchHistory' : 'searchHistory'
+      const history = wx.getStorageSync(historyKey) || []
       this.setData({ history })
     } catch (err) {
       console.error('加载搜索历史失败:', err)
@@ -114,7 +65,8 @@ Page({
     this.setData({ history })
 
     try {
-      wx.setStorageSync('searchHistory', history)
+      const historyKey = this.data.mode === 'location' ? 'locationSearchHistory' : 'searchHistory'
+      wx.setStorageSync(historyKey, history)
     } catch (err) {
       console.error('保存搜索历史失败:', err)
     }
@@ -124,6 +76,15 @@ Page({
    * 加载热门搜索
    */
   async loadHotSearches() {
+    // 位置搜索模式的热门位置
+    if (this.data.mode === 'location') {
+      this.setData({
+        hotSearches: ['西湖', '钱江新城', '滨江', '西湖区', '上城区', '拱墅区', '西湖景区', '城西银泰']
+      })
+      return
+    }
+
+    // 房源搜索模式的热门搜索
     try {
       const res = await api.get('/statistics/hot-search', {}, false)
       this.setData({
@@ -131,7 +92,6 @@ Page({
       })
     } catch (err) {
       console.error('加载热门搜索失败:', err)
-      // 设置默认热门搜索
       this.setData({
         hotSearches: ['学区房', '地铁房', '精装修', '南北通透', '低首付']
       })
@@ -139,12 +99,25 @@ Page({
   },
 
   /**
-   * 输入变化
+   * 输入变化（带防抖）
    */
   onInputChange(e) {
-    this.setData({
-      keyword: e.detail.value
-    })
+    const keyword = e.detail.value
+    this.setData({ keyword })
+
+    // 清除之前的定时器
+    if (this.data.searchTimer) {
+      clearTimeout(this.data.searchTimer)
+    }
+
+    // 如果是位置搜索模式，实时搜索
+    if (this.data.mode === 'location' && keyword.trim()) {
+      this.setData({
+        searchTimer: setTimeout(() => {
+          this.searchLocation(keyword)
+        }, 500)
+      })
+    }
   },
 
   /**
@@ -153,12 +126,54 @@ Page({
   clearInput() {
     this.setData({
       keyword: '',
-      showHistory: true
+      showHistory: true,
+      locationResults: []
     })
   },
 
   /**
-   * 执行搜索
+   * 搜索位置
+   */
+  async searchLocation(keyword) {
+    if (!keyword.trim()) {
+      this.setData({ locationResults: [] })
+      return
+    }
+
+    this.setData({
+      searching: true,
+      showHistory: false
+    })
+
+    try {
+      // 调用后端地图搜索API
+      const res = await api.get('/map/search', {
+        keyword: keyword,
+        city: '杭州'  // 可以根据用户当前位置动态设置
+      }, false)
+
+      console.log('位置搜索结果:', res)
+
+      this.setData({
+        locationResults: res.data || [],
+        searching: false
+      })
+    } catch (err) {
+      console.error('位置搜索失败:', err)
+      this.setData({
+        searching: false,
+        locationResults: []
+      })
+
+      // 静默失败，不显示错误提示
+      if (err.message && !err.message.includes('abort')) {
+        console.warn('搜索位置失败:', err.message)
+      }
+    }
+  },
+
+  /**
+   * 执行房源搜索
    */
   async doSearch(keyword) {
     const searchKeyword = keyword || this.data.keyword
@@ -209,7 +224,13 @@ Page({
    * 确认搜索
    */
   onConfirm() {
-    this.doSearch()
+    if (this.data.mode === 'location') {
+      // 位置搜索模式，触发搜索
+      this.searchLocation(this.data.keyword)
+    } else {
+      // 房源搜索模式
+      this.doSearch()
+    }
   },
 
   /**
@@ -218,7 +239,12 @@ Page({
   onHistoryTap(e) {
     const { keyword } = e.currentTarget.dataset
     this.setData({ keyword })
-    this.doSearch(keyword)
+
+    if (this.data.mode === 'location') {
+      this.searchLocation(keyword)
+    } else {
+      this.doSearch(keyword)
+    }
   },
 
   /**
@@ -227,27 +253,45 @@ Page({
   onHotTap(e) {
     const { keyword } = e.currentTarget.dataset
     this.setData({ keyword })
-    this.doSearch(keyword)
+
+    if (this.data.mode === 'location') {
+      this.searchLocation(keyword)
+    } else {
+      this.doSearch(keyword)
+    }
   },
 
   /**
-   * 清空历史记录
+   * 选择位置
    */
-  clearHistory() {
-    wx.showModal({
-      title: '提示',
-      content: '确定要清空搜索历史吗？',
-      success: (res) => {
-        if (res.confirm) {
-          this.setData({ history: [] })
-          try {
-            wx.removeStorageSync('searchHistory')
-          } catch (err) {
-            console.error('清空搜索历史失败:', err)
-          }
-        }
-      }
-    })
+  selectLocation(e) {
+    const { location } = e.currentTarget.dataset
+
+    // 返回地图页，携带位置信息
+    const pages = getCurrentPages()
+    const prevPage = pages[pages.length - 2]
+
+    if (prevPage && prevPage.route && prevPage.route.includes('pages/property/map/map')) {
+      // 设置地图页的中心位置
+      prevPage.setData({
+        centerLocation: {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          name: location.title
+        },
+        longitude: location.longitude,
+        latitude: location.latitude,
+        scale: 13
+      })
+
+      wx.navigateBack()
+    }
+  },
+
+    // 保存搜索历史
+    this.saveSearchHistory(location.title)
+
+    wx.navigateBack()
   },
 
   /**

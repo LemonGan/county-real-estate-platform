@@ -191,30 +191,30 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 8rpx 32rpx;
+  flex: 1;
+  height: auto;
+  padding: 0;
+  margin: 0;
   font-size: 22rpx;
   color: #333;
   background: transparent;
   border: none;
-  line-height: 1.4;
+  line-height: 1.2;
 }
 
 .bar-item::after {
-  border: none;
-}
-
-.share-btn {
-  padding: 0;
-  margin: 0;
+  border: none !important;
 }
 
 .bar-icon {
-  width: 40rpx;
-  height: 40rpx;
-  margin-bottom: 4rpx;
+  width: 44rpx;
+  height: 44rpx;
+  display: block;
+  margin-bottom: 2rpx;
 }
 
 .bar-text {
-  font-size: 22rpx;
-  color: #333;
+  font-size: 20rpx;
+  color: #666;
+  display: block;
 }

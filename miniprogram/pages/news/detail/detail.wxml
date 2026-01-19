@@ -34,11 +34,11 @@
     <view class="article-footer">
       <view class="footer-stats">
         <view class="stat-item">
-          <image class="stat-icon" src="/assets/icons/view-gray.png" />
+          <text class="stat-icon">👁️</text>
           <text class="stat-text">{{news.view_count}}</text>
         </view>
         <view class="stat-item" bindtap="likeNews">
-          <image class="stat-icon" src="/assets/icons/like-gray.png" />
+          <text class="stat-icon">{{isLiked ? '❤️' : '🤍'}}</text>
           <text class="stat-text">{{news.like_count}}</text>
         </view>
       </view>
@@ -48,7 +48,7 @@
           <text>分享</text>
         </button>
         <button class="action-btn" bindtap="collectNews">
-          <image class="btn-icon" src="{{isCollected ? '/assets/icons/star-filled.png' : '/assets/icons/star.png'}}" />
+          <image class="btn-icon" src="{{isCollected ? '/assets/icons/favorite.png' : '/assets/icons/favorites.png'}}" />
           <text>{{isCollected ? '已收藏' : '收藏'}}</text>
         </button>
       </view>

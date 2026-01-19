@@ -107,7 +107,7 @@ async def cancel_appointment(
         )
 
     # 检查状态：只能取消待确认或已确认的预约
-    if appointment.status in [AppointmentStatus.COMPLETED, AppointmentStatus.CANCELLED]:
+    if appointment.status in [3, 0]:  # 已完成或已取消
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="该预约无法取消"
@@ -116,7 +116,7 @@ async def cancel_appointment(
     updated_appointment = await update_appointment(
         db,
         appointment_id=appointment_id,
-        appointment_data={"status": AppointmentStatus.CANCELLED}
+        appointment_data={"status": 0}  # 已取消
     )
     return updated_appointment
 

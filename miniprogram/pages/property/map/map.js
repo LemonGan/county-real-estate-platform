@@ -4,16 +4,15 @@ const api = require('../../../utils/api.js')
 
 Page({
   data: {
-    longitude: 120.153576,  // 默认杭州坐标
-    latitude: 30.287459,
-    scale: 14,
+    longitude: 103.5,
+    latitude: 36.0,
+    scale: 5,
     markers: [],
+    allMarkers: [],
     polyline: [],
     showPropertyCard: false,
     selectedProperty: null,
-    centerLocation: null,  // 搜索中心位置 {latitude, longitude, name}
-    selectMode: false,  // 是否在选择位置模式
-    selectModeTip: '',  // 选择模式提示文字
+    centerLocation: null,
     filters: {
       minPrice: '',
       maxPrice: '',
@@ -21,11 +20,10 @@ Page({
       maxArea: '',
       rooms: '',
       propertyType: '',
-      distance: ''  // 距离筛选：空=不限，1000=1km，3000=3km，5000=5km，10000=10km
+      distance: ''
     },
     filterVisible: false,
     loading: false,
-    mapContext: null,
     // 筛选选项
     roomsOptions: [
       {label: '不限', value: ''},
@@ -51,24 +49,17 @@ Page({
   },
 
   onLoad(options) {
-    // 从房源列表进入时，传入筛选条件
     if (options.filters) {
       try {
         this.setData({
           filters: JSON.parse(decodeURIComponent(options.filters))
         })
       } catch (e) {
-        console.error('解析筛选条件失败:', e)
+        // ignore
       }
     }
 
     this.initMap()
-  },
-
-  onReady() {
-    this.setData({
-      mapContext: wx.createMapContext('propertyMap', this)
-    })
   },
 
   onShow() {
@@ -77,132 +68,115 @@ Page({
 
   // 初始化地图
   initMap() {
-    // 先设置默认位置（杭州）
-    this.setData({
-      longitude: 120.153576,
-      latitude: 30.287459
-    })
+    // 先加载全国房源
+    this.loadAllProperties()
 
-    // 获取当前位置
+    // 获取当前位置并更新地图中心
     wx.getLocation({
       type: 'gcj02',
       success: (res) => {
         this.setData({
           longitude: res.longitude,
-          latitude: res.latitude
+          latitude: res.latitude,
+          scale: 10
         })
-        // 获取到位置后，加载房源
-        this.loadProperties()
       },
       fail: () => {
-        // 使用默认位置，加载房源
-        this.loadProperties()
+        // 定位失败，保持中国地理中心
       }
     })
   },
 
-  // 加载房源标记
-  async loadProperties() {
-    if (this.data.loading) return
-
-    console.log('loadProperties 被调用, 当前 data:', {
-      longitude: this.data.longitude,
-      latitude: this.data.latitude,
-      longitudeType: typeof this.data.longitude,
-      latitudeType: typeof this.data.latitude
-    })
+  // 加载所有房源
+  async loadAllProperties() {
+    if (this.data.loading || this.data.allMarkers.length > 0) return
 
     this.setData({ loading: true })
 
     try {
-      // 使用中心位置（优先使用用户选择的位置，否则使用当前位置）
-      let centerLat, centerLon
-      if (this.data.centerLocation) {
-        centerLat = this.data.centerLocation.latitude
-        centerLon = this.data.centerLocation.longitude
-      } else {
-        centerLat = this.data.latitude
-        centerLon = this.data.longitude
-      }
+      const res = await api.get('/properties/', {
+        page: 1,
+        page_size: 50,
+        status_filter: 1
+      }, true)
 
-      // 确保使用有效的坐标（如果当前坐标无效，使用默认杭州坐标）
-      centerLon = centerLon || 120.153576
-      centerLat = centerLat || 30.287459
-
-      console.log('加载房源，使用中心坐标:', { latitude: centerLat, longitude: centerLon })
-      if (this.data.centerLocation) {
-        console.log('中心位置名称:', this.data.centerLocation.name)
-      }
-
-      // 构建筛选参数
-      const params = {
-        longitude: centerLon,
-        latitude: centerLat,
-        radius: 5000, // 5公里范围
-        ...this.buildFilterParams()
-      }
-
-      console.log('API 请求参数:', params)
-
-      const res = await api.get('/properties/nearby/', params, false)
-
-      console.log('API 返回结果:', res)
-      console.log('房源数量:', res.list ? res.list.length : 0)
-
-      // 转换为地图标记（只处理有经纬度的房源）
-      const markers = (res.list || [])
-        .filter(item => {
-          const hasCoords = item.longitude && item.latitude
-          if (!hasCoords) {
-            console.log('房源缺少坐标，跳过:', item.id, item.title)
+      const markers = []
+      if (res.list && res.list.length > 0) {
+        for (let i = 0; i < res.list.length; i++) {
+          const prop = res.list[i]
+          if (prop.latitude && prop.longitude) {
+            const priceWan = (prop.total_price || prop.price) / 10000
+            markers.push({
+              id: prop.id,
+              latitude: parseFloat(prop.latitude),
+              longitude: parseFloat(prop.longitude),
+              iconPath: this.getMarkerIcon(priceWan),
+              width: 24,
+              height: 24,
+              title: prop.title
+            })
           }
-          return hasCoords
-        })
-        .map((item, index) => ({
-          id: item.id,
-          longitude: parseFloat(item.longitude),
-          latitude: parseFloat(item.latitude),
-          title: item.title,
-          iconPath: this.getMarkerIcon(item.total_price ? item.total_price / 10000 : 0),
-          width: 45,
-          height: 45,
-          alpha: 1,
-          callout: {
-            content: item.total_price ? `${(item.total_price / 10000).toFixed(0)}万` : '价格面议',
-            color: '#fff',
-            fontSize: 16,
-            borderRadius: 8,
-            bgColor: '#ff4d4f',
-            padding: 8,
-            display: 'ALWAYS',
-            textAlign: 'center'
-          },
-        customCallout: {
-          anchorY: 0,
-          anchorX: 0,
-          display: 'ALWAYS'
         }
-      }))
-
-      console.log('创建的标记数量:', markers.length)
-      console.log('标记详情:', markers.map(m => ({ id: m.id, lng: m.longitude, lat: m.latitude })))
+      }
 
       this.setData({
-        markers,
+        allMarkers: markers,
+        markers: markers,
         loading: false
       })
-
-      console.log('标记已更新到页面，当前地图中心:', {
-        longitude: this.data.longitude,
-        latitude: this.data.latitude
-      })
-    } catch (error) {
-      console.error('加载房源失败:', error)
+    } catch (err) {
       this.setData({ loading: false })
-      wx.showToast({
-        title: '加载失败',
-        icon: 'none'
-      })
+    }
+  },
+
+  // 加载房源标记
+  async loadProperties() {
+    // 如果设置了中心位置和距离筛选，则进行筛选
+    if (this.data.centerLocation && this.data.filters.distance) {
+      await this.loadPropertiesByDistance()
+    } else {
+      // 否则显示所有房源
+      this.setData({ markers: this.data.allMarkers })
+    }
+  },
+
+  // 根据距离加载房源
+  async loadPropertiesByDistance() {
+    if (!this.data.centerLocation || !this.data.filters.distance) return
+
+    this.setData({ loading: true })
+
+    try {
+      const res = await api.get('/properties/nearby/', {
+        longitude: this.data.centerLocation.longitude,
+        latitude: this.data.centerLocation.latitude,
+        radius: parseInt(this.data.filters.distance),
+        page_size: 50,
+        ...this.buildFilterParamsWithoutDistance(false)
+      }, false)
+
+      const markers = []
+      if (res.list && res.list.length > 0) {
+        for (let i = 0; i < res.list.length; i++) {
+          const prop = res.list[i]
+          if (prop.latitude && prop.longitude) {
+            const priceWan = (prop.total_price || prop.price) / 10000
+            markers.push({
+              id: prop.id,
+              latitude: parseFloat(prop.latitude),
+              longitude: parseFloat(prop.longitude),
+              iconPath: this.getMarkerIcon(priceWan),
+              width: 24,
+              height: 24,
+              title: prop.title
+            })
+          }
+        }
+      }
+
+      this.setData({ markers, loading: false })
+    } catch (err) {
+      this.setData({ loading: false })
     }
   },
 
@@ -222,6 +196,28 @@ Page({
     return params
   },
 
+  // 构建筛选参数（排除距离筛选，用于地图动态加载）
+  // useYuanUnit: 是否使用元作为价格单位（true=全国模式用元，false=附近模式用万元）
+  buildFilterParamsWithoutDistance(useYuanUnit = false) {
+    const params = {}
+    const { filters } = this.data
+
+    // 价格单位转换：全国模式需要转换为元，附近模式直接用万元
+    if (filters.minPrice) {
+      params.min_price = useYuanUnit ? filters.minPrice * 10000 : filters.minPrice
+    }
+    if (filters.maxPrice) {
+      params.max_price = useYuanUnit ? filters.maxPrice * 10000 : filters.maxPrice
+    }
+    if (filters.minArea) params.min_area = filters.minArea
+    if (filters.maxArea) params.max_area = filters.maxArea
+    if (filters.rooms) params.rooms = filters.rooms
+    if (filters.propertyType) params.property_type = filters.propertyType
+    // 不包含 distance 筛选
+
+    return params
+  },
+
   // 获取标记图标（根据价格区间）
   getMarkerIcon(price) {
     // 根据价格区间返回不同颜色的标记
@@ -236,28 +232,9 @@ Page({
     }
   },
 
-  // 地图区域变化
+  // 地图区域变化 - 不做任何处理，避免频繁更新
   onRegionChange(e) {
-    if (e.type === 'end') {
-      const { longitude, latitude, scale } = e.detail
-      console.log('地图区域变化:', { longitude, latitude, scale })
-
-      // 只有在坐标有效时才更新
-      if (longitude && latitude) {
-        this.setData({
-          longitude,
-          latitude,
-          scale: scale || this.data.scale
-        })
-        // 延迟加载，避免频繁请求
-        clearTimeout(this.loadTimer)
-        this.loadTimer = setTimeout(() => {
-          this.loadProperties()
-        }, 500)
-      } else {
-        console.warn('地图区域变化事件中的坐标无效，跳过更新')
-      }
-    }
+    // 空实现，让地图自由缩放移动
   },
 
   // 点击标记
@@ -275,7 +252,7 @@ Page({
         showPropertyCard: true
       })
     } catch (error) {
-      console.error('加载房源详情失败:', error)
+      // ignore
     }
   },
 
@@ -347,33 +324,22 @@ Page({
 
   // 应用筛选
   applyFilters() {
-    console.log('应用筛选，筛选条件:', this.data.filters)
     this.hideFilter()
     this.loadProperties()
   },
 
   // 定位到当前位置
   moveToLocation() {
-    console.log('定位到当前位置')
     wx.getLocation({
       type: 'gcj02',
       success: (res) => {
-        console.log('获取位置成功:', res)
         this.setData({
           longitude: res.longitude,
           latitude: res.latitude,
-          scale: 15
+          scale: 12
         })
-        if (this.data.mapContext) {
-          this.data.mapContext.moveToLocation({
-            longitude: res.longitude,
-            latitude: res.latitude
-          })
-        }
-        this.loadProperties()
       },
-      fail: (err) => {
-        console.error('获取位置失败:', err)
+      fail: () => {
         wx.showToast({
           title: '获取位置失败，请检查权限',
           icon: 'none'
@@ -384,21 +350,11 @@ Page({
 
   // 切换列表/地图视图
   switchToListView() {
-    console.log('切换到列表视图')
-
-    // 将筛选条件保存到全局变量
     const app = getApp()
     app.globalFilters = this.data.filters
 
-    // 使用 switchTab 跳转到 tabBar 页面
     wx.switchTab({
-      url: '/pages/property/list/list',
-      success: () => {
-        console.log('跳转到列表页成功')
-      },
-      fail: (err) => {
-        console.error('跳转到列表页失败:', err)
-      }
+      url: '/pages/property/list/list'
     })
   },
 
@@ -406,15 +362,12 @@ Page({
   chooseCenterLocation() {
     const that = this
     wx.showActionSheet({
-      itemList: ['使用当前位置', '在地图上选择', '搜索地点'],
+      itemList: ['使用当前位置', '搜索地点'],
       success: (res) => {
         if (res.tapIndex === 0) {
           // 使用当前位置
           that.useCurrentLocationAsCenter()
         } else if (res.tapIndex === 1) {
-          // 在地图上选择
-          that.selectLocationOnMap()
-        } else if (res.tapIndex === 2) {
           // 搜索地点
           that.searchLocation()
         }
@@ -434,14 +387,12 @@ Page({
             name: '当前位置'
           },
           longitude: res.latitude,
-          latitude: res.longitude
+          latitude: res.latitude
         })
         wx.showToast({
-          title: '已设置为当前位置',
+          title: '已设置为筛选中心',
           icon: 'success'
         })
-        // 重新加载房源
-        this.loadProperties()
       },
       fail: () => {
         wx.showToast({
@@ -449,51 +400,6 @@ Page({
           icon: 'none'
         })
       }
-    })
-  },
-
-  // 在地图上选择位置
-  selectLocationOnMap() {
-    // 进入选点模式
-    this.setData({
-      selectMode: true,
-      selectModeTip: '点击地图选择搜索中心位置'
-    })
-    wx.showToast({
-      title: '请点击地图选择位置',
-      icon: 'none'
-    })
-  },
-
-  // 处理地图点击（选择中心位置）
-  onMapTap(e) {
-    if (this.data.selectMode) {
-      const { latitude, longitude } = e.detail
-      this.setData({
-        centerLocation: {
-          latitude,
-          longitude,
-          name: '自定义位置'
-        },
-        longitude: latitude,
-        latitude: longitude,
-        selectMode: false,
-        selectModeTip: ''
-      })
-      wx.showToast({
-        title: '已设置中心位置',
-        icon: 'success'
-      })
-      // 重新加载房源
-      this.loadProperties()
-    }
-  },
-
-  // 取消选择模式
-  cancelSelectMode() {
-    this.setData({
-      selectMode: false,
-      selectModeTip: ''
     })
   },
 
@@ -514,13 +420,12 @@ Page({
   // 清除中心位置设置
   clearCenterLocation() {
     this.setData({
-      centerLocation: null
+      centerLocation: null,
+      markers: this.data.allMarkers  // 恢复显示所有房源
     })
     wx.showToast({
-      title: '已恢复使用当前位置',
+      title: '已显示所有房源',
       icon: 'success'
     })
-    // 重新加载房源
-    this.loadProperties()
   }
 })

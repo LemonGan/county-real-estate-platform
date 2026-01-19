@@ -23,20 +23,11 @@
     markers="{{markers}}"
     polyline="{{polyline}}"
     show-location="{{true}}"
-    enable-3D="{{true}}"
-    show-compass="{{true}}"
-    enable-overlooking="{{true}}"
     enable-zoom="{{true}}"
     enable-scroll="{{true}}"
     bindregionchange="onRegionChange"
     bindmarkertap="onMarkerTap"
-    bindtap="onMapTap"
   >
-    <!-- 选择模式提示 -->
-    <cover-view class="select-mode-tip" wx:if="{{selectMode}}">
-      <cover-view class="tip-text">{{selectModeTip}}</cover-view>
-      <cover-view class="tip-cancel" bindtap="cancelSelectMode">取消</cover-view>
-    </cover-view>
   </map>
 
   <!-- 地图按钮 (使用cover-view作为overlay) -->
@@ -136,23 +127,22 @@
           </view>
         </view>
 
-        <!-- 搜索中心位置 -->
+        <!-- 搜索中心位置说明 -->
         <view class="filter-section">
-          <view class="section-label">搜索中心位置</view>
-          <view class="center-location-display">
-            <view class="location-info" bindtap="chooseCenterLocation">
-              <image class="location-icon-small" src="/assets/icons/location.png" mode="aspectFit"></image>
+          <view class="section-label">
+            筛选中心位置
+          </view>
+          <view class="center-location-display" bindtap="goToLocationSearch">
+            <view class="location-info">
+              <image class="location-icon-small" src="/assets/icons/location-gray.png" />
               <view class="location-text">
-                <text class="location-name">{{centerLocation ? centerLocation.name : '当前位置'}}</text>
-                <text class="location-coords" wx:if="{{centerLocation}}">
-                  {{centerLocation.latitude.toFixed(4)}}, {{centerLocation.longitude.toFixed(4)}}
-                </text>
+                <view class="location-name">{{centerLocation ? centerLocation.name : '未设置（显示全国房源）'}}</view>
               </view>
-              <image class="arrow-right-icon" src="/assets/icons/arrow-right.png" mode="aspectFit"></image>
             </view>
-            <view class="clear-location-btn" wx:if="{{centerLocation}}" bindtap="clearCenterLocation">
-              <text>清除</text>
-            </view>
+            <image class="arrow-right-icon" src="/assets/icons/arrow-right.png" />
+          </view>
+          <view class="clear-location-btn" wx:if="{{centerLocation}}" catchtap="clearCenterLocation">
+            清除筛选
           </view>
         </view>
 
@@ -216,8 +206,11 @@
 
         <!-- 距离筛选 -->
         <view class="filter-section">
-          <view class="section-label">距离范围</view>
-          <view class="option-grid">
+          <view class="section-label">距离筛选</view>
+          <view class="center-info-tip" wx:if="{{!centerLocation}}">
+            <text class="tip-text">请先设置筛选中心位置</text>
+          </view>
+          <view class="option-grid" wx:if="{{centerLocation}}">
             <view
               class="option-item {{filters.distance === item.value ? 'active' : ''}}"
               wx:for="{{distanceOptions}}"

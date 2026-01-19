@@ -32,26 +32,27 @@ async def get_favorites(
     """获取用户收藏列表（分页）"""
     # 构建查询
     query = select(PropertyFavorite).where(PropertyFavorite.user_id == user_id)
-    
+
     # 获取总数
     count_query = select(func.count()).select_from(PropertyFavorite).where(
         PropertyFavorite.user_id == user_id
     )
-    
+
     total_result = await db.execute(count_query)
     total = total_result.scalar()
-    
+
     # 分页查询
     query = query.order_by(desc(PropertyFavorite.created_at))
     query = query.offset((page - 1) * page_size).limit(page_size)
     query = query.options(
+        selectinload(PropertyFavorite.property).selectinload(Property.images),
         selectinload(PropertyFavorite.property).selectinload(Property.agent),
         selectinload(PropertyFavorite.user)
     )
-    
+
     result = await db.execute(query)
     favorites = result.scalars().all()
-    
+
     return list(favorites), total
 
 

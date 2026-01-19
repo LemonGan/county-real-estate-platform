@@ -87,8 +87,10 @@ Page({
    * 时间选择
    */
   onTimeChange(e) {
+    const index = parseInt(e.detail.value)
+    const selectedTime = this.data.timeOptions[index]
     this.setData({
-      appointmentTime: e.detail.value
+      appointmentTime: selectedTime
     })
   },
 
@@ -166,8 +168,8 @@ Page({
     try {
       const { propertyId, appointmentDate, appointmentTime, contactName, contactPhone, remark } = this.data
 
-      // 组合日期和时间
-      const appointmentTimeFull = `${appointmentDate} ${appointmentTime}:00`
+      // 组合日期和时间（ISO 8601格式）
+      const appointmentTimeFull = `${appointmentDate}T${appointmentTime}:00`
 
       await api.post('/appointments/', {
         property_id: propertyId,

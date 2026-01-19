@@ -17,6 +17,8 @@ from app.core.cache import close_redis_client
 # 配置日志
 log_handlers = [logging.StreamHandler()]
 
+# Trigger reload
+
 if settings.LOG_FILE:
     # 确保日志目录存在
     log_file_path = Path(settings.LOG_FILE)

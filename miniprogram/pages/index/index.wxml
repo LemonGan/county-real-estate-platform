@@ -35,34 +35,10 @@
       <image class="entry-icon" src="/assets/icons/map.png" mode="aspectFit"></image>
       <text class="entry-text">地图找房</text>
     </view>
-    <view class="entry-item" bindtap="goToVideos">
-      <image class="entry-icon" src="/assets/icons/video.png" mode="aspectFit"></image>
-      <text class="entry-text">视频看房</text>
+    <view class="entry-item" bindtap="goToNews">
+      <image class="entry-icon" src="/assets/icons/empty-news.png" mode="aspectFit"></image>
+      <text class="entry-text">房产资讯</text>
     </view>
-  </view>
-
-  <!-- 热门视频 -->
-  <view class="section" wx:if="{{hotVideos.length > 0}}">
-    <view class="section-header">
-      <text class="section-title">热门视频</text>
-      <text class="section-more" bindtap="goToVideos">更多 ></text>
-    </view>
-
-    <scroll-view class="video-scroll" scroll-x enhanced show-scrollbar="{{false}}">
-      <view class="video-card" wx:for="{{hotVideos}}" wx:key="id" bindtap="goToVideoDetail" data-id="{{item.id}}">
-        <image class="video-thumb" src="{{item.cover_url}}" mode="aspectFill"></image>
-        <view class="video-play-icon">
-          <image class="play-icon" src="/assets/icons/play-white.png" mode="aspectFit"></image>
-        </view>
-        <view class="video-info">
-          <view class="video-title ellipsis">{{item.title}}</view>
-          <view class="video-stats">
-            <image class="stats-icon" src="/assets/icons/play-gray.png" mode="aspectFit"></image>
-            <text class="stats-text">{{item.play_count_text}}</text>
-          </view>
-        </view>
-      </view>
-    </scroll-view>
   </view>
 
   <!-- 房产资讯 -->

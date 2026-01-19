@@ -1,7 +1,6 @@
 // 首页
 const app = getApp()
 const api = require('../../utils/api')
-const cache = require('../../utils/cache')
 const format = require('../../utils/format')
 
 Page({
@@ -9,7 +8,6 @@ Page({
     banners: [], // 轮播图
     hotProperties: [], // 热门房源
     recommendProperties: [], // 推荐房源
-    hotVideos: [], // 热门视频
     newsList: [], // 房产资讯
     loading: false,
     hasMore: true,
@@ -24,7 +22,6 @@ Page({
     console.log('首页加载')
     this.loadBanners()
     this.loadHotProperties()
-    this.loadHotVideos()
     this.loadNews()
   },
 
@@ -44,7 +41,6 @@ Page({
   onPullDownRefresh() {
     this.loadBanners()
     this.loadHotProperties()
-    this.loadHotVideos()
     this.loadNews()
 
     if (app.globalData.isLogin) {
@@ -120,28 +116,6 @@ Page({
   },
 
   /**
-   * 加载热门视频
-   */
-  async loadHotVideos() {
-    try {
-      const res = await api.get('/short-videos/', {
-        page: 1,
-        page_size: 5,
-        type: 'hot'
-      }, false)
-
-      this.setData({
-        hotVideos: (res.items || []).map(item => ({
-          ...item,
-          play_count_text: this.formatPlayCount(item.play_count)
-        }))
-      })
-    } catch (err) {
-      console.error('加载热门视频失败:', err)
-    }
-  },
-
-  /**
    * 加载房产资讯
    */
   async loadNews() {
@@ -163,23 +137,13 @@ Page({
   },
 
   /**
-   * 格式化播放次数
-   */
-  formatPlayCount(count) {
-    if (count >= 10000) {
-      return (count / 10000).toFixed(1) + '万'
-    } else if (count >= 1000) {
-      return (count / 1000).toFixed(1) + 'k'
-    }
-    return count.toString()
-  },
-
-  /**
    * 格式化发布时间
    */
   formatPublishTime(dateStr) {
     const now = new Date()
-    const date = new Date(dateStr)
+    // 将日期字符串转换为 iOS 兼容格式 (yyyy-MM-ddTHH:mm:ss)
+    const iosDateStr = dateStr.replace(/\s+/g, 'T')
+    const date = new Date(iosDateStr)
     const diff = now - date
     const days = Math.floor(diff / (1000 * 60 * 60 * 24))
 
@@ -233,25 +197,6 @@ Page({
   goToMap() {
     wx.navigateTo({
       url: '/pages/property/map/map'
-    })
-  },
-
-  /**
-   * 跳转到视频列表
-   */
-  goToVideos() {
-    wx.navigateTo({
-      url: '/pages/video/list/list'
-    })
-  },
-
-  /**
-   * 跳转到视频详情
-   */
-  goToVideoDetail(e) {
-    const { id } = e.currentTarget.dataset
-    wx.navigateTo({
-      url: `/pages/video/detail/detail?id=${id}`
     })
   },
 

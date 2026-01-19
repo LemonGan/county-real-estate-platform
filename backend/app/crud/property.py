@@ -54,21 +54,21 @@ async def get_property_by_id(db: AsyncSession, property_id: int, use_cache: bool
         if cached:
             # 从缓存恢复对象（简化处理，实际可能需要更复杂的序列化）
             pass  # 暂时跳过，直接查数据库
-    
+
     result = await db.execute(
         select(Property)
         .where(Property.id == property_id)
         .where(Property.deleted_at.is_(None))
-        .options(selectinload(Property.agent))
+        .options(selectinload(Property.agent), selectinload(Property.images))
     )
     property = result.scalar_one_or_none()
-    
+
     # 缓存结果（转换为可序列化的字典）
     if property and use_cache:
         cache_key = CacheKeys.property_detail(property_id)
         # 注意：这里简化处理，实际应该序列化Property对象
         # await cache_service.set(cache_key, property_dict, CacheTTL.PROPERTY_DETAIL)
-    
+
     return property
 
 
@@ -166,12 +166,12 @@ async def get_properties(
     
     total_result = await db.execute(count_query)
     total = total_result.scalar()
-    
+
     # 分页查询
     query = query.order_by(desc(Property.created_at))
     query = query.offset((page - 1) * page_size).limit(page_size)
-    query = query.options(selectinload(Property.agent))
-    
+    query = query.options(selectinload(Property.agent), selectinload(Property.images))
+
     result = await db.execute(query)
     properties = result.scalars().all()
 
