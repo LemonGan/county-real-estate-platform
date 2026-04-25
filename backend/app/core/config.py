@@ -43,7 +43,8 @@ class Settings(BaseSettings):
     
     # 调试模式
     DEBUG: bool = Field(default=False, description="调试模式")
-    
+    ENVIRONMENT: str = Field(default="development", description="运行环境")
+
     # CORS配置
     BACKEND_CORS_ORIGINS: List[str] = Field(
         default=["http://localhost", "http://localhost:8080"],
@@ -91,6 +92,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "allow"  # 允许.env文件中的额外字段
 
 
 # 创建全局配置实例

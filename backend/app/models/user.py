@@ -45,6 +45,11 @@ class User(Base):
     is_agent = Column(Boolean, default=False, comment="是否经纪人")
     agent_license = Column(String(50), nullable=True, comment="经纪人执业证号")
     
+    # 会员信息
+    member_level = Column(SmallInteger, default=0, comment="会员等级：0普通，1月卡，2季卡，3年卡")
+    member_expire = Column(DateTime(timezone=True), nullable=True, comment="会员到期时间")
+    member_code = Column(String(20), nullable=True, comment="会员兑换码")
+    
     # 营销分析
     source_channel = Column(String(50), nullable=True, comment="来源渠道")
     utm_campaign = Column(String(100), nullable=True, comment="UTM活动")

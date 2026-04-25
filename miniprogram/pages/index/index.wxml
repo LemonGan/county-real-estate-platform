@@ -3,9 +3,9 @@
   <!-- 搜索栏 -->
   <view class="search-bar" bindtap="goToSearch">
     <view class="search-input">
+      <image class="search-icon" src="/assets/icons/search.png" mode="aspectFit"></image>
       <text class="search-placeholder">搜索房源、小区、地址...</text>
     </view>
-    <image class="search-icon" src="/assets/icons/search.png" mode="aspectFit"></image>
   </view>
 
   <!-- 轮播图 -->
@@ -23,11 +23,11 @@
       <image class="entry-icon" src="/assets/icons/property.png" mode="aspectFit"></image>
       <text class="entry-text">找新房</text>
     </view>
-    <view class="entry-item" bindtap="goToList">
+    <view class="entry-item" bindtap="goToList" data-transaction="1">
       <image class="entry-icon" src="/assets/icons/old-property.png" mode="aspectFit"></image>
       <text class="entry-text">找二手房</text>
     </view>
-    <view class="entry-item" bindtap="goToList">
+    <view class="entry-item" bindtap="goToList" data-transaction="2">
       <image class="entry-icon" src="/assets/icons/rent.png" mode="aspectFit"></image>
       <text class="entry-text">租房</text>
     </view>

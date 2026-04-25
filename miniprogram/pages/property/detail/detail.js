@@ -1,5 +1,6 @@
 // 房源详情页
 const api = require('../../../utils/api')
+const app = getApp()
 const { formatPrice, formatDate } = require('../../../utils/format')
 
 Page({
@@ -42,8 +43,46 @@ Page({
     try {
       const res = await api.get(`/properties/${id}`, {}, false)
 
-      // 提取图片URL列表
-      const imageUrls = (res.images || []).map(img => img.url)
+      // 处理图片URL
+      const baseUrl = app.globalData.baseUrl || 'http://127.0.0.1:8000/api/v1'
+      const staticUrl = baseUrl.replace('/api/v1', '') + '/static'
+
+      // 提取图片URL列表（后端返回的是字符串数组）
+      let imageUrls = []
+      if (res.images && res.images.length > 0) {
+        imageUrls = res.images.map(img => {
+          let url = typeof img === 'string' ? img : (img.url || img.image_url || '')
+          if (url && !url.startsWith('http')) {
+            return staticUrl + url
+          }
+          return url
+        })
+      } else if (res.cover_url) {
+        // 如果没有images，用cover_url
+        let coverUrl = res.cover_url
+        if (!coverUrl.startsWith('http')) {
+          coverUrl = staticUrl + coverUrl
+        }
+        imageUrls = [coverUrl]
+      }
+      
+      // 字段映射：API返回字段与页面所需字段对应
+      let coverUrl = res.cover_url || (res.images && res.images[0] ? (typeof res.images[0] === 'string' ? res.images[0] : res.images[0].url || res.images[0].image_url) : '')
+      if (coverUrl && !coverUrl.startsWith('http')) {
+        res.cover_image_url = staticUrl + coverUrl
+      }
+      // 确保是http开头的网络请求
+      if (res.cover_image_url && !res.cover_image_url.startsWith('http')) {
+        res.cover_image_url = 'http://' + res.cover_image_url
+      }
+      res.price = res.total_price || 0
+      res.floor = res.floor_info ? res.floor_info.split('/')[0] : (res.floor || '--')
+      res.total_floors = res.floor_info ? res.floor_info.split('/')[1] : (res.total_floors || '--')
+      res.community_name = res.community || res.village || res.detail_address || ''
+      res.address = res.detail_address || res.address || ''
+      res.rooms = res.room_count || res.rooms || 0
+      res.halls = res.hall_count || res.halls || 0
+      res.bathrooms = res.bathroom_count || 0
 
       this.setData({
         property: res,
@@ -68,16 +107,12 @@ Page({
    * 记录浏览行为（仅在登录时记录）
    */
   async recordView(propertyId) {
-    // 检查用户是否登录
     const token = wx.getStorageSync('token')
     if (!token) {
-      // 未登录，静默跳过
       return
     }
 
     try {
-      // 登录用户记录浏览
-      // behavior_type: 1=浏览, target_type: 1=房源
       const result = await api.post('/users/behaviors', {
         behavior_type: 1,
         target_type: 1,
@@ -85,8 +120,6 @@ Page({
       }, true)
       console.log('浏览记录成功:', result)
     } catch (err) {
-      // 静默处理错误，不影响用户体验
-      // 打印完整错误对象用于调试
       console.log('浏览记录失败详情:', {
         message: err.message,
         stack: err.stack,
@@ -121,14 +154,14 @@ Page({
   async toggleFavorite() {
     try {
       if (this.data.isFavorite) {
-        await api.delete(`/favorites/${this.data.propertyId}`)
+        await api.delete(`/favorites/properties/${this.data.propertyId}`)
         this.setData({ isFavorite: false })
         wx.showToast({
           title: '已取消收藏',
           icon: 'success'
         })
       } else {
-        await api.post('/favorites/', {
+        await api.post(`/favorites/properties/${this.data.propertyId}`, {
           property_id: this.data.propertyId
         })
         this.setData({ isFavorite: true })
@@ -150,11 +183,12 @@ Page({
    * 分享
    */
   onShareAppMessage() {
-    const { property } = this.data
+    const { property, imageUrls } = this.data
+    const shareImage = imageUrls && imageUrls.length > 0 ? imageUrls[0] : ''
     return {
       title: property ? `${property.title} - ${formatPrice(property.price)}` : '房源详情',
       path: `/pages/property/detail/detail?id=${this.data.propertyId}`,
-      imageUrl: property && property.images.length > 0 ? property.images[0].url : ''
+      imageUrl: shareImage
     }
   },
 
@@ -162,11 +196,12 @@ Page({
    * 分享到朋友圈
    */
   onShareTimeline() {
-    const { property } = this.data
+    const { property, imageUrls } = this.data
+    const shareImage = imageUrls && imageUrls.length > 0 ? imageUrls[0] : ''
     return {
       title: property ? `${property.title} - ${formatPrice(property.price)}` : '房源详情',
       query: `id=${this.data.propertyId}`,
-      imageUrl: property && property.images.length > 0 ? property.images[0].url : ''
+      imageUrl: shareImage
     }
   },
 
@@ -252,7 +287,8 @@ Page({
    */
   viewVideo() {
     const { property } = this.data
-    if (!property || !property.video_url) {
+    const videoUrl = property && (property.video_url || (property.video_urls && property.video_urls[0]))
+    if (!videoUrl) {
       wx.showToast({
         title: '暂无视频',
         icon: 'none'
@@ -261,7 +297,7 @@ Page({
     }
 
     wx.navigateTo({
-      url: `/pages/property/video/video?url=${encodeURIComponent(property.video_url)}`
+      url: `/pages/property/video/video?url=${encodeURIComponent(videoUrl)}`
     })
   },
 
@@ -271,6 +307,42 @@ Page({
   editProperty() {
     wx.navigateTo({
       url: `/pages/property/edit/edit?id=${this.data.propertyId}`
+    })
+  },
+
+  /**
+   * 查看评价
+   */
+  goToReview() {
+    wx.navigateTo({
+      url: '/pages/property/review/review?id=' + this.data.propertyId
+    })
+  },
+
+  /**
+   * 生成海报
+   */
+  goToPoster() {
+    const property = encodeURIComponent(JSON.stringify(this.data.property))
+    wx.navigateTo({
+      url: '/pages/property/poster/poster?property=' + property
+    })
+  },
+
+  onShareTap() {
+    // 显示分享菜单
+    wx.showShareMenu({
+      withShareTicket: true,
+      menus: ['shareAppMessage', 'shareTimeline']
+    })
+  },
+
+  /**
+   * 返回首页
+   */
+  goHome() {
+    wx.switchTab({
+      url: '/pages/index/index'
     })
   }
 })

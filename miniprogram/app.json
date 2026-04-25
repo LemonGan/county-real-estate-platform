@@ -1,6 +1,11 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/property/review/review",
+    "pages/property/poster/poster",
+    "pages/agent/workbench/workbench",
+    "pages/agent/properties/properties",
+    "pages/agent/customers/customers",
     "pages/property/list/list",
     "pages/property/detail/detail",
     "pages/property/search/search",
@@ -20,7 +25,10 @@
     "pages/video/detail/detail",
     "pages/news/list/list",
     "pages/news/detail/detail",
-    "pages/agent/detail/detail"
+    "pages/property/add/add",
+    "pages/agent/detail/detail",
+    "pages/user/agent-apply/agent-apply",
+    "pages/user/member/member"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -54,6 +62,12 @@
         "text": "我的",
         "iconPath": "assets/icons/user.png",
         "selectedIconPath": "assets/icons/user-active.png"
+      },
+      {
+        "pagePath": "pages/agent/workbench/workbench",
+        "text": "工作台",
+        "iconPath": "assets/icons/work.png",
+        "selectedIconPath": "assets/icons/work-active.png"
       }
     ]
   },
@@ -66,7 +80,10 @@
     "getLocation",
     "chooseLocation"
   ],
-  "requiredBackgroundModes": ["audio", "location"],
+  "requiredBackgroundModes": [
+    "audio",
+    "location"
+  ],
   "sitemapLocation": "sitemap.json",
   "style": "v2",
   "lazyCodeLoading": "requiredComponents"

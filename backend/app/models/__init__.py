@@ -7,6 +7,7 @@ from app.models.user_behavior import UserBehavior
 from app.models.property import Property, PropertyStatus, PropertyType, TransactionType
 from app.models.property_image import PropertyImage
 from app.models.property_favorite import PropertyFavorite
+from app.models.property_review import PropertyReview
 from app.models.appointment import Appointment, AppointmentStatus, AppointmentType
 from app.models.agent_availability import AgentAvailability
 from app.models.short_video import ShortVideo
@@ -22,6 +23,7 @@ __all__ = [
     "TransactionType",
     "PropertyImage",
     "PropertyFavorite",
+    "PropertyReview",
     "Appointment",
     "AppointmentStatus",
     "AppointmentType",

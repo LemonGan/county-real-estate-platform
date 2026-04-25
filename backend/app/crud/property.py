@@ -210,14 +210,54 @@ async def create_property(
     owner_id: int
 ) -> Property:
     """创建新房源"""
-    # 使用agent_id字段（owner_id作为参数名保持兼容）
+    # 处理 images 字段 - 先提取 images，再排除 price 字段
+    property_dict_full = property_data.model_dump()
+    images = property_dict_full.get('images', None)
+    property_dict = property_dict_full.copy()
+    
+    # 排除所有不在数据库模型中的字段
+    invalid_fields = ['price', 'images', 'address', 'decoration', 'orientation', 'ownership', 'distance', 'community', 'room_type', 'floor']
+    for field in invalid_fields:
+        property_dict.pop(field, None)
+    
+    # 类型转换 - area 必须是 float
+    if 'area' in property_dict:
+        property_dict['area'] = float(property_dict['area'])
+    
+    # 如果有封面图，设置 cover_url
+    if images and len(images) > 0:
+        property_dict['cover_url'] = images[0]
+    
+    # 创建房源
     db_property = Property(
-        **property_data.model_dump(),
-        agent_id=owner_id
+        **property_dict,
+        agent_id=owner_id if owner_id else 1
     )
     db.add(db_property)
     await db.commit()
     await db.refresh(db_property)
+    
+    # 预加载 images 关系以避免序列化时出现懒加载问题
+    result = await db.execute(
+        select(Property)
+        .where(Property.id == db_property.id)
+        .options(selectinload(Property.images))
+    )
+    db_property = result.scalar_one()
+    
+    # 保存图片关联
+    if images:
+        from app.models.property import PropertyImage
+        for i, img_url in enumerate(images):
+            img = PropertyImage(
+                property_id=db_property.id,
+                image_url=img_url,
+                is_cover=i == 0,
+                sort_order=i
+            )
+            db.add(img)
+        await db.commit()
+    
     return db_property
 
 

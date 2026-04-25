@@ -1,21 +1,31 @@
 <!-- 房源列表页 -->
 <view class="page-container">
-  <!-- 搜索栏 -->
-  <view class="search-bar" bindtap="goToSearch">
-    <view class="search-input">
-      <text class="search-placeholder">搜索房源关键词...</text>
-      <image class="search-icon" src="/assets/icons/search.png" mode="aspectFit"></image>
+  <!-- 顶部工具栏 -->
+  <view class="top-toolbar">
+    <!-- 搜索栏 -->
+    <view class="search-bar" bindtap="goToSearch">
+      <view class="search-input">
+        <text class="search-placeholder">搜索房源关键词...</text>
+        <image class="search-icon" src="/assets/icons/search.png" mode="aspectFit"></image>
+      </view>
     </view>
   </view>
 
   <!-- 筛选栏 -->
   <view class="filter-bar">
     <scroll-view class="filter-scroll" scroll-x enhanced show-scrollbar="{{false}}">
-      <view class="filter-item {{filters.transactionType ? 'active' : ''}}"
+      <view class="filter-item {{filters.transactionType === 1 ? 'active' : ''}}"
             bindtap="onFilterChange"
             data-field="transactionType"
-            data-value="{{filters.transactionType === 1 ? null : 1}}">
-        <text>{{filters.transactionType === 1 ? '出售' : '出租'}}</text>
+            data-value="1">
+        <text>出售</text>
+      </view>
+
+      <view class="filter-item {{filters.transactionType === 2 ? 'active' : ''}}"
+            bindtap="onFilterChange"
+            data-field="transactionType"
+            data-value="2">
+        <text>出租</text>
       </view>
 
       <view class="filter-item {{filters.propertyType ? 'active' : ''}}"

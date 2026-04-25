@@ -22,7 +22,7 @@ class PropertyImage(BaseModel):
 
 class PropertyBase(BaseModel):
     """房源基础信息"""
-    title: str = Field(..., min_length=2, max_length=200, description="房源标题")
+    title: Optional[str] = Field(None, min_length=2, max_length=200, description="房源标题")
     description: Optional[str] = Field(None, description="房源描述")
     # 兼容字段：price映射到total_price
     price: Optional[float] = Field(None, gt=0, description="价格（元）- 兼容字段，实际使用total_price")
@@ -55,6 +55,9 @@ class PropertyBase(BaseModel):
     decoration: Optional[str] = Field(None, max_length=20, description="装修情况")
     contact_phone: Optional[str] = Field(None, max_length=20, description="联系电话")
     contact_name: Optional[str] = Field(None, max_length=50, description="联系人姓名")
+    # VR和视频
+    vr_url: Optional[str] = Field(None, max_length=500, description="VR全景链接")
+    video_urls: Optional[List[str]] = Field(None, description="视频链接列表")
 
 
 class PropertyCreate(PropertyBase):
@@ -96,6 +99,21 @@ class PropertyUpdate(BaseModel):
 
 class PropertyResponse(PropertyBase):
     """房源响应"""
+    from pydantic import model_validator
+    
+    @model_validator(mode='before')
+    @classmethod
+    def serialize_images(cls, data):
+        if hasattr(data, '__dict__'):
+            result = {'id': data.id, 'agent_id': data.agent_id, 'status': data.status}
+            for field in ['view_count', 'favorite_count', 'inquiry_count', 'share_count', 'cover_url', 'created_at', 'updated_at', 'title', 'description', 'total_price', 'unit_price', 'area', 'province', 'city', 'district', 'town', 'detail_address', 'longitude', 'latitude', 'property_type', 'transaction_type', 'room_count', 'hall_count', 'bathroom_count', 'floor_info', 'community', 'room_type', 'floor', 'orientation', 'decoration', 'contact_phone', 'contact_name', 'vr_url', 'video_urls', 'has_vr', 'has_video']:
+                if hasattr(data, field):
+                    result[field] = getattr(data, field)
+            if hasattr(data, 'images') and data.images:
+                result['images'] = [img.image_url for img in data.images]
+            return result
+        return data
+    
     id: int
     agent_id: int  # 经纪人ID
     status: int  # 使用int类型，因为数据库中是SmallInteger
@@ -103,8 +121,12 @@ class PropertyResponse(PropertyBase):
     favorite_count: Optional[int] = 0
     inquiry_count: Optional[int] = 0
     share_count: Optional[int] = 0
-    images: List[PropertyImage] = []  # 房源图片列表
+    images: Optional[List[str]] = Field(default=None)  # 房源图片列表
     cover_url: Optional[str] = None  # 封面图片URL
+    vr_url: Optional[str] = None  # VR全景链接
+    video_urls: Optional[List[str]] = None  # 视频链接列表
+    has_vr: Optional[bool] = False  # 是否有VR
+    has_video: Optional[bool] = False  # 是否有视频
     created_at: datetime
     updated_at: datetime
     # 覆盖Base中的字段，改为Optional

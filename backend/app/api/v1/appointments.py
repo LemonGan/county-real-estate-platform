@@ -1,33 +1,68 @@
 """
-看房预约管理API
+预约管理API
 """
-from datetime import date
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List
+from sqlalchemy import select, func
+from datetime import datetime, timedelta
 
 from app.core.database import get_db
 from app.api.deps import get_current_active_user
 from app.models.user import User
-from app.schemas.appointment import AppointmentCreate, AppointmentResponse, AppointmentListResponse
-from app.crud.appointment import create_appointment, get_appointments, get_appointment_by_id, update_appointment
-from app.models.appointment import AppointmentStatus
+from app.models.appointment import Appointment
+from app.schemas.appointment import (
+    AppointmentCreate, AppointmentResponse, AppointmentListResponse
+)
 
 router = APIRouter()
 
 
-@router.post("", response_model=AppointmentResponse, status_code=201, summary="创建看房预约")
+def check_member_privilege(user: User) -> bool:
+    """检查用户是否有会员权益"""
+    if user.member_level == 0:
+        return False
+    if user.member_expire and user.member_expire > datetime.now():
+        return True
+    return False
+
+
+async def create_appointment(db: AsyncSession, appointment_data, user_id: int):
+    """创建预约"""
+    from app.crud.appointment import create_appointment as crud_create
+    return await crud_create(db, appointment_data, user_id)
+
+
+@router.post("", response_model=AppointmentResponse, status_code=201, summary="创建预约")
 async def create_appointment_endpoint(
     appointment_data: AppointmentCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    """创建新的看房预约（自动检测时间冲突）"""
+    """创建新的看房预约"""
+    # 检查会员权限
+    is_member = check_member_privilege(current_user)
+    
+    if not is_member:
+        # 非会员每天限制1次预约
+        today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        stmt = select(func.count(Appointment.id)).where(
+            Appointment.user_id == current_user.id,
+            Appointment.created_at >= today_start
+        )
+        result = await db.execute(stmt)
+        count = result.scalar() or 0
+        
+        if count >= 1:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="普通用户每天仅限1次预约，开通会员可无限制预约"
+            )
+    
     try:
         appointment = await create_appointment(db, appointment_data, current_user.id)
         return appointment
     except ValueError as e:
-        from fastapi import HTTPException, status
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
@@ -38,16 +73,20 @@ async def create_appointment_endpoint(
 async def get_appointments_list(
     page: int = Query(1, ge=1, description="页码"),
     page_size: int = Query(10, ge=1, le=100, description="每页数量"),
+    status_filter: int = Query(None, description="状态筛选"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
     """获取当前用户的预约列表"""
+    from app.crud.appointment import get_appointments
+
     appointments, total = await get_appointments(
         db,
         user_id=current_user.id,
         page=page,
         page_size=page_size
     )
+
     return {
         "list": appointments,
         "total": total,
@@ -62,120 +101,56 @@ async def get_appointment_detail(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    """根据ID获取预约详细信息"""
-    appointment = await get_appointment_by_id(db, appointment_id=appointment_id)
+    """获取预约详情"""
+    from app.crud.appointment import get_appointment_by_id
+
+    appointment = await get_appointment_by_id(db, appointment_id, current_user.id)
+
     if not appointment:
-        from fastapi import HTTPException, status
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="预约不存在"
         )
 
-    # 检查权限：只能查看自己的预约或相关房源的经纪人
-    if appointment.user_id != current_user.id:
-        # 如果是经纪人，检查是否是相关房源的经纪人
-        if not (appointment.property and appointment.property.agent_id == current_user.id):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="无权查看此预约"
-            )
-
     return appointment
 
 
-@router.patch("/{appointment_id}/cancel", response_model=AppointmentResponse, summary="取消预约")
+@router.delete("/{appointment_id}", summary="取消预约")
 async def cancel_appointment(
     appointment_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    """取消预约（仅预约用户可取消）"""
-    from fastapi import HTTPException, status
+    """取消预约"""
+    from app.crud.appointment import cancel_appointment as crud_cancel
 
-    appointment = await get_appointment_by_id(db, appointment_id=appointment_id)
-    if not appointment:
+    success = await crud_cancel(db, appointment_id, current_user.id)
+
+    if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="预约不存在"
+            detail="预约不存在或无法取消"
         )
 
-    # 检查权限：只能取消自己的预约
-    if appointment.user_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="无权取消此预约"
-        )
-
-    # 检查状态：只能取消待确认或已确认的预约
-    if appointment.status in [3, 0]:  # 已完成或已取消
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="该预约无法取消"
-        )
-
-    updated_appointment = await update_appointment(
-        db,
-        appointment_id=appointment_id,
-        appointment_data={"status": 0}  # 已取消
-    )
-    return updated_appointment
+    return {"message": "取消成功"}
 
 
-@router.put("/{appointment_id}/cancel", response_model=AppointmentResponse, summary="取消预约（PUT兼容）")
-async def cancel_appointment_put(
-    appointment_id: int,
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
-):
-    """取消预约（PUT方法，为前端兼容性保留）"""
-    return await cancel_appointment(appointment_id, db, current_user)
-
-
-@router.patch("/{appointment_id}/status", response_model=AppointmentResponse, summary="更新预约状态")
+@router.put("/{appointment_id}/status", summary="更新预约状态")
 async def update_appointment_status(
     appointment_id: int,
-    new_status: int = Query(..., ge=0, le=4, description="新状态：0待确认，1已确认，2已完成，3已取消，4已过期"),
+    new_status: int = Query(..., description="状态: 1待确认 2已确认 3已完成 4已取消"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    """更新预约状态（仅相关用户可操作）"""
-    from fastapi import HTTPException, status
+    """更新预约状态（经纪人或用户）"""
+    from app.crud.appointment import update_status
 
-    appointment = await get_appointment_by_id(db, appointment_id=appointment_id)
+    appointment = await update_status(db, appointment_id, new_status, current_user.id)
+
     if not appointment:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="预约不存在"
         )
 
-    # 检查权限：预约用户或相关房源的经纪人
-    if appointment.user_id != current_user.id:
-        if not (appointment.property and appointment.property.agent_id == current_user.id):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="无权修改此预约状态"
-            )
-
-    updated_appointment = await update_appointment(
-        db,
-        appointment_id=appointment_id,
-        appointment_data={"status": new_status}
-    )
-    return updated_appointment
-
-
-@router.get("/agents/{agent_id}/available-slots", summary="获取经纪人可用时间段")
-async def get_agent_available_slots_endpoint(
-    agent_id: int,
-    date: date = Query(..., description="查询日期（YYYY-MM-DD）"),
-    db: AsyncSession = Depends(get_db)
-):
-    """获取指定经纪人在指定日期的可用时间段"""
-    from app.utils.appointment import get_agent_available_slots
-
-    available_slots = await get_agent_available_slots(db, agent_id, date)
-    return {
-        "agent_id": agent_id,
-        "date": date.isoformat(),
-        "available_slots": [slot.strftime("%H:%M") for slot in available_slots]
-    }
+    return appointment

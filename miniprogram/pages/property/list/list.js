@@ -1,4 +1,5 @@
 // 房源列表页
+const app = getApp()
 const api = require('../../../utils/api')
 const format = require('../../../utils/format')
 const cache = require('../../../utils/cache')
@@ -59,6 +60,16 @@ Page({
    */
   onLoad(options) {
     console.log('房源列表页加载', options)
+
+    // 读取首页传入的交易类型
+    const transactionType = wx.getStorageSync('listTransactionType')
+    if (transactionType) {
+      this.setData({
+        'filters.transactionType': parseInt(transactionType)
+      })
+      // 清除存储，避免影响后续
+      wx.removeStorageSync('listTransactionType')
+    }
 
     // 如果从搜索页跳转过来，携带关键词
     if (options.keyword) {
@@ -205,14 +216,28 @@ Page({
 
       const res = await api.get('/properties', params, false)
 
-      const properties = (res.list || []).map(item => ({
-        ...item,
-        total_price_text: format.formatPrice(item.total_price),
-        area_text: format.formatArea(item.area),
-        room_type: format.formatRoomType(item),
-        property_type_text: format.formatPropertyType(item.property_type),
-        transaction_type_text: format.formatTransactionType(item.transaction_type)
-      }))
+      const baseUrl = app.globalData.baseUrl || 'http://127.0.0.1:8000/api/v1'
+      const staticUrl = baseUrl.replace('/api/v1', '') + '/static'
+      const properties = (res.list || []).map(item => {
+        // 处理封面图
+        let coverUrl = item.cover_url || (item.images && item.images[0] ? item.images[0].image_url : '')
+        if (coverUrl && !coverUrl.startsWith('http')) {
+          coverUrl = staticUrl + coverUrl
+        }
+        // 确保是http开头的网络请求
+        if (coverUrl && !coverUrl.startsWith('http')) {
+          coverUrl = 'http://' + coverUrl
+        }
+        return {
+          ...item,
+          cover_image_url: coverUrl,
+          total_price_text: format.formatPrice(item.total_price),
+          area_text: format.formatArea(item.area),
+          room_type: format.formatRoomType(item),
+          property_type_text: format.formatPropertyType(item.property_type),
+          transaction_type_text: format.formatTransactionType(item.transaction_type)
+        }
+      })
 
       this.setData({
         propertyList: this.data.currentPage === 1 ? properties : [...this.data.propertyList, ...properties],

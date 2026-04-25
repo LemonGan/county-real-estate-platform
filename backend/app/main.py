@@ -66,6 +66,31 @@ upload_dir.mkdir(parents=True, exist_ok=True)
 
 # 将uploads目录挂载到/static路径
 if upload_dir.exists():
+    # 添加一个特殊的路由来处理扩展名问题
+    @app.get("/static/{path:path}")
+    async def serve_static_fallback(path: str):
+        from starlette.responses import FileResponse
+        import os
+        
+        # 尝试原始路径
+        file_path = upload_dir / path
+        if file_path.exists():
+            return FileResponse(file_path)
+        
+        # 尝试添加常见扩展名
+        base, ext = os.path.splitext(path)
+        extensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif']
+        for new_ext in extensions:
+            if ext.lower() not in extensions:
+                new_path = base + new_ext
+                file_path = upload_dir / new_path
+                if file_path.exists():
+                    return FileResponse(file_path)
+        
+        # 返回404
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="File not found")
+    
     app.mount("/static", StaticFiles(directory=str(upload_dir)), name="static")
     logger.info(f"静态文件服务已挂载: {upload_dir} -> /static")
 else:

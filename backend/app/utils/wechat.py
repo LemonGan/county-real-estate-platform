@@ -21,6 +21,8 @@ async def get_wechat_openid(code: str) -> Dict[str, str]:
     Returns:
         Dict包含openid和session_key
     """
+    if getattr(settings, "DEV_MODE", False):
+        return {"openid": "dev_" + code[:8], "session_key": "mock", "unionid": None}
     if not settings.WECHAT_APPID or not settings.WECHAT_SECRET:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

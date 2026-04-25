@@ -1,10 +1,10 @@
-// 县域房产平台小程序主入口
+﻿// 县域房产平台小程序主入口
 App({
   globalData: {
     userInfo: null,
     token: null,
-    baseUrl: 'http://192.168.1.122:8000/api/v1', // 开发环境API地址
-    isLogin: false,
+    baseUrl: 'http://8.138.129.142:8881/api/v1', // 生产环境API地址
+    isLogin: false, 
     location: null
   },
 

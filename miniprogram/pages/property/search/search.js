@@ -4,6 +4,7 @@ const api = require('../../../utils/api')
 Page({
   data: {
     mode: 'property',  // 'property' 搜索房源, 'location' 选择位置
+    viewMode: 'list',  // 'list' 列表视图, 'map' 地图视图
     keyword: '',
     history: [],
     hotSearches: [],
@@ -12,7 +13,14 @@ Page({
     searching: false,
     hasResults: false,
     showHistory: true,
-    searchTimer: null  // 搜索防抖定时器
+    searchTimer: null,  // 搜索防抖定时器
+    
+    // 地图相关
+    mapLongitude: 120.2,
+    mapLatitude: 30.3,
+    mapMarkers: [],
+    selectedProperty: null,
+    showPropertyCard: false
   },
 
   /**
@@ -87,8 +95,10 @@ Page({
     // 房源搜索模式的热门搜索
     try {
       const res = await api.get('/statistics/hot-search', {}, false)
+      // 后端返回的是对象数组 [{keyword, count}, ...]，需要提取 keyword 字段
+      const keywords = res.keywords || []
       this.setData({
-        hotSearches: res.keywords || []
+        hotSearches: keywords.map(item => item.keyword || item)
       })
     } catch (err) {
       console.error('加载热门搜索失败:', err)
@@ -199,8 +209,8 @@ Page({
       }, false)
 
       this.setData({
-        searchResults: res.items || res,
-        hasResults: (res.items && res.items.length > 0) || (res && res.length > 0),
+        searchResults: res.list || res.items || res,
+        hasResults: (res.list && res.list.length > 0) || (res.items && res.items.length > 0) || (res && res.length > 0),
         searching: false
       })
 
@@ -288,12 +298,6 @@ Page({
     }
   },
 
-    // 保存搜索历史
-    this.saveSearchHistory(location.title)
-
-    wx.navigateBack()
-  },
-
   /**
    * 跳转房源详情
    */
@@ -311,5 +315,132 @@ Page({
     wx.navigateTo({
       url: '/pages/property/list/list?from=search'
     })
+  },
+
+  // ========== 地图视图相关 ==========
+
+  /**
+   * 切换到列表视图
+   */
+  switchToListView() {
+    this.setData({ viewMode: 'list' })
+  },
+
+  /**
+   * 切换到地图视图
+   */
+  switchToMapView() {
+    this.setData({ viewMode: 'map' })
+    this.initMapView()
+  },
+
+  /**
+   * 初始化地图视图
+   */
+  initMapView() {
+    // 获取用户位置
+    wx.getLocation({
+      type: 'gcj02',
+      success: (res) => {
+        this.setData({
+          mapLongitude: res.longitude,
+          mapLatitude: res.latitude
+        })
+      }
+    })
+
+    // 构建地图标记（使用搜索结果或全部房源）
+    const properties = this.data.searchResults.length > 0 ? this.data.searchResults : []
+    this.buildMapMarkers(properties)
+  },
+
+  /**
+   * 构建地图标记
+   */
+  buildMapMarkers(properties) {
+    const markers = []
+    properties.forEach(prop => {
+      if (prop.latitude && prop.longitude) {
+        const priceWan = (prop.total_price || prop.price) / 10000
+        markers.push({
+          id: prop.id,
+          latitude: parseFloat(prop.latitude),
+          longitude: parseFloat(prop.longitude),
+          iconPath: this.getMarkerIcon(priceWan),
+          width: 36,
+          height: 36,
+          title: prop.title
+        })
+      }
+    })
+    this.setData({ mapMarkers: markers })
+  },
+
+  /**
+   * 获取标记图标
+   */
+  getMarkerIcon(price) {
+    if (price < 50) {
+      return '/assets/icons/marker-green.png'
+    } else if (price < 100) {
+      return '/assets/icons/marker-blue.png'
+    } else if (price < 200) {
+      return '/assets/icons/marker-orange.png'
+    } else {
+      return '/assets/icons/marker-red.png'
+    }
+  },
+
+  /**
+   * 点击地图标记
+   */
+  onMarkerTap(e) {
+    const markerId = e.detail.markerId
+    // 从搜索结果中查找
+    let property = this.data.searchResults.find(p => p.id === markerId)
+    if (property) {
+      // 处理图片
+      const baseUrl = getApp().globalData.baseUrl || 'http://127.0.0.1:8000/api/v1'
+      const staticUrl = baseUrl.replace('/api/v1', '') + '/static'
+      let coverUrl = property.cover_url || (property.images && property.images[0] ? property.images[0].image_url : '')
+      if (coverUrl && !coverUrl.startsWith('http')) {
+        coverUrl = staticUrl + coverUrl
+      }
+      property = {
+        ...property,
+        cover_image_url: coverUrl,
+        total_price_text: (property.total_price || property.price) >= 10000 
+          ? ((property.total_price || property.price) / 10000).toString() 
+          : (property.total_price || property.price).toString(),
+        area_text: property.area ? `${property.area}㎡` : '',
+        room_type: `${property.rooms || property.room_count || 0}室${property.halls || property.hall_count || 0}厅`
+      }
+      
+      this.setData({
+        selectedProperty: property,
+        showPropertyCard: true
+      })
+    }
+  },
+
+  /**
+   * 关闭房源卡片
+   */
+  closePropertyCard() {
+    this.setData({
+      showPropertyCard: false,
+      selectedProperty: null
+    })
+  },
+
+  /**
+   * 从地图卡片查看详情
+   */
+  goToDetailFromMap() {
+    if (this.data.selectedProperty) {
+      wx.navigateTo({
+        url: `/pages/property/detail/detail?id=${this.data.selectedProperty.id}`
+      })
+    }
   }
 })

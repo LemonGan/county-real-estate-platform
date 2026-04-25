@@ -1,85 +1,34 @@
-<!-- 登录页 -->
+<!-- 登录页 - 简洁版 -->
 <view class="login-container">
   <!-- Logo区域 -->
   <view class="logo-section">
     <image class="logo" src="/assets/images/logo.png" mode="aspectFit"></image>
-    <text class="app-name">县域房产信息平台</text>
-    <text class="app-slogan">让房产交易更简单</text>
+    <text class="app-name">县域房产</text>
+    <text class="app-slogan">找房·看房·租房</text>
   </view>
 
-  <!-- 登录表单 -->
-  <view class="login-form">
-    <!-- 手机号密码登录 -->
-    <view class="form-section" wx:if="{{!isWechatLogin}}">
-      <view class="form-item">
-        <view class="form-label">
-          <image class="form-icon" src="/assets/icons/phone.png" mode="aspectFit"></image>
-          <text>手机号</text>
-        </view>
-        <input class="form-input"
-               type="number"
-               placeholder="请输入手机号"
-               maxlength="11"
-               value="{{phone}}"
-               bindinput="onInputChange"
-               data-field="phone" />
-      </view>
-
-      <view class="form-item">
-        <view class="form-label">
-          <image class="form-icon" src="/assets/icons/lock.png" mode="aspectFit"></image>
-          <text>密码</text>
-        </view>
-        <input class="form-input"
-               type="password"
-               placeholder="请输入密码"
-               value="{{password}}"
-               bindinput="onInputChange"
-               data-field="password" />
-      </view>
-
-      <view class="form-actions">
-        <text class="action-link" bindtap="forgotPassword">忘记密码？</text>
-      </view>
-
-      <button class="login-btn btn-primary" bindtap="handleLogin">
-        登录
-      </button>
-
-      <view class="form-footer">
-        <text class="footer-text">还没有账号？</text>
-        <text class="link" bindtap="goToRegister">立即注册</text>
-      </view>
-    </view>
-
-    <!-- 微信登录 -->
-    <view class="form-section wechat-login" wx:else>
-      <view class="wechat-tip">
-        <image class="wechat-icon" src="/assets/icons/wechat.png" mode="aspectFit"></image>
-        <text class="wechat-text">微信一键登录</text>
-      </view>
-
-      <button class="wechat-login-btn" open-type="getUserInfo" bindgetuserinfo="handleWechatLogin">
-        <image class="btn-icon" src="/assets/icons/wechat.png" mode="aspectFit"></image>
-        <text>微信登录</text>
-      </button>
-
-      <view class="form-footer">
-        <text class="footer-text">使用微信即表示同意</text>
-        <text class="link">《用户协议》</text>
-        <text class="footer-text">和</text>
-        <text class="link">《隐私政策》</text>
-      </view>
+  <!-- 微信授权登录按钮 -->
+  <view class="login-section">
+    <button class="wechat-login-btn" bindtap="handleWechatLogin">
+      <image class="btn-icon" src="/assets/icons/wechat.png" mode="aspectFit"></image>
+      <text>微信授权登录</text>
+    </button>
+    
+    <view class="login-tip">
+      <text>登录后即可享受更多服务</text>
     </view>
   </view>
 
-  <!-- 切换登录方式 -->
-  <view class="switch-login">
-    <text class="switch-text" bindtap="switchLoginType" wx:if="{{!isWechatLogin}}">
-      使用微信登录
-    </text>
-    <text class="switch-text" bindtap="switchLoginType" wx:else>
-      使用手机号登录
-    </text>
+  <!-- 游客模式 -->
+  <view class="guest-section">
+    <text class="guest-btn" bindtap="goToHome">暂不登录，先看看</text>
+  </view>
+
+  <!-- 用户协议 -->
+  <view class="agreement-section">
+    <text class="agreement-text">登录即表示同意</text>
+    <text class="link" bindtap="showAgreement">《用户协议》</text>
+    <text class="agreement-text">和</text>
+    <text class="link" bindtap="showPrivacy">《隐私政策》</text>
   </view>
 </view>

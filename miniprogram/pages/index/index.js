@@ -46,10 +46,28 @@ Page({
     if (app.globalData.isLogin) {
       this.loadRecommendProperties()
     }
-
     setTimeout(() => {
       wx.stopPullDownRefresh()
     }, 1000)
+  },
+
+  /**
+   * 处理房源图片URL
+   */
+  processProperties(list) {
+    const baseUrl = app.globalData.baseUrl || 'http://127.0.0.1:8000/api/v1'
+    const staticUrl = baseUrl.replace('/api/v1', '') + '/static'
+    return (list || []).map(item => {
+      let coverUrl = item.cover_url || (item.images && item.images[0] ? item.images[0].image_url : '')
+      if (coverUrl && !coverUrl.startsWith('http')) {
+        coverUrl = staticUrl + coverUrl
+      }
+      // 确保是http开头的网络请求
+      if (coverUrl && !coverUrl.startsWith('http')) {
+        coverUrl = 'http://' + coverUrl
+      }
+      return { ...item, cover_image_url: coverUrl }
+    })
   },
 
   /**
@@ -86,7 +104,7 @@ Page({
       }, false)
 
       this.setData({
-        hotProperties: res.list || [],
+        hotProperties: this.processProperties(res.list),
         loading: false
       })
     } catch (err) {
@@ -108,7 +126,7 @@ Page({
       }, false)
 
       this.setData({
-        recommendProperties: res.list || []
+        recommendProperties: this.processProperties(res.list)
       })
     } catch (err) {
       console.error('加载推荐房源失败:', err)
@@ -176,7 +194,10 @@ Page({
   /**
    * 跳转到房源列表
    */
-  goToList() {
+  goToList(e) {
+    const transactionType = e?.currentTarget?.dataset?.transaction || 1
+    // 保存到全局或本地存储，供列表页读取
+    wx.setStorageSync('listTransactionType', transactionType)
     wx.switchTab({
       url: '/pages/property/list/list'
     })
@@ -188,15 +209,6 @@ Page({
   goToSearch() {
     wx.navigateTo({
       url: '/pages/property/search/search'
-    })
-  },
-
-  /**
-   * 跳转到地图找房
-   */
-  goToMap() {
-    wx.navigateTo({
-      url: '/pages/property/map/map'
     })
   },
 

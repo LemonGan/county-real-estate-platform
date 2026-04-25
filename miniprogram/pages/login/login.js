@@ -1,159 +1,110 @@
-// 登录页
+// 登录页 - 简洁版
 const app = getApp()
 const api = require('../../utils/api')
 
+// 开发模式标识
+const DEV_MODE = true
+
 Page({
   data: {
-    phone: '',
-    password: '',
-    code: '',
-    isWechatLogin: false
+    loading: false
   },
 
   /**
    * 页面加载
    */
-  onLoad(options) {
-    // 检查是否已登录
+  onLoad() {
+    // 已登录则直接跳转首页
     if (app.globalData.isLogin) {
-      wx.navigateBack()
+      wx.switchTab({
+        url: '/pages/index/index'
+      })
     }
   },
 
   /**
-   * 输入框变化
-   */
-  onInputChange(e) {
-    const { field } = e.currentTarget.dataset
-    this.setData({
-      [field]: e.detail.value
-    })
-  },
-
-  /**
-   * 切换登录方式
-   */
-  switchLoginType() {
-    this.setData({
-      isWechatLogin: !this.data.isWechatLogin
-    })
-  },
-
-  /**
-   * 手机号密码登录
-   */
-  async handleLogin() {
-    const { phone, password } = this.data
-
-    // 验证手机号
-    if (!phone) {
-      wx.showToast({
-        title: '请输入手机号',
-        icon: 'none'
-      })
-      return
-    }
-
-    if (!/^1[3-9]\d{9}$/.test(phone)) {
-      wx.showToast({
-        title: '手机号格式不正确',
-        icon: 'none'
-      })
-      return
-    }
-
-    // 验证密码
-    if (!password) {
-      wx.showToast({
-        title: '请输入密码',
-        icon: 'none'
-      })
-      return
-    }
-
-    if (password.length < 6) {
-      wx.showToast({
-        title: '密码至少6位',
-        icon: 'none'
-      })
-      return
-    }
-
-    try {
-      const res = await api.post('/auth/login', {
-        phone: phone,
-        password: password
-      }, false)
-
-      // 保存登录信息
-      app.setLoginInfo(res.access_token, {
-        id: res.user_id,
-        phone: phone
-      })
-
-      wx.showToast({
-        title: '登录成功',
-        icon: 'success'
-      })
-
-      setTimeout(() => {
-        wx.switchTab({
-          url: '/pages/index/index'
-        })
-      }, 1500)
-    } catch (err) {
-      console.error('登录失败:', err)
-    }
-  },
-
-  /**
-   * 微信授权登录
+   * 微信授权登录 - 主流方式
    */
   async handleWechatLogin() {
-    const { code } = this.data
-
-    if (!code) {
-      wx.showToast({
-        title: '获取授权信息失败',
-        icon: 'none'
-      })
-      return
-    }
+    if (this.data.loading) return
+    
+    this.setData({ loading: true })
+    wx.showLoading({ title: '登录中...' })
 
     try {
-      // 获取用户信息
-      const userInfo = await this.getUserProfile()
-
+      // 1. 获取微信 code（静默获取）
+      const code = await this.getWechatCode()
+      
+      // 2. 开发模式：跳过 getUserProfile，直接使用模拟数据
+      let userInfo
+      if (DEV_MODE) {
+        userInfo = { nickName: '测试用户', avatarUrl: '' }
+      } else {
+        userInfo = await this.getUserProfile()
+      }
+      
+      // 3. 调用后端登录接口
       const res = await api.post('/auth/wechat/login', {
         code: code,
         nickname: userInfo.nickName,
         avatar: userInfo.avatarUrl
       }, false)
 
-      // 保存登录信息
+      // 4. 保存登录信息
       app.setLoginInfo(res.access_token, {
         id: res.user_id,
         nickname: userInfo.nickName,
         avatar: userInfo.avatarUrl
       })
 
+      wx.hideLoading()
       wx.showToast({
-        title: res.is_new_user ? '注册成功' : '登录成功',
+        title: res.is_new_user ? '欢迎加入' : '登录成功',
         icon: 'success'
       })
 
+      // 延迟跳转首页
       setTimeout(() => {
         wx.switchTab({
           url: '/pages/index/index'
         })
       }, 1500)
+
     } catch (err) {
-      console.error('微信登录失败:', err)
+      wx.hideLoading()
+      console.error('登录失败:', err)
+      wx.showToast({
+        title: err.message || '登录失败，请重试',
+        icon: 'none'
+      })
+    } finally {
+      this.setData({ loading: false })
     }
   },
 
   /**
-   * 获取微信用户信息
+   * 获取微信 code（静默登录）
+   */
+  getWechatCode() {
+    return new Promise((resolve, reject) => {
+      wx.login({
+        success: (res) => {
+          if (res.code) {
+            resolve(res.code)
+          } else {
+            reject(new Error('获取登录凭证失败'))
+          }
+        },
+        fail: (err) => {
+          console.error('wx.login 失败:', err)
+          reject(new Error('微信登录失败'))
+        }
+      })
+    })
+  },
+
+  /**
+   * 获取用户授权信息
    */
   getUserProfile() {
     return new Promise((resolve, reject) => {
@@ -163,54 +114,42 @@ Page({
           resolve(res.userInfo)
         },
         fail: (err) => {
-          wx.showToast({
-            title: '需要授权才能登录',
-            icon: 'none'
-          })
-          reject(err)
+          // 用户拒绝授权时，仍然允许静默登录
+          console.log('用户拒绝授权:', err)
+          resolve({ nickName: '微信用户', avatarUrl: '' })
         }
       })
     })
   },
 
   /**
-   * 获取微信code
+   * 游客模式 - 不登录直接看
    */
-  getWechatCode() {
-    return new Promise((resolve, reject) => {
-      wx.login({
-        success: (res) => {
-          if (res.code) {
-            this.setData({ code: res.code })
-            resolve(res.code)
-          } else {
-            reject(new Error('获取微信code失败'))
-          }
-        },
-        fail: (err) => {
-          console.error('wx.login失败:', err)
-          reject(err)
-        }
-      })
+  goToHome() {
+    wx.switchTab({
+      url: '/pages/index/index'
     })
   },
 
   /**
-   * 跳转注册
+   * 查看用户协议
    */
-  goToRegister() {
-    wx.navigateTo({
-      url: '/pages/login/register/register'
+  showAgreement() {
+    wx.showModal({
+      title: '用户协议',
+      content: '县域房产平台用户协议内容...',
+      showCancel: false
     })
   },
 
   /**
-   * 忘记密码
+   * 查看隐私政策
    */
-  forgotPassword() {
-    wx.showToast({
-      title: '密码重置功能开发中',
-      icon: 'none'
+  showPrivacy() {
+    wx.showModal({
+      title: '隐私政策',
+      content: '县域房产平台隐私政策内容...',
+      showCancel: false
     })
   }
 })

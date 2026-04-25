@@ -18,6 +18,51 @@
     <text class="search-btn" bindtap="onConfirm">搜索</text>
   </view>
 
+  <!-- 视图切换按钮 -->
+  <view class="view-toggle-bar">
+    <view class="view-toggle {{viewMode === 'list' ? 'active' : ''}}" bindtap="switchToListView">
+      <text>列表</text>
+    </view>
+    <view class="view-toggle {{viewMode === 'map' ? 'active' : ''}}" bindtap="switchToMapView">
+      <text>地图</text>
+    </view>
+  </view>
+
+  <!-- 地图视图 -->
+  <view class="map-view" wx:if="{{viewMode === 'map'}}">
+    <map
+      id="searchMap"
+      class="search-map"
+      longitude="{{mapLongitude}}"
+      latitude="{{mapLatitude}}"
+      scale="11"
+      markers="{{mapMarkers}}"
+      show-location="{{true}}"
+      bindmarkertap="onMarkerTap"
+    ></map>
+    
+    <!-- 地图房源卡片 -->
+    <view class="map-property-card {{showPropertyCard ? 'show' : ''}}" wx:if="{{selectedProperty}}">
+      <view class="card-close" bindtap="closePropertyCard">
+        <image class="close-icon" src="/assets/icons/close.png" />
+      </view>
+      <view class="card-content" bindtap="goToDetailFromMap">
+        <image class="card-image" src="{{selectedProperty.cover_image_url || '/assets/images/default-property.png'}}" mode="aspectFill" />
+        <view class="card-info">
+          <view class="card-title">{{selectedProperty.title}}</view>
+          <view class="card-tags">
+            <text class="tag">{{selectedProperty.area_text}}</text>
+            <text class="tag">{{selectedProperty.room_type}}</text>
+          </view>
+          <view class="card-price">
+            <text class="price">{{selectedProperty.total_price_text}}</text>
+            <text class="unit">万</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
   <!-- 搜索历史和热门 -->
   <view class="search-content" wx:if="{{showHistory}}">
     <!-- 搜索历史 -->
@@ -89,7 +134,7 @@
             bindtap="goToDetail"
             data-id="{{item.id}}">
         <image class="result-image"
-               src="{{item.images && item.images[0] ? item.images[0].url : '/assets/images/default-property.png'}}"
+               src="{{item.images && item.images[0] ? item.images[0] : '/assets/images/default-property.png'}}"
                mode="aspectFill"></image>
         <view class="result-info">
           <view class="result-title">{{item.title}}</view>

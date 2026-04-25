@@ -268,7 +268,7 @@ async def get_dashboard_statistics(db: AsyncSession, use_cache: bool = True) -> 
     """获取仪表盘综合统计数据（支持缓存）"""
     # 尝试从缓存获取
     if use_cache:
-        cached = await cache_service.get(CacheKeys.STATISTICS_DASHBOARD)
+        cached = await cache_service.get(CacheKeys.statistics_dashboard())
         if cached:
             return cached
     
@@ -287,6 +287,6 @@ async def get_dashboard_statistics(db: AsyncSession, use_cache: bool = True) -> 
     
     # 缓存结果
     if use_cache:
-        await cache_service.set(CacheKeys.STATISTICS_DASHBOARD, result, CacheTTL.STATISTICS)
+        await cache_service.set(CacheKeys.statistics_dashboard(), result, CacheTTL.STATISTICS)
     
     return result

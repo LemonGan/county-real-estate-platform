@@ -1,40 +1,41 @@
-/* 首页样式 */
+/* 首页样式 - 修复版 */
 .page-container {
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background-color: #f8f9fa;
 }
 
-/* 搜索栏 */
+/* 搜索栏 - 修复蓝色背景问题 */
 .search-bar {
-  display: flex;
-  align-items: center;
-  background-color: #fff;
-  padding: 20rpx 24rpx;
-  margin: 20rpx;
-  border-radius: 40rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+  background: #fff;
+  padding: 20rpx 30rpx;
 }
 
 .search-input {
-  flex: 1;
-  margin-right: 16rpx;
+  background: #f8f9fa;
+  border-radius: 40rpx;
+  padding: 24rpx 30rpx;
+  display: flex;
+  align-items: center;
 }
 
 .search-placeholder {
-  color: #8c8c8c;
+  color: #999;
   font-size: 28rpx;
 }
 
 .search-icon {
-  width: 32rpx;
-  height: 32rpx;
+  width: 36rpx;
+  height: 36rpx;
+  margin-right: 16rpx;
+  opacity: 0.4;
 }
 
 /* 轮播图 */
 .banner-container {
-  margin: 20rpx;
-  border-radius: 16rpx;
+  margin: 20rpx 30rpx 30rpx;
+  border-radius: 24rpx;
   overflow: hidden;
+  box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.1);
 }
 
 .banner-swiper {
@@ -49,26 +50,25 @@
 
 /* 快捷入口 */
 .quick-entry {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  background-color: #fff;
-  padding: 32rpx 0;
-  margin: 20rpx;
-  border-radius: 16rpx;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20rpx;
+  background: #fff;
+  margin: 30rpx;
+  border-radius: 24rpx;
+  padding: 36rpx 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.06);
 }
 
 .entry-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 20%;
-  margin-bottom: 16rpx;
 }
 
 .entry-icon {
-  width: 72rpx;
-  height: 72rpx;
+  width: 80rpx;
+  height: 80rpx;
   margin-bottom: 12rpx;
 }
 
@@ -77,100 +77,56 @@
   color: #333;
 }
 
-/* 视频横向滚动 */
-.video-scroll {
-  white-space: nowrap;
+/* 区块通用样式 */
+.section {
+  margin: 0 30rpx 30rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 36rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.06);
 }
 
-.video-card {
-  display: inline-block;
-  width: 260rpx;
-  background-color: #fff;
-  border-radius: 12rpx;
-  overflow: hidden;
-  margin-right: 16rpx;
-  vertical-align: top;
-  position: relative;
-}
-
-.video-card:last-child {
-  margin-right: 0;
-}
-
-.video-thumb {
-  width: 100%;
-  height: 180rpx;
-  position: relative;
-}
-
-.video-play-icon {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60rpx;
-  height: 60rpx;
-  background-color: rgba(0, 0, 0, 0.5);
-  border-radius: 50%;
+.section-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
+  margin-bottom: 24rpx;
 }
 
-.play-icon {
-  width: 32rpx;
-  height: 32rpx;
-  margin-left: 4rpx;
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1a1a1a;
+  padding-left: 20rpx;
+  border-left: 6rpx solid #667eea;
 }
 
-.video-info {
-  padding: 12rpx;
-}
-
-.video-title {
-  font-size: 26rpx;
-  color: #333;
-  margin-bottom: 8rpx;
-  line-height: 1.4;
-}
-
-.video-stats {
-  display: flex;
-  align-items: center;
-}
-
-.stats-icon {
-  width: 24rpx;
-  height: 24rpx;
-  margin-right: 6rpx;
-}
-
-.stats-text {
-  font-size: 22rpx;
-  color: #8c8c8c;
+.section-more {
+  font-size: 24rpx;
+  color: #999;
 }
 
 /* 资讯列表 */
 .news-list {
-  background-color: #fff;
-  border-radius: 12rpx;
-  overflow: hidden;
+  background: transparent;
 }
 
 .news-item {
   display: flex;
-  padding: 20rpx;
-  border-bottom: 1rpx solid #e8e8e8;
+  padding: 24rpx;
+  background: #f8f9fa;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
 }
 
 .news-item:last-child {
-  border-bottom: none;
+  margin-bottom: 0;
 }
 
 .news-thumb {
   width: 180rpx;
   height: 120rpx;
-  border-radius: 8rpx;
+  border-radius: 12rpx;
   margin-right: 20rpx;
   flex-shrink: 0;
 }
@@ -182,60 +138,32 @@
   justify-content: space-between;
 }
 
-.news-content.no-thumb {
-  padding-left: 0;
-}
-
 .news-title {
   font-size: 28rpx;
   color: #333;
   line-height: 1.5;
-  margin-bottom: 12rpx;
 }
 
 .news-meta {
   display: flex;
   align-items: center;
-  font-size: 22rpx;
-  color: #8c8c8c;
 }
 
 .news-category {
-  padding: 4rpx 12rpx;
-  background-color: #e6e9ff;
-  color: #667eea;
-  border-radius: 4rpx;
+  padding: 6rpx 16rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border-radius: 20rpx;
+  font-size: 20rpx;
   margin-right: 16rpx;
 }
 
 .news-time {
-  flex: 1;
+  font-size: 22rpx;
+  color: #999;
 }
 
-/* 区块 */
-.section {
-  margin: 20rpx;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20rpx;
-}
-
-.section-title {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
-}
-
-.section-more {
-  font-size: 24rpx;
-  color: #8c8c8c;
-}
-
-/* 横向滚动房源 */
+/* 横向滚动房源卡片 */
 .property-scroll {
   white-space: nowrap;
 }
@@ -243,8 +171,8 @@
 .property-card-horizontal {
   display: inline-block;
   width: 280rpx;
-  background-color: #fff;
-  border-radius: 16rpx;
+  background: #f8f9fa;
+  border-radius: 20rpx;
   overflow: hidden;
   margin-right: 20rpx;
   vertical-align: top;
@@ -256,54 +184,76 @@
 
 .property-image {
   width: 100%;
-  height: 200rpx;
+  height: 180rpx;
 }
 
 .property-info {
-  padding: 16rpx;
+  padding: 20rpx;
 }
 
 .property-title {
-  font-size: 28rpx;
+  font-size: 26rpx;
   color: #333;
   margin-bottom: 12rpx;
-  font-weight: 500;
+  line-height: 1.4;
 }
 
 .property-tags {
   margin-bottom: 12rpx;
 }
 
-.property-tags .tag {
+.tag {
+  display: inline-block;
+  padding: 4rpx 12rpx;
+  font-size: 20rpx;
+  border-radius: 8rpx;
   margin-right: 8rpx;
+}
+
+.tag-primary {
+  background: #e6e9ff;
+  color: #667eea;
+}
+
+.tag-success {
+  background: #e6f7e6;
+  color: #52c41a;
 }
 
 .property-price {
   color: #ff4d4f;
-  font-weight: bold;
+  font-weight: 600;
 }
 
-/* 房源列表 */
+.price-integer {
+  font-size: 32rpx;
+}
+
+.price-unit {
+  font-size: 22rpx;
+}
+
+/* 热门房源列表 */
 .property-list {
-  background-color: #fff;
-  border-radius: 16rpx;
-  overflow: hidden;
+  background: transparent;
 }
 
 .property-item {
   display: flex;
-  padding: 20rpx;
-  border-bottom: 1rpx solid #e8e8e8;
+  padding: 24rpx;
+  background: #f8f9fa;
+  border-radius: 20rpx;
+  margin-bottom: 20rpx;
 }
 
 .property-item:last-child {
-  border-bottom: none;
+  margin-bottom: 0;
 }
 
 .property-thumb {
   width: 200rpx;
   height: 150rpx;
-  border-radius: 12rpx;
+  border-radius: 16rpx;
   margin-right: 20rpx;
   flex-shrink: 0;
 }
@@ -315,10 +265,16 @@
   justify-content: space-between;
 }
 
+.property-title {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+}
+
 .property-meta {
   display: flex;
   gap: 16rpx;
-  margin: 12rpx 0;
+  margin: 8rpx 0;
 }
 
 .meta-item {
@@ -329,7 +285,6 @@
 .property-location {
   display: flex;
   align-items: center;
-  margin: 8rpx 0;
 }
 
 .location-icon {
@@ -339,8 +294,8 @@
 }
 
 .location-text {
-  font-size: 24rpx;
-  color: #8c8c8c;
+  font-size: 22rpx;
+  color: #999;
 }
 
 .property-footer {
@@ -349,9 +304,13 @@
   align-items: center;
 }
 
+.property-price {
+  color: #ff4d4f;
+}
+
 .property-unitprice {
-  font-size: 24rpx;
-  color: #8c8c8c;
+  font-size: 22rpx;
+  color: #999;
 }
 
 /* 加载更多 */
@@ -361,13 +320,14 @@
 }
 
 .load-more-text {
-  font-size: 28rpx;
-  color: #1890ff;
+  font-size: 26rpx;
+  color: #667eea;
 }
 
 /* 加载状态 */
 .loading {
   padding: 40rpx 0;
   text-align: center;
-  color: #8c8c8c;
+  color: #999;
+  font-size: 26rpx;
 }

@@ -21,6 +21,14 @@ Page({
    * 页面加载
    */
   onLoad(options) {
+    // 处理 status 参数（1=待处理/待确认，2=已确认）
+    if (options.status) {
+      const statusMap = { '1': 'pending', '2': 'confirmed', '3': 'completed', '4': 'cancelled' }
+      const status = statusMap[options.status]
+      if (status) {
+        this.setData({ activeTab: status })
+      }
+    }
     this.loadAppointments()
   },
 

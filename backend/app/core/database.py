@@ -25,6 +25,7 @@ if not os.environ.get("ALEMBIC_MIGRATION"):
         pool_pre_ping=True,
         pool_size=10,
         max_overflow=20,
+        connect_args={"charset": "utf8mb4"} if "mysql" in settings.DATABASE_URL else {},
     )
 
     # 创建异步会话工厂

@@ -94,6 +94,9 @@ class Property(Base):
     inquiry_count = Column(Integer, default=0, comment="咨询次数")
     share_count = Column(Integer, default=0, comment="分享次数")
     
+    # 封面图片
+    cover_url = Column(String(500), nullable=True, comment="封面图片URL")
+    
     # SEO与标签
     tags = Column(JSON, nullable=True, comment="标签数组")
     keywords = Column(String(500), nullable=True, comment="关键词")
@@ -111,6 +114,7 @@ class Property(Base):
     agent = relationship("User", foreign_keys=[agent_id], backref="agent_properties")
     images = relationship("PropertyImage", back_populates="property", cascade="all, delete-orphan")
     favorites = relationship("PropertyFavorite", back_populates="property", cascade="all, delete-orphan")
+    reviews = relationship("PropertyReview", back_populates="property", cascade="all, delete-orphan")
     
     # 兼容旧字段名：owner作为agent的别名（使用property装饰器）
     @property
