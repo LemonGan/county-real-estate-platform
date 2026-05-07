@@ -1,87 +1,69 @@
 <!-- 首页 -->
 <view class="page-container">
-  <!-- 搜索栏 -->
-  <view class="search-bar" bindtap="goToSearch">
-    <view class="search-input">
-      <image class="search-icon" src="/assets/icons/search.png" mode="aspectFit"></image>
-      <text class="search-placeholder">搜索房源、小区、地址...</text>
-    </view>
-  </view>
-
-  <!-- 轮播图 -->
-  <view class="banner-container" wx:if="{{banners.length > 0}}">
-    <swiper class="banner-swiper" indicator-dots autoplay interval="3000" circular>
-      <swiper-item wx:for="{{banners}}" wx:key="id">
-        <image class="banner-image" src="{{item.image}}" mode="aspectFill"></image>
-      </swiper-item>
-    </swiper>
-  </view>
-
-  <!-- 快捷入口 -->
-  <view class="quick-entry">
-    <view class="entry-item" bindtap="goToList">
-      <image class="entry-icon" src="/assets/icons/property.png" mode="aspectFit"></image>
-      <text class="entry-text">找新房</text>
-    </view>
-    <view class="entry-item" bindtap="goToList" data-transaction="1">
-      <image class="entry-icon" src="/assets/icons/old-property.png" mode="aspectFit"></image>
-      <text class="entry-text">找二手房</text>
-    </view>
-    <view class="entry-item" bindtap="goToList" data-transaction="2">
-      <image class="entry-icon" src="/assets/icons/rent.png" mode="aspectFit"></image>
-      <text class="entry-text">租房</text>
-    </view>
-    <view class="entry-item" bindtap="goToMap">
-      <image class="entry-icon" src="/assets/icons/map.png" mode="aspectFit"></image>
-      <text class="entry-text">地图找房</text>
-    </view>
-    <view class="entry-item" bindtap="goToNews">
-      <image class="entry-icon" src="/assets/icons/empty-news.png" mode="aspectFit"></image>
-      <text class="entry-text">房产资讯</text>
-    </view>
-  </view>
-
-  <!-- 房产资讯 -->
-  <view class="section" wx:if="{{newsList.length > 0}}">
-    <view class="section-header">
-      <text class="section-title">房产资讯</text>
-      <text class="section-more" bindtap="goToNews">更多 ></text>
-    </view>
-
-    <view class="news-list">
-      <view class="news-item" wx:for="{{newsList}}" wx:key="id" bindtap="goToNewsDetail" data-id="{{item.id}}">
-        <image class="news-thumb" src="{{item.cover_url}}" mode="aspectFill" wx:if="{{item.cover_url}}"></image>
-        <view class="news-content {{item.cover_url ? '' : 'no-thumb'}}">
-          <view class="news-title ellipsis-2">{{item.title}}</view>
-          <view class="news-meta">
-            <text class="news-category">{{item.category_name}}</text>
-            <text class="news-time">{{item.publish_time_text}}</text>
-          </view>
-        </view>
+  <!-- Hero 区域 -->
+  <view class="hero-section">
+    <view class="hero-bg"></view>
+    <view class="hero-content">
+      <text class="hero-title">🏠 县域房产</text>
+      <text class="hero-subtitle">找好房 · 安好家</text>
+      <!-- 搜索栏 -->
+      <view class="hero-search search-focus-ring" bindtap="goToSearch">
+        <text class="search-icon-text">🔍</text>
+        <text class="search-placeholder">搜索房源、小区、地址...</text>
       </view>
     </view>
   </view>
 
-  <!-- 推荐房源 -->
+  <!-- 快捷入口 - 4格 -->
+  <view class="quick-entry">
+    <view class="entry-item tap-active" bindtap="goToList" data-transaction="1" data-property-type="new">
+      <view class="entry-icon-wrap entry-sale">🏘️</view>
+      <text class="entry-text">买新房</text>
+    </view>
+    <view class="entry-item tap-active" bindtap="goToList" data-transaction="1" data-property-type="old">
+      <view class="entry-icon-wrap entry-old">🏡</view>
+      <text class="entry-text">二手房</text>
+    </view>
+    <view class="entry-item tap-active" bindtap="goToList" data-transaction="2">
+      <view class="entry-icon-wrap entry-rent">🔑</view>
+      <text class="entry-text">租房</text>
+    </view>
+    <view class="entry-item tap-active" bindtap="goToMap">
+      <view class="entry-icon-wrap entry-map">🗺️</view>
+      <text class="entry-text">地图找房</text>
+    </view>
+  </view>
+
+  <!-- Banner 轮播 -->
+  <view class="banner-container" wx:if="{{banners.length > 0}}">
+    <swiper class="banner-swiper" indicator-dots autoplay interval="3500" circular>
+      <swiper-item wx:for="{{banners}}" wx:key="id">
+        <image class="banner-image" src="{{item.image}}" mode="aspectFill"></image>
+        <view class="banner-tag" wx:if="{{item.title}}">{{item.title}}</view>
+      </swiper-item>
+    </swiper>
+  </view>
+
+  <!-- 推荐房源 - 横向滚动 -->
   <view class="section" wx:if="{{recommendProperties.length > 0}}">
     <view class="section-header">
-      <text class="section-title">为您推荐</text>
-      <text class="section-more" bindtap="goToList">更多 ></text>
+      <view class="section-title-wrap">
+        <view class="section-dot"></view>
+        <text class="section-title">✨ 为您推荐</text>
+      </view>
+      <text class="section-more" bindtap="goToList">更多 ›</text>
     </view>
-
     <scroll-view class="property-scroll" scroll-x enhanced show-scrollbar="{{false}}">
-      <view class="property-card-horizontal" wx:for="{{recommendProperties}}" wx:key="id"
-            bindtap="goToDetail" data-id="{{item.id}}">
-        <image class="property-image" src="{{item.cover_image_url || '/assets/images/placeholder.png'}}"
-               mode="aspectFill"></image>
-        <view class="property-info">
-          <view class="property-title ellipsis-2">{{item.title}}</view>
-          <view class="property-tags">
-            <text class="tag tag-primary" wx:if="{{item.property_type}}">{{item.property_type_text}}</text>
-            <text class="tag tag-success" wx:if="{{item.transaction_type}}">{{item.transaction_type_text}}</text>
+      <view class="p-card-h" wx:for="{{recommendProperties}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+        <image class="p-card-img" src="{{item.cover_image_url || '/assets/images/placeholder.png'}}" mode="aspectFill" lazy-load></image>
+        <view class="p-card-body">
+          <text class="p-card-title ellipsis-2">{{item.title}}</text>
+          <view class="p-card-tags">
+            <text class="tag tag-sale" wx:if="{{item.transaction_type_text}}">{{item.transaction_type_text}}</text>
+            <text class="tag tag-primary" wx:if="{{item.property_type_text}}">{{item.property_type_text}}</text>
           </view>
-          <view class="property-price">
-            <text class="price-integer">{{item.total_price_text}}</text>
+          <view class="p-card-price">
+            <text class="price-num">{{item.total_price_text}}</text>
             <text class="price-unit">万</text>
           </view>
         </view>
@@ -92,44 +74,80 @@
   <!-- 热门房源 -->
   <view class="section">
     <view class="section-header">
-      <text class="section-title">热门房源</text>
-      <text class="section-more" bindtap="goToList">更多 ></text>
+      <view class="section-title-wrap">
+        <view class="section-dot hot-dot"></view>
+        <text class="section-title">🔥 热门房源</text>
+      </view>
+      <text class="section-more" bindtap="goToList">更多 ›</text>
     </view>
 
-    <view class="property-list">
-      <view class="property-item" wx:for="{{hotProperties}}" wx:key="id"
-            bindtap="goToDetail" data-id="{{item.id}}">
-        <image class="property-thumb" src="{{item.cover_image_url || '/assets/images/placeholder.png'}}"
-               mode="aspectFill"></image>
-        <view class="property-content">
-          <view class="property-title ellipsis">{{item.title}}</view>
-          <view class="property-meta">
+    <!-- 骨架屏 -->
+    <block wx:if="{{loading && hotProperties.length === 0}}">
+      <view class="skeleton-card" wx:for="{{[1,2,3]}}" wx:key="*this">
+        <view class="skeleton skeleton-img"></view>
+        <view class="skeleton-content">
+          <view class="skeleton skeleton-line"></view>
+          <view class="skeleton skeleton-line" style="width:70%"></view>
+          <view class="skeleton skeleton-line"></view>
+        </view>
+      </view>
+    </block>
+
+    <!-- 房源列表 -->
+    <view class="property-list" wx:if="{{hotProperties.length > 0}}">
+      <view class="p-item card-animate" style="animation-delay: {{index * 0.08}}s" wx:for="{{hotProperties}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+        <image class="p-item-thumb" src="{{item.cover_image_url || '/assets/images/placeholder.png'}}" mode="aspectFill" lazy-load></image>
+        <view class="p-item-content">
+          <text class="p-item-title ellipsis">{{item.title}}</text>
+          <view class="p-item-meta">
             <text class="meta-item">{{item.area_text}}</text>
             <text class="meta-item" wx:if="{{item.room_type}}">{{item.room_type}}</text>
           </view>
-          <view class="property-location" wx:if="{{item.city && item.district}}">
-            <image class="location-icon" src="/assets/icons/location.png" mode="aspectFit"></image>
-            <text class="location-text">{{item.city}} {{item.district}}</text>
+          <view class="p-item-location" wx:if="{{item.city || item.district}}">
+            <text class="loc-icon">📍</text>
+            <text class="loc-text">{{item.city}} {{item.district}}</text>
           </view>
-          <view class="property-footer">
-            <view class="property-price">
-              <text class="price-integer">{{item.total_price_text}}</text>
+          <view class="p-item-footer">
+            <view class="p-item-price">
+              <text class="price-num">{{item.total_price_text}}</text>
               <text class="price-unit">万</text>
             </view>
-            <text class="property-unitprice" wx:if="{{item.unit_price}}">{{item.unit_price}}元/㎡</text>
+            <text class="p-item-unit" wx:if="{{item.unit_price}}">{{item.unit_price}}元/㎡</text>
           </view>
         </view>
       </view>
     </view>
 
-    <!-- 加载更多 -->
-    <view class="load-more" wx:if="{{hasMore && hotProperties.length > 0}}" bindtap="loadMore">
-      <text class="load-more-text">加载更多</text>
-    </view>
-
-    <!-- 加载中 -->
-    <view class="loading" wx:if="{{loading}}">
-      <text>加载中...</text>
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && hotProperties.length === 0}}">
+      <text class="empty-state-icon">📭</text>
+      <text class="empty-state-text">暂无房源</text>
     </view>
   </view>
+
+  <!-- 房产资讯 -->
+  <view class="section" wx:if="{{newsList.length > 0}}">
+    <view class="section-header">
+      <view class="section-title-wrap">
+        <view class="section-dot news-dot"></view>
+        <text class="section-title">📰 房产资讯</text>
+      </view>
+      <text class="section-more" bindtap="goToNews">更多 ›</text>
+    </view>
+    <view class="news-list">
+      <view class="news-item card-animate" style="animation-delay: {{index * 0.08}}s" wx:for="{{newsList}}" wx:key="id" bindtap="goToNewsDetail" data-id="{{item.id}}">
+        <image class="news-thumb" src="{{item.cover_url}}" mode="aspectFill" wx:if="{{item.cover_url}}"></image>
+        <view class="news-content {{item.cover_url ? '' : 'no-thumb'}}">
+          <text class="news-title ellipsis-2">{{item.title}}</text>
+          <view class="news-meta">
+            <text class="news-category">{{item.category_name}}</text>
+            <text class="news-time">{{item.publish_time_text}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部留白 -->
+  <view style="height: 120rpx;"></view>
 </view>

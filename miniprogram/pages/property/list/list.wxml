@@ -3,10 +3,10 @@
   <!-- 顶部工具栏 -->
   <view class="top-toolbar">
     <!-- 搜索栏 -->
-    <view class="search-bar" bindtap="goToSearch">
-      <view class="search-input">
+    <view class="search-bar" bindtap="goToSearch" style="flex:1">
+      <view class="search-input search-focus-ring">
         <text class="search-placeholder">搜索房源关键词...</text>
-        <image class="search-icon" src="/assets/icons/search.png" mode="aspectFit"></image>
+        <text class="search-icon-text">🔍</text>
       </view>
     </view>
   </view>
@@ -64,8 +64,20 @@
   </view>
 
   <!-- 房源列表 -->
+  <!-- 骨架屏 -->
+  <block wx:if="{{loading && propertyList.length === 0}}">
+    <view class="skeleton-card" wx:for="{{[1,2,3,4]}}" wx:key="*this">
+      <view class="skeleton skeleton-img" style="width:200rpx;height:150rpx"></view>
+      <view class="skeleton-content">
+        <view class="skeleton skeleton-line"></view>
+        <view class="skeleton skeleton-line" style="width:70%"></view>
+        <view class="skeleton skeleton-line" style="width:40%"></view>
+      </view>
+    </view>
+  </block>
+
   <view class="property-list" wx:if="{{propertyList.length > 0}}">
-    <view class="property-item" wx:for="{{propertyList}}" wx:key="id"
+    <view class="property-item card-animate" style="animation-delay: {{index * 0.06}}s" wx:for="{{propertyList}}" wx:key="id"
           bindtap="goToDetail" data-id="{{item.id}}">
       <image class="property-thumb"
              src="{{item.cover_image_url || '/assets/images/placeholder.png'}}"

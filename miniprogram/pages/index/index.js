@@ -195,12 +195,13 @@ Page({
    * 跳转到房源列表
    */
   goToList(e) {
-    const transactionType = e?.currentTarget?.dataset?.transaction || 1
-    // 保存到全局或本地存储，供列表页读取
-    wx.setStorageSync('listTransactionType', transactionType)
+    const transactionType = e?.currentTarget?.dataset?.transaction || 1;
+    const propertyTypeTag = e?.currentTarget?.dataset?.propertyType || '';
+    wx.setStorageSync('listTransactionType', transactionType);
+    wx.setStorageSync('listPropertyTypeTag', propertyTypeTag);
     wx.switchTab({
       url: '/pages/property/list/list'
-    })
+    });
   },
 
   /**

@@ -27,6 +27,7 @@ Page({
       distance: '',  // 距离筛选
       propertyType: null,
       transactionType: null,
+      propertyTypeTag: '',
       keyword: ''
     },
 
@@ -59,16 +60,20 @@ Page({
    * 页面加载
    */
   onLoad(options) {
-    console.log('房源列表页加载', options)
+    console.log('房源列表页加载', options);
 
     // 读取首页传入的交易类型
-    const transactionType = wx.getStorageSync('listTransactionType')
+    const transactionType = wx.getStorageSync('listTransactionType');
     if (transactionType) {
-      this.setData({
-        'filters.transactionType': parseInt(transactionType)
-      })
-      // 清除存储，避免影响后续
-      wx.removeStorageSync('listTransactionType')
+      this.setData({ 'filters.transactionType': parseInt(transactionType) });
+      wx.removeStorageSync('listTransactionType');
+    }
+
+    // 读取首页传入的房源属性标签（新房/二手），供后端上线后生效
+    const propertyTypeTag = wx.getStorageSync('listPropertyTypeTag');
+    if (propertyTypeTag) {
+      this.setData({ 'filters.propertyTypeTag': propertyTypeTag });
+      wx.removeStorageSync('listPropertyTypeTag');
     }
 
     // 如果从搜索页跳转过来，携带关键词
