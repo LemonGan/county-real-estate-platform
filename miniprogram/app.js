@@ -3,7 +3,7 @@ App({
   globalData: {
     userInfo: null,
     token: null,
-    baseUrl: 'http://8.138.129.142:8881/api/v1', // 生产环境API地址
+    baseUrl: 'https://8.138.129.142/api/v1', // 生产环境API地址(HTTPS)
     isLogin: false, 
     location: null
   },
