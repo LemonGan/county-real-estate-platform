@@ -92,87 +92,53 @@ async def get_properties(
     max_distance: Optional[int] = None
 ) -> Tuple[List[Property], int]:
     """获取房源列表（分页和筛选）"""
-    # 构建查询
-    query = select(Property).where(Property.deleted_at.is_(None))
-    
-    # 筛选条件
-    if city:
-        query = query.where(Property.city == city)
-    if district:
-        query = query.where(Property.district == district)
-    if min_price is not None:
-        query = query.where(Property.total_price >= min_price)
-    if max_price is not None:
-        query = query.where(Property.total_price <= max_price)
-    if min_area is not None:
-        query = query.where(Property.area >= min_area)
-    if max_area is not None:
-        query = query.where(Property.area <= max_area)
-    if rooms is not None:
-        query = query.where(Property.room_count == rooms)
-    if property_type is not None:
-        query = query.where(Property.property_type == property_type)
-    if transaction_type is not None:
-        query = query.where(Property.transaction_type == transaction_type)
-    if status is not None:
-        query = query.where(Property.status == status)
-    
-    # 关键词搜索（搜索标题、描述、地址）
-    if keyword:
-        keyword_pattern = f"%{keyword}%"
-        query = query.where(
-            or_(
-                Property.title.like(keyword_pattern),
-                Property.description.like(keyword_pattern),
-                Property.detail_address.like(keyword_pattern),
-                Property.city.like(keyword_pattern),
-                Property.district.like(keyword_pattern)
-            )
-        )
-    
+
+    def _apply_filters(q):
+        """应用筛选条件到查询"""
+        q = q.where(Property.deleted_at.is_(None))
+        if city:
+            q = q.where(Property.city == city)
+        if district:
+            q = q.where(Property.district == district)
+        if min_price is not None:
+            q = q.where(Property.total_price >= min_price)
+        if max_price is not None:
+            q = q.where(Property.total_price <= max_price)
+        if min_area is not None:
+            q = q.where(Property.area >= min_area)
+        if max_area is not None:
+            q = q.where(Property.area <= max_area)
+        if rooms is not None:
+            q = q.where(Property.room_count == rooms)
+        if property_type is not None:
+            q = q.where(Property.property_type == property_type)
+        if transaction_type is not None:
+            q = q.where(Property.transaction_type == transaction_type)
+        if status is not None:
+            q = q.where(Property.status == status)
+        if keyword:
+            kw = f"%{keyword}%"
+            q = q.where(or_(
+                Property.title.like(kw),
+                Property.description.like(kw),
+                Property.detail_address.like(kw),
+                Property.city.like(kw),
+                Property.district.like(kw)
+            ))
+        return q
+
     # 获取总数
-    count_query = select(func.count()).select_from(Property).where(Property.deleted_at.is_(None))
-    if city:
-        count_query = count_query.where(Property.city == city)
-    if district:
-        count_query = count_query.where(Property.district == district)
-    if min_price is not None:
-        count_query = count_query.where(Property.total_price >= min_price)
-    if max_price is not None:
-        count_query = count_query.where(Property.total_price <= max_price)
-    if min_area is not None:
-        count_query = count_query.where(Property.area >= min_area)
-    if max_area is not None:
-        count_query = count_query.where(Property.area <= max_area)
-    if rooms is not None:
-        count_query = count_query.where(Property.room_count == rooms)
-    if property_type is not None:
-        count_query = count_query.where(Property.property_type == property_type)
-    if transaction_type is not None:
-        count_query = count_query.where(Property.transaction_type == transaction_type)
-    if status is not None:
-        count_query = count_query.where(Property.status == status)
-    if keyword:
-        keyword_pattern = f"%{keyword}%"
-        count_query = count_query.where(
-            or_(
-                Property.title.like(keyword_pattern),
-                Property.description.like(keyword_pattern),
-                Property.detail_address.like(keyword_pattern),
-                Property.city.like(keyword_pattern),
-                Property.district.like(keyword_pattern)
-            )
-        )
-    
-    total_result = await db.execute(count_query)
+    count_q = _apply_filters(select(func.count()).select_from(Property))
+    total_result = await db.execute(count_q)
     total = total_result.scalar()
 
-    # 分页查询
-    query = query.order_by(desc(Property.created_at))
-    query = query.offset((page - 1) * page_size).limit(page_size)
-    query = query.options(selectinload(Property.agent), selectinload(Property.images))
+    # 分页数据查询
+    data_q = _apply_filters(select(Property))
+    data_q = data_q.order_by(desc(Property.created_at))
+    data_q = data_q.offset((page - 1) * page_size).limit(page_size)
+    data_q = data_q.options(selectinload(Property.agent), selectinload(Property.images))
 
-    result = await db.execute(query)
+    result = await db.execute(data_q)
     properties = result.scalars().all()
 
     # 如果提供了用户位置，计算距离并进行筛选
@@ -231,7 +197,7 @@ async def create_property(
     # 创建房源
     db_property = Property(
         **property_dict,
-        agent_id=owner_id if owner_id else 1
+        agent_id=owner_id
     )
     db.add(db_property)
     await db.commit()

@@ -44,9 +44,10 @@ async def update_current_user_info(
 @router.get("/{user_id}", response_model=UserResponse, summary="获取用户信息")
 async def get_user(
     user_id: int,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
-    """根据ID获取用户信息"""
+    """根据ID获取用户信息（需登录）"""
     user = await get_user_by_id(db, user_id=user_id)
     if not user:
         raise HTTPException(

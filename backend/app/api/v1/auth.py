@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.security import verify_password, create_access_token, create_refresh_token
+from app.core.rate_limit import auth_limiter
 from app.schemas.auth import Token, LoginRequest, WeChatLoginRequest
 from app.crud.user import (
     get_user_by_phone, create_user, get_user_by_openid, get_user_by_unionid,
@@ -20,14 +21,11 @@ router = APIRouter()
 @router.post("/login", response_model=Token, summary="用户登录")
 async def login(
     login_data: LoginRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    用户登录接口
-    
-    - 支持手机号+密码登录
-    - 返回访问令牌和刷新令牌
-    """
+    """用户登录接口"""
+    await auth_limiter(request)
     # 查找用户
     user = await get_user_by_phone(db, phone=login_data.phone)
     if not user:
@@ -37,8 +35,7 @@ async def login(
         )
     
     # 验证密码
-    # 开发模式：密码 "dev123" 可以登录任何用户（用于测试）
-    if login_data.password != "dev123" and not verify_password(login_data.password, user.hashed_password):
+    if not verify_password(login_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="手机号或密码错误"
@@ -65,14 +62,11 @@ async def login(
 @router.post("/register", response_model=Token, summary="用户注册")
 async def register(
     user_data: UserCreate,
+    request: Request,
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    用户注册接口
-    
-    - 创建新用户账户
-    - 自动登录并返回令牌
-    """
+    """用户注册接口"""
+    await auth_limiter(request)
     # 检查手机号是否已存在
     existing_user = await get_user_by_phone(db, phone=user_data.phone)
     if existing_user:
@@ -101,13 +95,8 @@ async def wechat_login(
     request: Request,
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    微信小程序登录接口
-    
-    - 通过微信code获取openid和session_key
-    - 如果用户不存在则自动创建
-    - 返回访问令牌和刷新令牌
-    """
+    """微信小程序登录接口"""
+    await auth_limiter(request)
     # 通过code获取openid和session_key
     wechat_info = await get_wechat_openid(wechat_data.code)
     openid = wechat_info["openid"]
@@ -150,11 +139,9 @@ async def wechat_login(
             await db.commit()
             await db.refresh(user)
     
-    # 更新最后登录信息
+    # 更新最后登录时间
     from datetime import datetime
     user.last_login_at = datetime.now()
-    if request.client:
-        user.last_login_ip = request.client.host
     await db.commit()
     
     # 检查用户是否激活

@@ -48,8 +48,8 @@ if settings.BACKEND_CORS_ORIGINS:
         CORSMiddleware,
         allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
         allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
+        allow_headers=["Content-Type", "Authorization"],
     )
 
 # 注册API路由
@@ -137,7 +137,7 @@ async def log_requests(request: Request, call_next):
     start_time = time.time()
     
     # 记录请求信息
-    logger.info(f"请求: {request.method} {request.url.path} - 客户端: {request.client.host if request.client else 'unknown'}")
+    logger.info(f"请求: {request.method} {request.url.path}")
     
     try:
         response = await call_next(request)
@@ -176,7 +176,7 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={
             "code": 50001,
             "message": "服务器内部错误",
-            "detail": str(exc) if settings.DEBUG else "Internal server error",
+            "detail": str(exc) if settings.ENVIRONMENT == "development" else "Internal server error",
             "timestamp": time.time()
         }
     )
