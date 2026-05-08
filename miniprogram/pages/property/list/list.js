@@ -1,4 +1,4 @@
-// 房源列表�?
+// 房源列表页
 const app = getApp()
 const api = require('../../../utils/api')
 const format = require('../../../utils/format')
@@ -15,7 +15,7 @@ Page({
     userLocation: null,  // 用户位置信息
     centerLocation: null,  // 搜索中心位置 {latitude, longitude, name}
 
-    // 筛选条�?
+    // 筛选条件
     filters: {
       city: '',
       district: '',
@@ -23,15 +23,15 @@ Page({
       maxPrice: '',
       minArea: '',
       maxArea: '',
-      rooms: '',  // 户型筛�?
-      distance: '',  // 距离筛�?
+      rooms: '',  // 户型筛选
+      distance: '',  // 距离筛选
       propertyType: null,
       transactionType: null,
       propertyTypeTag: '',
       keyword: ''
     },
 
-    // 筛选面�?
+    // 筛选面板
     showFilter: false,
     filterOptions: {
       distances: [
@@ -45,7 +45,7 @@ Page({
         { label: '全部', value: null },
         { label: '住宅', value: 1 },
         { label: '商铺', value: 2 },
-        { label: '写字�?, value: 3 },
+        { label: '写字楼', value: 3 },
         { label: '别墅', value: 4 }
       ],
       transactionTypes: [
@@ -60,9 +60,9 @@ Page({
    * 页面加载
    */
   onLoad(options) {
+    console.log('房源列表页加载', options);
 
-
-    // 读取首页传入的交易类�?
+    // 读取首页传入的交易类型
     const transactionType = wx.getStorageSync('listTransactionType');
     if (transactionType) {
       this.setData({ 'filters.transactionType': parseInt(transactionType) });
@@ -102,11 +102,11 @@ Page({
             longitude: res.longitude
           }
         })
-
+        console.log('获取用户位置成功:', this.data.userLocation)
       },
       fail: (err) => {
-
-        // 获取位置失败不影响其他功�?
+        console.log('获取用户位置失败:', err)
+        // 获取位置失败不影响其他功能
       }
     })
   },
@@ -115,18 +115,18 @@ Page({
    * 页面显示
    */
   onShow() {
-    // 检查是否有从地图页传来的筛选条�?
+    // 检查是否有从地图页传来的筛选条件
     const app = getApp()
     if (app && app.globalFilters) {
+      console.log('检测到地图页传来的筛选条件:', app.globalFilters)
 
-
-      // 转换筛选条件格式（地图页的格式可能不同�?
+      // 转换筛选条件格式（地图页的格式可能不同）
       const mapFilters = app.globalFilters
       const newFilters = {
         ...this.data.filters
       }
 
-      // 映射筛选字�?
+      // 映射筛选字段
       if (mapFilters.minPrice) newFilters.minPrice = mapFilters.minPrice
       if (mapFilters.maxPrice) newFilters.maxPrice = mapFilters.maxPrice
       if (mapFilters.minArea) newFilters.minArea = mapFilters.minArea
@@ -136,10 +136,10 @@ Page({
 
       this.setData({ filters: newFilters })
 
-      // 清除全局筛选条�?
+      // 清除全局筛选条件
       app.globalFilters = null
 
-      // 重置分页并加�?
+      // 重置分页并加载
       this.setData({
         currentPage: 1,
         hasMore: true
@@ -177,12 +177,12 @@ Page({
     const params = {
       page: this.data.currentPage,
       page_size: this.data.pageSize,
-      status_filter: 1  // 只获取在售房�?
+      status_filter: 1  // 只获取在售房源
     }
 
     const { filters, userLocation, centerLocation } = this.data
 
-    // 转换字段名（驼峰转下划线�?
+    // 转换字段名（驼峰转下划线）
     if (filters.city) params.city = filters.city
     if (filters.district) params.district = filters.district
     if (filters.minPrice) params.min_price = filters.minPrice
@@ -217,14 +217,14 @@ Page({
     try {
       const params = this.buildAPIParams()
 
-
+      console.log('列表页 API 请求参数:', params)
 
       const res = await api.get('/properties', params, false)
 
       const baseUrl = app.globalData.baseUrl || 'http://127.0.0.1:8000/api/v1'
       const staticUrl = baseUrl.replace('/api/v1', '') + '/static'
       const properties = (res.list || []).map(item => {
-        // 处理封面�?
+        // 处理封面图
         let coverUrl = item.cover_url || (item.images && item.images[0] ? item.images[0].image_url : '')
         if (coverUrl && !coverUrl.startsWith('http')) {
           coverUrl = staticUrl + coverUrl
@@ -257,7 +257,7 @@ Page({
       console.error('加载房源列表失败:', err)
       this.setData({ loading: false })
 
-      // 尝试从缓存加�?
+      // 尝试从缓存加载
       const cachedList = cache.getCache('property_list')
       if (cachedList) {
         this.setData({
@@ -290,7 +290,7 @@ Page({
   },
 
   /**
-   * 显示筛选面�?
+   * 显示筛选面板
    */
   showFilterPanel() {
     this.setData({
@@ -299,7 +299,7 @@ Page({
   },
 
   /**
-   * 隐藏筛选面�?
+   * 隐藏筛选面板
    */
   hideFilterPanel() {
     this.setData({
@@ -308,7 +308,7 @@ Page({
   },
 
   /**
-   * 筛选条件变�?
+   * 筛选条件变化
    */
   onFilterChange(e) {
     const { field } = e.currentTarget.dataset
@@ -320,7 +320,7 @@ Page({
   },
 
   /**
-   * 重置筛�?
+   * 重置筛选
    */
   resetFilters() {
     this.setData({
@@ -341,7 +341,7 @@ Page({
   },
 
   /**
-   * 应用筛�?
+   * 应用筛选
    */
   applyFilters() {
     this.hideFilterPanel()
@@ -359,7 +359,7 @@ Page({
   },
 
   /**
-   * 跳转搜索�?
+   * 跳转搜索页
    */
   goToSearch() {
     wx.navigateTo({
@@ -428,7 +428,7 @@ Page({
       centerLocation: null
     })
     wx.showToast({
-      title: '已恢复当前位�?,
+      title: '已恢复当前位置',
       icon: 'success'
     })
     // 如果有距离筛选，重新加载列表
