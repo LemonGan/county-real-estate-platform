@@ -39,6 +39,13 @@ Thumbs.db
 .claude/
 tmpclaude-*
 tmpclaude-*/
+role-*.md
+ai-collaboration-guidelines.md
+cicd-setup.md
+project-development-workflow.md
+project-structure-init.py
+github-project-*.md
+git-workflow-*.md
 
 # Temporary files
 *.tmp
