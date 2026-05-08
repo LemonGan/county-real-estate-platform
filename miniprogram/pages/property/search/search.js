@@ -1,4 +1,4 @@
-// 搜索页
+// 搜索�?
 const api = require('../../../utils/api')
 
 Page({
@@ -13,7 +13,7 @@ Page({
     searching: false,
     hasResults: false,
     showHistory: true,
-    searchTimer: null,  // 搜索防抖定时器
+    searchTimer: null,  // 搜索防抖定时�?
     
     // 地图相关
     mapLongitude: 120.2,
@@ -27,9 +27,9 @@ Page({
    * 页面加载
    */
   onLoad(options) {
-    console.log('搜索页加载, options:', options)
 
-    // 检查模式
+
+    // 检查模�?
     if (options.mode === 'select') {
       this.setData({ mode: 'location' })
       wx.setNavigationBarTitle({
@@ -61,13 +61,13 @@ Page({
   saveSearchHistory(keyword) {
     let history = this.data.history
 
-    // 移除已存在的相同关键词
+    // 移除已存在的相同关键�?
     history = history.filter(item => item !== keyword)
 
-    // 添加到开头
+    // 添加到开�?
     history.unshift(keyword)
 
-    // 最多保留10条
+    // 最多保�?0�?
     history = history.slice(0, 10)
 
     this.setData({ history })
@@ -84,18 +84,18 @@ Page({
    * 加载热门搜索
    */
   async loadHotSearches() {
-    // 位置搜索模式的热门位置
+    // 位置搜索模式的热门位�?
     if (this.data.mode === 'location') {
       this.setData({
-        hotSearches: ['西湖', '钱江新城', '滨江', '西湖区', '上城区', '拱墅区', '西湖景区', '城西银泰']
+        hotSearches: ['西湖', '钱江新城', '滨江', '西湖�?, '上城�?, '拱墅�?, '西湖景区', '城西银泰']
       })
       return
     }
 
-    // 房源搜索模式的热门搜索
+    // 房源搜索模式的热门搜�?
     try {
       const res = await api.get('/statistics/hot-search', {}, false)
-      // 后端返回的是对象数组 [{keyword, count}, ...]，需要提取 keyword 字段
+      // 后端返回的是对象数组 [{keyword, count}, ...]，需要提�?keyword 字段
       const keywords = res.keywords || []
       this.setData({
         hotSearches: keywords.map(item => item.keyword || item)
@@ -103,13 +103,13 @@ Page({
     } catch (err) {
       console.error('加载热门搜索失败:', err)
       this.setData({
-        hotSearches: ['学区房', '地铁房', '精装修', '南北通透', '低首付']
+        hotSearches: ['学区�?, '地铁�?, '精装�?, '南北通�?, '低首�?]
       })
     }
   },
 
   /**
-   * 输入变化（带防抖）
+   * 输入变化（带防抖�?
    */
   onInputChange(e) {
     const keyword = e.detail.value
@@ -159,10 +159,10 @@ Page({
       // 调用后端地图搜索API
       const res = await api.get('/map/search', {
         keyword: keyword,
-        city: '杭州'  // 可以根据用户当前位置动态设置
+        city: '杭州'  // 可以根据用户当前位置动态设�?
       }, false)
 
-      console.log('位置搜索结果:', res)
+
 
       this.setData({
         locationResults: res.data || [],
@@ -235,7 +235,7 @@ Page({
    */
   onConfirm() {
     if (this.data.mode === 'location') {
-      // 位置搜索模式，触发搜索
+      // 位置搜索模式，触发搜�?
       this.searchLocation(this.data.keyword)
     } else {
       // 房源搜索模式
@@ -320,14 +320,14 @@ Page({
   // ========== 地图视图相关 ==========
 
   /**
-   * 切换到列表视图
+   * 切换到列表视�?
    */
   switchToListView() {
     this.setData({ viewMode: 'list' })
   },
 
   /**
-   * 切换到地图视图
+   * 切换到地图视�?
    */
   switchToMapView() {
     this.setData({ viewMode: 'map' })
@@ -335,7 +335,7 @@ Page({
   },
 
   /**
-   * 初始化地图视图
+   * 初始化地图视�?
    */
   initMapView() {
     // 获取用户位置
@@ -349,7 +349,7 @@ Page({
       }
     })
 
-    // 构建地图标记（使用搜索结果或全部房源）
+    // 构建地图标记（使用搜索结果或全部房源�?
     const properties = this.data.searchResults.length > 0 ? this.data.searchResults : []
     this.buildMapMarkers(properties)
   },
@@ -413,7 +413,7 @@ Page({
           ? ((property.total_price || property.price) / 10000).toString() 
           : (property.total_price || property.price).toString(),
         area_text: property.area ? `${property.area}㎡` : '',
-        room_type: `${property.rooms || property.room_count || 0}室${property.halls || property.hall_count || 0}厅`
+        room_type: `${property.rooms || property.room_count || 0}�?{property.halls || property.hall_count || 0}厅`
       }
       
       this.setData({
@@ -434,7 +434,7 @@ Page({
   },
 
   /**
-   * 从地图卡片查看详情
+   * 从地图卡片查看详�?
    */
   goToDetailFromMap() {
     if (this.data.selectedProperty) {

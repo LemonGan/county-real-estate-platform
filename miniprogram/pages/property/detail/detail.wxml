@@ -33,7 +33,7 @@
     </view>
 
     <!-- 价格区域 -->
-    <view class="price-section">
+    <view class="section-card price-section">
       <view class="price-row">
         <text class="price">{{property.price/10000}}万</text>
         <text class="price-unit">{{property.transaction_type === 2 ? '元/月' : '元/套'}}</text>
@@ -47,7 +47,7 @@
     </view>
 
     <!-- 基本信息 -->
-    <view class="info-section">
+    <view class="section-card info-section">
       <view class="section-title">基本信息</view>
       <view class="info-grid">
         <view class="info-item"><text class="info-label">房型</text><text class="info-value">{{property.rooms}}室{{property.halls}}厅{{property.bathrooms}}卫</text></view>
@@ -60,13 +60,13 @@
     </view>
 
     <!-- 房源标题 -->
-    <view class="title-section">
+    <view class="section-card title-section">
       <text class="title">{{property.title}}</text>
       <text class="subtitle">{{property.community_name}}</text>
     </view>
 
     <!-- 位置信息 -->
-    <view class="location-section">
+    <view class="section-card location-section">
       <image class="location-icon" src="/assets/icons/location.png"></image>
       <view class="location-info">
         <text class="location-name">{{property.community_name}}</text>
@@ -75,13 +75,13 @@
     </view>
 
     <!-- 房源描述 -->
-    <view class="description-section" wx:if="{{property.description}}">
+    <view class="section-card description-section" wx:if="{{property.description}}">
       <view class="section-title">房源描述</view>
       <text class="description-text">{{property.description}}</text>
     </view>
 
     <!-- 操作按钮组 -->
-    <view class="action-section">
+    <view class="section-card action-section">
       <view class="action-item" bindtap="toggleFavorite">
         <image class="action-icon" src="{{isFavorite ? '/assets/icons/favorite-filled.png' : '/assets/icons/favorite.png'}}"></image>
         <text class="action-text">{{isFavorite ? '已收藏' : '收藏'}}</text>
@@ -97,7 +97,7 @@
     </view>
 
     <!-- 经纪人信息 -->
-    <view class="agent-section" wx:if="{{property.agent}}">
+    <view class="section-card agent-section" wx:if="{{property.agent}}">
       <view class="section-title">房源经纪人</view>
       <view class="agent-info">
         <image class="agent-avatar" src="{{property.agent.avatar || '/assets/images/default-avatar.png'}}"></image>

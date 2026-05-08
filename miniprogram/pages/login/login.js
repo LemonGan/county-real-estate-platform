@@ -2,8 +2,8 @@
 const app = getApp()
 const api = require('../../utils/api')
 
-// 开发模式标识
-const DEV_MODE = true
+// 开发模式标识 - 发布前改为 false
+const DEV_MODE = false
 
 Page({
   data: {

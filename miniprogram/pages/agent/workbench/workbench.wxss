@@ -1,0 +1,216 @@
+/* pages/agent/workbench.wxss - 优化版 */
+.container {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+/* 顶部 */
+.header {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  padding: 50rpx 40rpx 100rpx;
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 6rpx solid rgba(255,255,255,0.3);
+  box-shadow: 0 8rpx 20rpx rgba(0,0,0,0.15);
+}
+
+.welcome {
+  margin-left: 30rpx;
+}
+
+.welcome .title {
+  display: block;
+  font-size: 44rpx;
+  font-weight: 600;
+  color: #fff;
+}
+
+.welcome .subtitle {
+  display: block;
+  font-size: 26rpx;
+  color: rgba(255,255,255,0.85);
+  margin-top: 8rpx;
+}
+
+/* 统计卡片 */
+.stats-card {
+  margin: -60rpx 30rpx 30rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 40rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.06);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20rpx;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.stat-label {
+  display: block;
+  font-size: 24rpx;
+  color: #888;
+  margin-top: 8rpx;
+}
+
+/* 区块 */
+.section {
+  margin: 30rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 36rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 30rpx;
+  padding-left: 20rpx;
+  border-left: 6rpx solid #4facfe;
+}
+
+/* 快捷功能 */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20rpx;
+}
+
+.action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.action-icon {
+  width: 96rpx;
+  height: 96rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  color: #fff;
+  margin-bottom: 12rpx;
+}
+
+.action-label {
+  font-size: 24rpx;
+  color: #555;
+}
+
+/* 报表 */
+.report-item {
+  background: #f8f9fa;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.report-item:last-child {
+  margin-bottom: 0;
+}
+
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.report-title {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #333;
+}
+
+.report-more {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.report-stats {
+  display: flex;
+  justify-content: space-around;
+}
+
+.report-stat {
+  text-align: center;
+}
+
+.report-stat .value {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #4facfe;
+}
+
+.report-stat .label {
+  display: block;
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 6rpx;
+}
+
+/* 待办 */
+.todo-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.todo-item:last-child {
+  border-bottom: none;
+}
+
+.todo-dot {
+  width: 16rpx;
+  height: 16rpx;
+  background: #ff6b6b;
+  border-radius: 50%;
+  margin-right: 20rpx;
+}
+
+.todo-content {
+  flex: 1;
+}
+
+.todo-title {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.todo-time {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 4rpx;
+}
+
+.todo-action {
+  padding: 12rpx 28rpx;
+  background: #4facfe;
+  color: #fff;
+  border-radius: 30rpx;
+  font-size: 22rpx;
+}

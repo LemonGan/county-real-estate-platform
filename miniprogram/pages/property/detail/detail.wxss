@@ -1,64 +1,144 @@
 /* 房源详情页样式 */
-page { background-color: #f5f5f5; }
 .detail-container { min-height: 100vh; padding-bottom: 240rpx; }
-.loading-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 200rpx 0; }
-.loading-spinner { width: 60rpx; height: 60rpx; border: 4rpx solid #f0f0f0; border-top-color: #667eea; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20rpx; }
+
+/* ===== 加载 ===== */
+.loading-container {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 200rpx 0;
+}
+.loading-spinner {
+  width: 60rpx; height: 60rpx; border: 4rpx solid var(--color-border);
+  border-top-color: var(--color-primary); border-radius: 50%;
+  animation: spin 1s linear infinite; margin-bottom: 20rpx;
+}
 @keyframes spin { to { transform: rotate(360deg); } }
-.loading-text { font-size: 26rpx; color: #999; }
+.loading-text { font-size: var(--font-sm); color: var(--color-text-hint); }
+
+/* ===== 图片轮播 ===== */
 .image-swiper { position: relative; background: #000; }
 .swiper { width: 100%; height: 500rpx; }
 .swiper-image { width: 100%; height: 100%; }
-.image-counter { position: absolute; bottom: 20rpx; right: 20rpx; padding: 8rpx 24rpx; background: rgba(0,0,0,0.5); color: #fff; font-size: 24rpx; border-radius: 20rpx; }
-
-/* 轮播图上的VR/视频标签 - 贝壳风格 */
-.media-tags { position: absolute; top: 20rpx; left: 20rpx; display: flex; gap: 16rpx; }
-.media-tag { display: flex; align-items: center; padding: 10rpx 20rpx; background: rgba(0,0,0,0.6); border-radius: 30rpx; }
+.image-counter {
+  position: absolute; bottom: 24rpx; right: 24rpx;
+  padding: 8rpx 24rpx; background: rgba(0,0,0,0.5);
+  color: #fff; font-size: var(--font-sm); border-radius: 20rpx;
+}
+.media-tags { position: absolute; top: 20rpx; left: 20rpx; display: flex; gap: 14rpx; }
+.media-tag {
+  display: flex; align-items: center; padding: 10rpx 20rpx;
+  background: rgba(0,0,0,0.55); border-radius: 30rpx;
+}
 .media-tag .tag-icon { width: 32rpx; height: 32rpx; margin-right: 8rpx; }
-.media-tag text { color: #fff; font-size: 22rpx; }
+.media-tag text { color: #fff; font-size: var(--font-xs); }
 
-.price-section { background: #fff; margin: 20rpx; border-radius: 16rpx; padding: 30rpx; }
-.price-row { display: flex; align-items: baseline; margin-bottom: 16rpx; }
-.price { font-size: 48rpx; font-weight: 700; color: #ff6b6b; }
-.price-unit { font-size: 24rpx; color: #999; margin-left: 8rpx; }
-.price-tags { display: flex; gap: 12rpx; }
-.tag { padding: 6rpx 16rpx; background: #f0f0f0; border-radius: 8rpx; font-size: 22rpx; color: #666; }
-.tag.highlight { background: rgba(102,126,234,0.1); color: #667eea; }
-.tag.transaction-tag { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; }
-.info-section { background: #fff; margin: 20rpx; border-radius: 16rpx; padding: 30rpx; }
-.section-title { font-size: 30rpx; font-weight: 600; color: #333; margin-bottom: 24rpx; }
-.info-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 24rpx; }
+/* ===== 通用 Section 卡片 ===== */
+.section-card {
+  background: var(--color-card); margin: 16rpx 24rpx;
+  border-radius: var(--radius-lg); padding: 28rpx;
+  box-shadow: var(--shadow-sm);
+  animation: fadeInUp 0.3s ease both;
+}
+.section-title {
+  font-size: var(--font-lg); font-weight: 600;
+  color: var(--color-text-primary); margin-bottom: 20rpx;
+  padding-left: 16rpx; border-left: 5rpx solid var(--color-primary);
+}
+
+/* ===== 价格区 ===== */
+.price-section { animation-delay: 0s; }
+.price-row { display: flex; align-items: baseline; margin-bottom: 14rpx; }
+.price {
+  font-size: 52rpx; font-weight: 700; color: var(--color-price);
+  font-family: 'DIN', 'Helvetica Neue', sans-serif;
+}
+.price-unit { font-size: var(--font-sm); color: var(--color-text-hint); margin-left: 8rpx; }
+.price-tags { display: flex; gap: 12rpx; flex-wrap: wrap; }
+.tag {
+  padding: 6rpx 16rpx; background: var(--color-bg);
+  border-radius: 8rpx; font-size: var(--font-xs); color: var(--color-text-secondary);
+}
+.tag.highlight { background: rgba(102,126,234,0.08); color: var(--color-primary); font-weight: 500; }
+.tag.transaction-tag {
+  background: var(--color-gradient); color: #fff; font-weight: 600;
+}
+
+/* ===== 基本信息 ===== */
+.info-section { animation-delay: 0.06s; }
+.info-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 24rpx;
+}
 .info-item { display: flex; justify-content: space-between; }
-.info-label { font-size: 26rpx; color: #999; }
-.info-value { font-size: 26rpx; color: #333; font-weight: 500; }
-.title-section { background: #fff; margin: 20rpx; border-radius: 16rpx; padding: 30rpx; }
-.title { display: block; font-size: 32rpx; font-weight: 600; color: #333; margin-bottom: 12rpx; }
-.subtitle { display: block; font-size: 26rpx; color: #666; }
-.location-section { background: #fff; margin: 20rpx; border-radius: 16rpx; padding: 30rpx; display: flex; align-items: center; }
-.location-icon { width: 40rpx; height: 40rpx; margin-right: 16rpx; }
+.info-label { font-size: var(--font-sm); color: var(--color-text-hint); }
+.info-value { font-size: var(--font-md); color: var(--color-text-primary); font-weight: 500; }
+
+/* ===== 标题 + 小区名 ===== */
+.title-section { animation-delay: 0.1s; }
+.title-section .title { display: block; font-size: var(--font-xl); font-weight: 600; color: var(--color-text-primary); margin-bottom: 10rpx; }
+.title-section .subtitle { display: block; font-size: var(--font-sm); color: var(--color-text-secondary); }
+
+/* ===== 位置 ===== */
+.location-section { animation-delay: 0.14s; display: flex; align-items: flex-start; }
+.location-icon { width: 40rpx; height: 40rpx; margin-right: 16rpx; margin-top: 4rpx; flex-shrink: 0; }
 .location-info { flex: 1; }
-.location-name { display: block; font-size: 28rpx; font-weight: 500; color: #333; margin-bottom: 8rpx; }
-.location-address { display: block; font-size: 24rpx; color: #999; }
-.description-section { background: #fff; margin: 20rpx; border-radius: 16rpx; padding: 30rpx; }
-.description-text { font-size: 26rpx; color: #666; line-height: 1.8; }
+.location-name { display: block; font-size: var(--font-md); font-weight: 500; color: var(--color-text-primary); margin-bottom: 6rpx; }
+.location-address { display: block; font-size: var(--font-sm); color: var(--color-text-hint); }
 
-/* 操作按钮组 */
-.action-section { background: #fff; margin: 20rpx; border-radius: 16rpx; padding: 30rpx; display: flex; justify-content: space-around; }
-.action-item { display: flex; flex-direction: column; align-items: center; background: transparent; border: none; }
+/* ===== 房源描述 ===== */
+.description-section { animation-delay: 0.18s; }
+.description-text {
+  font-size: var(--font-md); color: var(--color-text-secondary);
+  line-height: 1.8; white-space: pre-wrap;
+}
+
+/* ===== 操作按钮组 ===== */
+.action-section {
+  animation-delay: 0.22s;
+  display: flex; justify-content: space-around;
+}
+.action-item {
+  display: flex; flex-direction: column; align-items: center;
+  background: transparent; border: none; padding: 0;
+}
 .action-item::after { border: none; }
-.action-icon { width: 48rpx; height: 48rpx; margin-bottom: 8rpx; }
-.action-text { font-size: 24rpx; color: #666; }
+.action-icon { width: 44rpx; height: 44rpx; margin-bottom: 8rpx; }
+.action-text { font-size: var(--font-sm); color: var(--color-text-secondary); }
 
-.agent-section { background: #fff; margin: 20rpx; border-radius: 16rpx; padding: 30rpx; }
+/* ===== 经纪人 ===== */
+.agent-section { animation-delay: 0.26s; }
 .agent-info { display: flex; align-items: center; }
-.agent-avatar { width: 100rpx; height: 100rpx; border-radius: 50%; margin-right: 20rpx; }
+.agent-avatar {
+  width: 100rpx; height: 100rpx; border-radius: 50%;
+  margin-right: 20rpx; border: 3rpx solid var(--color-border);
+}
 .agent-detail { flex: 1; }
-.agent-name { display: block; font-size: 28rpx; font-weight: 600; color: #333; margin-bottom: 8rpx; }
-.agent-title { font-size: 24rpx; color: #667eea; }
-.contact-btn { padding: 12rpx 32rpx; background: #667eea; color: #fff; border-radius: 32rpx; font-size: 24rpx; border: none; }
-.publish-time { text-align: center; padding: 30rpx; font-size: 24rpx; color: #999; }
+.agent-name { display: block; font-size: var(--font-md); font-weight: 600; color: var(--color-text-primary); margin-bottom: 6rpx; }
+.agent-title { font-size: var(--font-sm); color: var(--color-primary); }
+.contact-btn {
+  padding: 12rpx 32rpx; background: var(--color-primary); color: #fff;
+  border-radius: 32rpx; font-size: var(--font-sm); border: none;
+}
 
-/* 底部固定按钮 */
-.bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 20rpx 30rpx; padding-bottom: calc(20rpx + env(safe-area-inset-bottom)); background: #fff; border-top: 1rpx solid #eee; z-index: 999; }
-.bottom-btn { flex: 1; height: 88rpx; display: flex; align-items: center; justify-content: center; border-radius: 44rpx; font-size: 30rpx; font-weight: 500; }
-.bottom-btn.gray { background: #f5f5f5; color: #333; margin-right: 20rpx; }
-.bottom-btn.primary { background: linear-gradient(135deg,#667eea,#764ba2); color: #fff; }
+/* ===== 发布时间 ===== */
+.publish-time { text-align: center; padding: 30rpx; font-size: var(--font-sm); color: var(--color-text-hint); }
+
+/* ===== 底部固定栏 ===== */
+.bottom-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex; align-items: center; gap: 16rpx;
+  padding: 16rpx 24rpx;
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+  background: var(--color-card); border-top: 1rpx solid var(--color-border);
+  z-index: 999; box-shadow: 0 -4rpx 16rpx rgba(0,0,0,0.04);
+}
+.bottom-btn {
+  flex: 1; height: 88rpx; display: flex; align-items: center;
+  justify-content: center; border-radius: 44rpx;
+  font-size: var(--font-lg); font-weight: 500;
+}
+.bottom-btn.gray {
+  background: var(--color-bg); color: var(--color-text-primary);
+}
+.bottom-btn.primary {
+  background: var(--color-gradient); color: #fff;
+  box-shadow: 0 4rpx 16rpx rgba(102,126,234,0.35);
+}

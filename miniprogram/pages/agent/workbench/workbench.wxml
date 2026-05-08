@@ -1,0 +1,122 @@
+<!-- pages/agent/workbench.wxml -->
+<view class="container">
+  <!-- 顶部欢迎区域 -->
+  <view class="header">
+    <view class="welcome">
+      <text class="title">经纪人工作台</text>
+      <text class="subtitle">欢迎回来，{{userInfo.nickname || '经纪人'}}</text>
+    </view>
+    <image class="avatar" src="{{userInfo.avatar || '/assets/images/default-avatar.png'}}" mode="aspectFill"></image>
+  </view>
+
+  <!-- 今日概览 -->
+  <view class="section">
+    <view class="section-title">今日概览</view>
+    <view class="stats-grid">
+      <view class="stat-card" bindtap="goToAppointments">
+        <text class="stat-value">{{workbench.today_appointments}}</text>
+        <text class="stat-label">今日预约</text>
+      </view>
+      <view class="stat-card warning" bindtap="goToPending">
+        <text class="stat-value">{{workbench.pending_appointments}}</text>
+        <text class="stat-label">待处理</text>
+      </view>
+      <view class="stat-card" bindtap="goToProperties">
+        <text class="stat-value">{{workbench.property_count}}</text>
+        <text class="stat-label">我的房源</text>
+      </view>
+      <view class="stat-card" bindtap="goToCustomers">
+        <text class="stat-value">{{workbench.customer_count}}</text>
+        <text class="stat-label">我的客户</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 快捷功能 -->
+  <view class="section">
+    <view class="section-title">快捷功能</view>
+    <view class="quick-actions">
+      <view class="action-item" bindtap="addProperty">
+        <view class="action-icon">+</view>
+        <text class="action-label">发布房源</text>
+      </view>
+      <view class="action-item" bindtap="scanQR">
+        <view class="action-icon">📷</view>
+        <text class="action-label">扫码获客</text>
+      </view>
+      <view class="action-item" bindtap="makePoster">
+        <view class="action-icon">🖼️</view>
+        <text class="action-label">生成海报</text>
+      </view>
+      <view class="action-item" bindtap="calculator">
+        <view class="action-icon">🧮</view>
+        <text class="action-label">房贷计算</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 统计报表 -->
+  <view class="section">
+    <view class="section-title">数据统计</view>
+    <view class="report-cards">
+      <view class="report-card">
+        <view class="report-header">
+          <text class="report-title">房源数据</text>
+          <text class="report-more" bindtap="goToPropertyStats">详情 ></text>
+        </view>
+        <view class="report-content">
+          <view class="report-item">
+            <text class="report-value">{{propertyStats.total}}</text>
+            <text class="report-label">总房源</text>
+          </view>
+          <view class="report-item">
+            <text class="report-value">{{propertyStats.on_sale}}</text>
+            <text class="report-label">在售</text>
+          </view>
+          <view class="report-item">
+            <text class="report-value">{{propertyStats.sold}}</text>
+            <text class="report-label">已售</text>
+          </view>
+          <view class="report-item">
+            <text class="report-value">{{propertyStats.total_views}}</text>
+            <text class="report-label">浏览量</text>
+          </view>
+        </view>
+      </view>
+      <view class="report-card">
+        <view class="report-header">
+          <text class="report-title">预约数据</text>
+          <text class="report-more" bindtap="goToAppointmentStats">详情 ></text>
+        </view>
+        <view class="report-content">
+          <view class="report-item">
+            <text class="report-value">{{appointmentStats.total}}</text>
+            <text class="report-label">总预约</text>
+          </view>
+          <view class="report-item">
+            <text class="report-value">{{appointmentStats.completed}}</text>
+            <text class="report-label">已完成</text>
+          </view>
+          <view class="report-item">
+            <text class="report-value">{{appointmentStats.success_rate}}%</text>
+            <text class="report-label">成功率</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 待办事项 -->
+  <view class="section" wx:if="{{todoList.length > 0}}">
+    <view class="section-title">待办事项</view>
+    <view class="todo-list">
+      <view class="todo-item" wx:for="{{todoList}}" wx:key="id">
+        <view class="todo-content">
+          <text class="todo-title">{{item.title}}</text>
+          <text class="todo-time">{{item.time}}</text>
+        </view>
+        <view class="todo-action">处理</view>
+      </view>
+    </view>
+  </view>
+</view>

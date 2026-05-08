@@ -1,0 +1,49 @@
+<!-- pages/agent/properties.wxml -->
+<view class="container">
+  <!-- 筛选tabs -->
+  <view class="tabs">
+    <view class="tab {{status === 1 ? 'active' : ''}}" bindtap="switchStatus" data-status="1">在售</view>
+    <view class="tab {{status === 2 ? 'active' : ''}}" bindtap="switchStatus" data-status="2">已租</view>
+    <view class="tab {{status === 3 ? 'active' : ''}}" bindtap="switchStatus" data-status="3">已售</view>
+  </view>
+
+  <!-- 房源列表 -->
+  <view class="property-list">
+    <view class="property-item" wx:for="{{propertyList}}" wx:key="id" bindtap="viewProperty" data-id="{{item.id}}">
+      <image class="property-cover" src="{{item.cover_url || '/assets/images/default-house.png'}}" mode="aspectFill"></image>
+      <view class="property-info">
+        <text class="property-title">{{item.title}}</text>
+        <text class="property-address">{{item.province}}{{item.city}}{{item.district}}{{item.detail_address}}</text>
+        <view class="property-tags">
+          <text class="tag">{{item.rooms}}室{{item.halls}}厅</text>
+          <text class="tag">{{item.area}}㎡</text>
+          <text class="tag price">¥{{item.total_price}}万</text>
+        </view>
+        <view class="property-stats">
+          <text>浏览 {{item.view_count}}</text>
+          <text>收藏 {{item.favorite_count}}</text>
+        </view>
+      </view>
+      <view class="property-status status-{{item.status}}">
+        <text wx:if="{{item.status === 1}}">在售</text>
+        <text wx:elif="{{item.status === 2}}">已租</text>
+        <text wx:elif="{{item.status === 3}}">已售</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty" wx:if="{{propertyList.length === 0 && !loading}}">
+    <text>暂无房源数据</text>
+  </view>
+
+  <!-- 加载更多 -->
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 发布按钮 -->
+  <view class="fab" bindtap="addProperty">
+    <text>+</text>
+  </view>
+</view>

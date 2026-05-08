@@ -5,7 +5,7 @@ const format = require('../../utils/format')
 
 Page({
   data: {
-    banners: [], // 轮播图
+    banners: [], // 轮播�?
     hotProperties: [], // 热门房源
     recommendProperties: [], // 推荐房源
     newsList: [], // 房产资讯
@@ -19,7 +19,7 @@ Page({
    * 页面加载
    */
   onLoad(options) {
-    console.log('首页加载')
+
     this.loadBanners()
     this.loadHotProperties()
     this.loadNews()
@@ -71,20 +71,20 @@ Page({
   },
 
   /**
-   * 加载轮播图
+   * 加载轮播�?
    */
   async loadBanners() {
     try {
       // TODO: 调用轮播图API
       const banners = [
-        { id: 1, image: '/assets/images/banner1.jpg', title: '精选房源推荐' },
+        { id: 1, image: '/assets/images/banner1.jpg', title: '精选房源推�? },
         { id: 2, image: '/assets/images/banner2.jpg', title: '新房上市' },
         { id: 3, image: '/assets/images/banner3.jpg', title: '热门房源' }
       ]
 
       this.setData({ banners })
     } catch (err) {
-      console.error('加载轮播图失败:', err)
+      console.error('加载轮播图失�?', err)
     }
   },
 
@@ -100,7 +100,7 @@ Page({
       const res = await api.get('/properties', {
         page: 1,
         page_size: this.data.pageSize,
-        status_filter: 1 // 只获取在售房源
+        status_filter: 1 // 只获取在售房�?
       }, false)
 
       this.setData({
@@ -155,11 +155,11 @@ Page({
   },
 
   /**
-   * 格式化发布时间
+   * 格式化发布时�?
    */
   formatPublishTime(dateStr) {
     const now = new Date()
-    // 将日期字符串转换为 iOS 兼容格式 (yyyy-MM-ddTHH:mm:ss)
+    // 将日期字符串转换�?iOS 兼容格式 (yyyy-MM-ddTHH:mm:ss)
     const iosDateStr = dateStr.replace(/\s+/g, 'T')
     const date = new Date(iosDateStr)
     const diff = now - date
@@ -169,9 +169,9 @@ Page({
       const hours = Math.floor(diff / (1000 * 60 * 60))
       if (hours === 0) {
         const minutes = Math.floor(diff / (1000 * 60))
-        return minutes <= 0 ? '刚刚' : minutes + '分钟前'
+        return minutes <= 0 ? '刚刚' : minutes + '分钟�?
       }
-      return hours + '小时前'
+      return hours + '小时�?
     } else if (days === 1) {
       return '昨天'
     } else if (days < 7) {
@@ -192,7 +192,7 @@ Page({
   },
 
   /**
-   * 跳转到房源列表
+   * 跳转到房源列�?
    */
   goToList(e) {
     const transactionType = e?.currentTarget?.dataset?.transaction || 1;
@@ -214,7 +214,7 @@ Page({
   },
 
   /**
-   * 跳转到资讯列表
+   * 跳转到资讯列�?
    */
   goToNews() {
     wx.navigateTo({
@@ -223,7 +223,7 @@ Page({
   },
 
   /**
-   * 跳转到资讯详情
+   * 跳转到资讯详�?
    */
   goToNewsDetail(e) {
     const { id } = e.currentTarget.dataset

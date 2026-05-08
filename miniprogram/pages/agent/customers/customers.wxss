@@ -1,0 +1,107 @@
+/* 经纪人客户管理页面样式 - 现代风格 */
+.container {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+/* 搜索栏 */
+.search-bar {
+  background: #fff;
+  padding: 20rpx 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.04);
+}
+
+.search-input {
+  background: #f8f9fa;
+  border-radius: 40rpx;
+  padding: 20rpx 30rpx;
+  font-size: 28rpx;
+}
+
+/* 客户列表 */
+.customer-list {
+  padding: 30rpx;
+}
+
+.customer-item {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.08);
+}
+
+.customer-avatar {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+}
+
+.customer-info {
+  flex: 1;
+}
+
+.customer-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1a1a1a;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.customer-phone {
+  font-size: 26rpx;
+  color: #666;
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.customer-tags {
+  display: flex;
+  gap: 12rpx;
+}
+
+.tag {
+  padding: 6rpx 16rpx;
+  background: #f8f9fa;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  color: #666;
+}
+
+.customer-stats {
+  text-align: right;
+}
+
+.stat-value {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #667eea;
+  display: block;
+}
+
+.stat-label {
+  font-size: 22rpx;
+  color: #999;
+}
+
+/* 空状态 */
+.empty {
+  padding: 120rpx 0;
+  text-align: center;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 加载中 */
+.loading {
+  padding: 60rpx 0;
+  text-align: center;
+  color: #999;
+}

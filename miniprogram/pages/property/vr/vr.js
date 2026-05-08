@@ -48,7 +48,7 @@ Page({
   // 加载VR场景
   loadVRScene() {
     // 这里应该加载VR场景配置
-    // 实际项目中需要从后端获取VR场景数据和热点信息
+    // 实际项目中需要从后端获取VR场景数据和热点信�?
     this.setData({
       loading: false,
       scenes: [
@@ -119,13 +119,13 @@ Page({
       interval: 'normal',
       success: () => {
         wx.showToast({
-          title: '已开启体感',
+          title: '已开启体�?,
           icon: 'success'
         })
       },
       fail: () => {
         wx.showToast({
-          title: '开启失败',
+          title: '开启失�?,
           icon: 'none'
         })
       }
@@ -136,7 +136,7 @@ Page({
   disableGyroscope() {
     wx.stopGyroscope()
     wx.showToast({
-      title: '已关闭体感',
+      title: '已关闭体�?,
       icon: 'success'
     })
   },
@@ -155,7 +155,7 @@ Page({
     if (vrContext) {
       vrContext.resetView()
       wx.showToast({
-        title: '视角已重置',
+        title: '视角已重�?,
         icon: 'success'
       })
     }
@@ -165,7 +165,7 @@ Page({
   showHelp() {
     wx.showModal({
       title: 'VR看房操作指南',
-      content: '• 单指拖动：旋转视角\n• 双指缩放：放大/缩小\n• 点击热点：切换场景\n• 开启体感：手机转动控制视角',
+      content: '�?单指拖动：旋转视角\n�?双指缩放：放�?缩小\n�?点击热点：切换场景\n�?开启体感：手机转动控制视角',
       showCancel: false
     })
   },
@@ -173,7 +173,7 @@ Page({
   // 分享
   onShareAppMessage() {
     return {
-      title: 'VR看房 - 沉浸式体验',
+      title: 'VR看房 - 沉浸式体�?,
       path: '/pages/index/index',
       imageUrl: ''
     }

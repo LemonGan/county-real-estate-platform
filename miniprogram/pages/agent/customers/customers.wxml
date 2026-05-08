@@ -1,0 +1,36 @@
+<!-- pages/agent/customers.wxml -->
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <input class="search-input" placeholder="搜索客户姓名/手机号" bindinput="onSearch" />
+  </view>
+
+  <!-- 客户列表 -->
+  <view class="customer-list">
+    <view class="customer-item" wx:for="{{customerList}}" wx:key="id" bindtap="viewCustomer" data-id="{{item.id}}">
+      <image class="customer-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
+      <view class="customer-info">
+        <text class="customer-name">{{item.nickname}}</text>
+        <text class="customer-phone">{{item.phone}}</text>
+        <view class="customer-tags">
+          <text class="tag" wx:if="{{item.current_city}}">{{item.current_city}}</text>
+          <text class="tag" wx:if="{{item.hometown_city}}">返乡-{{item.hometown_city}}</text>
+        </view>
+      </view>
+      <view class="customer-stats">
+        <text class="fav-count">{{item.favorite_count}}</text>
+        <text class="fav-label">收藏</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty" wx:if="{{customerList.length === 0 && !loading}}">
+    <text>暂无客户数据</text>
+  </view>
+
+  <!-- 加载更多 -->
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

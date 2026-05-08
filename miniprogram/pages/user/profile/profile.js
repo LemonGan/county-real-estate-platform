@@ -1,5 +1,4 @@
-// 用户个人中心页
-const app = getApp()
+// 用户个人中心�?const app = getApp()
 const api = require('../../../utils/api')
 
 Page({
@@ -29,12 +28,12 @@ Page({
       },
       {
         icon: '/assets/icons/calculator.png',
-        title: '房贷计算器',
+        title: '房贷计算�?,
         url: '/pages/tools/calculator/calculator'
       },
       {
         icon: '/assets/icons/work.png',
-        title: '申请成为经纪人',
+        title: '申请成为经纪�?,
         url: '/pages/user/agent-apply/agent-apply'
       },
       {
@@ -51,7 +50,7 @@ Page({
   },
 
   onLoad(options) {
-    console.log('个人中心页加载')
+
   },
 
   onShow() {
@@ -115,7 +114,7 @@ Page({
   handleLogout() {
     wx.showModal({
       title: '提示',
-      content: '确定要退出登录吗？',
+      content: '确定要退出登录吗�?,
       success: (res) => {
         if (res.confirm) {
           app.clearLoginInfo()
@@ -124,7 +123,7 @@ Page({
             userInfo: null
           })
           wx.showToast({
-            title: '已退出登录',
+            title: '已退出登�?,
             icon: 'success'
           })
         }

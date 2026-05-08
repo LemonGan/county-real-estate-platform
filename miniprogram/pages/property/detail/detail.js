@@ -1,4 +1,4 @@
-// 房源详情页
+// 房源详情�?
 const api = require('../../../utils/api')
 const app = getApp()
 const { formatPrice, formatDate } = require('../../../utils/format')
@@ -25,7 +25,7 @@ Page({
       this.loadPropertyDetail(id)
     } else {
       wx.showToast({
-        title: '房源不存在',
+        title: '房源不存�?,
         icon: 'none'
       })
       setTimeout(() => {
@@ -47,7 +47,7 @@ Page({
       const baseUrl = app.globalData.baseUrl || 'http://127.0.0.1:8000/api/v1'
       const staticUrl = baseUrl.replace('/api/v1', '') + '/static'
 
-      // 提取图片URL列表（后端返回的是字符串数组）
+      // 提取图片URL列表（后端返回的是字符串数组�?
       let imageUrls = []
       if (res.images && res.images.length > 0) {
         imageUrls = res.images.map(img => {
@@ -75,9 +75,10 @@ Page({
       if (res.cover_image_url && !res.cover_image_url.startsWith('http')) {
         res.cover_image_url = 'http://' + res.cover_image_url
       }
-      res.price = res.total_price || 0
-      res.floor = res.floor_info ? res.floor_info.split('/')[0] : (res.floor || '--')
-      res.total_floors = res.floor_info ? res.floor_info.split('/')[1] : (res.total_floors || '--')
+      res.price = res.total_price || 0;
+      res.price_display = formatPrice(res.total_price);
+      res.floor = (res.floor_info && typeof res.floor_info === 'string') ? res.floor_info.split('/')[0] : (res.floor || '--');
+      res.total_floors = (res.floor_info && typeof res.floor_info === 'string') ? res.floor_info.split('/')[1] : (res.total_floors || '--');
       res.community_name = res.community || res.village || res.detail_address || ''
       res.address = res.detail_address || res.address || ''
       res.rooms = res.room_count || res.rooms || 0
@@ -104,7 +105,7 @@ Page({
   },
 
   /**
-   * 记录浏览行为（仅在登录时记录）
+   * 记录浏览行为（仅在登录时记录�?
    */
   async recordView(propertyId) {
     const token = wx.getStorageSync('token')
@@ -118,12 +119,9 @@ Page({
         target_type: 1,
         target_id: parseInt(propertyId)
       }, true)
-      console.log('浏览记录成功:', result)
+
     } catch (err) {
-      console.log('浏览记录失败详情:', {
-        message: err.message,
-        stack: err.stack,
-        toString: err.toString()
+
       })
     }
   },
@@ -157,7 +155,7 @@ Page({
         await api.delete(`/favorites/properties/${this.data.propertyId}`)
         this.setData({ isFavorite: false })
         wx.showToast({
-          title: '已取消收藏',
+          title: '已取消收�?,
           icon: 'success'
         })
       } else {
@@ -206,21 +204,21 @@ Page({
   },
 
   /**
-   * 联系经纪人
+   * 联系经纪�?
    */
   contactAgent() {
     const { property } = this.data
     if (!property || !property.agent) {
       wx.showToast({
-        title: '暂无经纪人信息',
+        title: '暂无经纪人信�?,
         icon: 'none'
       })
       return
     }
 
     wx.showModal({
-      title: '联系经纪人',
-      content: `经纪人：${property.agent.nickname}\n电话：${property.agent.phone}`,
+      title: '联系经纪�?,
+      content: `经纪人：${property.agent.nickname}\n电话�?{property.agent.phone}`,
       confirmText: '拨打电话',
       success: (res) => {
         if (res.confirm) {
