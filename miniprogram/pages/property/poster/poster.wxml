@@ -1,0 +1,11 @@
+<!-- pages/property/poster/poster.wxml -->
+<view class="container">
+  <view class="poster-wrapper">
+    <canvas type="2d" id="posterCanvas" class="poster-canvas"></canvas>
+  </view>
+  
+  <view class="actions">
+    <button class="btn save" bindtap="savePoster">保存图片</button>
+    <button class="btn share" open-type="share">分享好友</button>
+  </view>
+</view>

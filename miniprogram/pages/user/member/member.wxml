@@ -1,0 +1,78 @@
+<!-- 会员中心页面 -->
+<view class="container">
+  <!-- 会员头部 -->
+  <view class="member-header">
+    <view class="member-bg"></view>
+    <view class="member-info">
+      <image class="avatar" src="{{userInfo.avatar || '/assets/images/default-avatar.png'}}"></image>
+      <view class="info-text">
+        <text class="nickname">{{userInfo.nickname || '用户'}}</text>
+        <text class="member-tag" wx:if="{{isMember}}">{{memberTag}} · 到期{{daysRemaining}}天</text>
+        <text class="member-tag normal" wx:else>开通会员享受更多权益</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 会员权益 -->
+  <view class="section">
+    <view class="section-title">会员权益</view>
+    <view class="privilege-grid">
+      <view class="privilege-item">
+        <image class="privilege-icon" src="/assets/icons/phone.png"></image>
+        <text class="privilege-name">电话咨询</text>
+        <text class="privilege-desc">无限制</text>
+      </view>
+      <view class="privilege-item">
+        <image class="privilege-icon" src="/assets/icons/appointment.png"></image>
+        <text class="privilege-name">预约看房</text>
+        <text class="privilege-desc">无限制</text>
+      </view>
+      <view class="privilege-item">
+        <image class="privilege-icon" src="/assets/icons/calculator.png"></image>
+        <text class="privilege-name">房贷计算</text>
+        <text class="privilege-desc">高级版</text>
+      </view>
+      <view class="privilege-item">
+        <image class="privilege-icon" src="/assets/icons/favorite.png"></image>
+        <text class="privilege-name">房源收藏</text>
+        <text class="privilege-desc">无限制</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 开通会员 -->
+  <view class="section" wx:if="{{!isMember}}">
+    <view class="section-title">开通会员</view>
+    <view class="vip-cards">
+      <view class="vip-card" bindtap="buyMember" data-level="1">
+        <text class="vip-name">月卡</text>
+        <text class="vip-price">¥9.9</text>
+        <text class="vip-days">30天</text>
+      </view>
+      <view class="vip-card" bindtap="buyMember" data-level="2">
+        <text class="vip-name">季卡</text>
+        <text class="vip-price">¥19.9</text>
+        <text class="vip-days">90天</text>
+        <text class="vip-tag">热门</text>
+      </view>
+      <view class="vip-card" bindtap="buyMember" data-level="3">
+        <text class="vip-name">年卡</text>
+        <text class="vip-price">¥59.9</text>
+        <text class="vip-days">365天</text>
+        <text class="vip-tag">超值</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 兑换码 -->
+  <view class="section">
+    <view class="section-title">兑换码</view>
+    <view class="exchange-box">
+      <input class="exchange-input" placeholder="请输入兑换码" value="{{exchangeCode}}" bindinput="onInputCode"/>
+      <view class="exchange-btn" bindtap="exchangeMember">兑换</view>
+    </view>
+    <view class="exchange-tips">
+      <text>试试：TEST7（7天试用）、VIP333、VIP666、VIP888</text>
+    </view>
+  </view>
+</view>

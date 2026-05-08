@@ -1,0 +1,175 @@
+<!-- pages/property/add/add.wxml -->
+<view class="add-container">
+  <scroll-view scroll-y class="form-scroll">
+    <!-- 房源标题 -->
+    <view class="form-section">
+      <view class="section-title">基本信息</view>
+      
+      <!-- 交易类型 -->
+      <view class="form-item">
+        <text class="label">交易类型 *</text>
+        <view class="type-selector">
+          <view class="type-item {{transactionType === 1 ? 'active' : ''}}" bindtap="selectTransactionType" data-type="1">
+            <text>出售</text>
+          </view>
+          <view class="type-item {{transactionType === 2 ? 'active' : ''}}" bindtap="selectTransactionType" data-type="2">
+            <text>出租</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="form-item">
+        <text class="label">房源标题 *</text>
+        <input class="input" placeholder="请输入房源标题" value="{{title}}" data-field="title" bindinput="onInputChange" maxlength="50" />
+      </view>
+    </view>
+
+    <!-- 价格和面积 -->
+    <view class="form-section">
+      <view class="form-item">
+        <text class="label">价格(万) *</text>
+        <input class="input" type="digit" placeholder="请输入价格" value="{{price}}" data-field="price" bindinput="onInputChange" />
+      </view>
+      <view class="form-item">
+        <text class="label">面积(㎡) *</text>
+        <input class="input" type="digit" placeholder="请输入建筑面积" value="{{area}}" data-field="area" bindinput="onInputChange" />
+      </view>
+    </view>
+
+    <!-- 户型 -->
+    <view class="form-section">
+      <view class="section-title">户型</view>
+      <view class="form-row">
+        <view class="form-item-small">
+          <text class="label">室</text>
+          <input class="input" type="number" placeholder="0" value="{{roomCount}}" data-field="roomCount" bindinput="onInputChange" />
+        </view>
+        <view class="form-item-small">
+          <text class="label">厅</text>
+          <input class="input" type="number" placeholder="0" value="{{hallCount}}" data-field="hallCount" bindinput="onInputChange" />
+        </view>
+        <view class="form-item-small">
+          <text class="label">卫</text>
+          <input class="input" type="number" placeholder="0" value="{{bathroomCount}}" data-field="bathroomCount" bindinput="onInputChange" />
+        </view>
+      </view>
+    </view>
+
+    <!-- 楼层 -->
+    <view class="form-section">
+      <view class="form-row">
+        <view class="form-item-half">
+          <text class="label">所在楼层</text>
+          <picker mode="selector" range="{{floorOptions}}" value="{{floorIndex}}" bindchange="onFloorChange">
+            <view class="picker">{{floorOptions[floorIndex]}}</view>
+          </picker>
+        </view>
+        <view class="form-item-half">
+          <text class="label">总楼层</text>
+          <input class="input" type="number" placeholder="请输入" value="{{totalFloor}}" data-field="totalFloor" bindinput="onTotalFloorChange" />
+        </view>
+      </view>
+    </view>
+
+    <!-- 房屋类型 -->
+    <view class="form-section">
+      <view class="section-title">详细信息</view>
+      <view class="form-item">
+        <text class="label">房屋类型</text>
+        <picker mode="selector" range="{{propertyTypes}}" value="{{propertyTypeIndex}}" bindchange="onPropertyTypeChange">
+          <view class="picker">{{propertyTypes[propertyTypeIndex]}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="label">朝向</text>
+        <picker mode="selector" range="{{directions}}" value="{{directionIndex}}" bindchange="onDirectionChange">
+          <view class="picker">{{directions[directionIndex]}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="label">装修</text>
+        <picker mode="selector" range="{{decorations}}" value="{{decorationIndex}}" bindchange="onDecorationChange">
+          <view class="picker">{{decorations[decorationIndex]}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="label">产权</text>
+        <picker mode="selector" range="{{ownerships}}" value="{{ownershipIndex}}" bindchange="onOwnershipChange">
+          <view class="picker">{{ownerships[ownershipIndex]}}</view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 地址 -->
+    <view class="form-section">
+      <view class="section-title">位置</view>
+      <view class="form-item">
+        <text class="label">详细地址 *</text>
+        <input class="input" placeholder="请输入详细地址" value="{{address}}" data-field="address" bindinput="onInputChange" />
+      </view>
+      
+      <!-- 地图选点 -->
+      <view class="form-item">
+        <text class="label">地图定位 *</text>
+        <view class="location-btn" bindtap="chooseLocation">
+          <text wx:if="{{!longitude && !latitude}}">📍 点击选择位置</text>
+          <text wx:else>✅ 已选择位置 ({{longitude}}, {{latitude}})</text>
+        </view>
+        <text class="tip" wx:if="{{longitude && latitude}}">已获取坐标，请在地图上确认位置</text>
+      </view>
+    </view>
+
+    <!-- 描述 -->
+    <view class="form-section">
+      <view class="section-title">房源描述</view>
+      <view class="form-item">
+        <textarea class="textarea" placeholder="请输入房源描述..." value="{{description}}" data-field="description" bindinput="onInputChange" maxlength="500" />
+        <text class="word-count">{{description.length}}/500</text>
+      </view>
+    </view>
+
+    <!-- 图片 -->
+    <view class="form-section">
+      <view class="section-title">房源图片 *</view>
+      <view class="image-grid">
+        <view class="image-item" wx:for="{{images}}" wx:key="index">
+          <image class="image" src="{{item}}" mode="aspectFill" bindtap="previewImage" data-index="{{index}}" />
+          <view class="delete-btn" bindtap="deleteImage" data-index="{{index}}">×</view>
+        </view>
+        <view class="add-image" bindtap="chooseImage" wx:if="{{images.length < 9}}">
+          <text class="add-icon">+</text>
+          <text class="add-text">添加图片</text>
+        </view>
+      </view>
+      <text class="tip">最多上传9张图片</text>
+    </view>
+
+    <!-- 视频 -->
+    <view class="form-section">
+      <view class="section-title">房源视频</view>
+      <view class="video-upload" wx:if="{{!video}}" bindtap="chooseVideo">
+        <text class="upload-icon">🎥</text>
+        <text class="upload-text">点击上传视频</text>
+      </view>
+      <view class="video-preview" wx:else>
+        <video src="{{video}}" class="video-player"></video>
+        <view class="delete-btn" bindtap="deleteVideo">×</view>
+      </view>
+      <text class="tip">上传房源视频介绍</text>
+    </view>
+
+    <!-- VR全景 -->
+    <view class="form-section">
+      <view class="section-title">VR全景链接</view>
+      <input class="vr-input" placeholder="请输入VR全景链接" value="{{vrUrl}}" bindinput="inputVrUrl" />
+      <text class="tip">支持贝壳看房等VR全景链接</text>
+    </view>
+  </scroll-view>
+
+  <!-- 提交按钮 -->
+  <view class="bottom-bar">
+    <button class="submit-btn" bindtap="submit" disabled="{{submitting}}">
+      {{submitting ? '提交中...' : '提交审核'}}
+    </button>
+  </view>
+</view>

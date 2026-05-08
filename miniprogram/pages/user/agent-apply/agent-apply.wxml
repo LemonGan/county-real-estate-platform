@@ -1,0 +1,33 @@
+<!-- 成为经纪人申请页面 -->
+<view class="container">
+  <view class="header">
+    <image class="header-icon" src="/assets/icons/work.png"></image>
+    <text class="header-title">申请成为经纪人</text>
+    <text class="header-desc">填写您的基本信息完成认证</text>
+  </view>
+
+  <view class="form">
+    <view class="form-item">
+      <text class="label">真实姓名</text>
+      <input class="input" placeholder="请输入真实姓名" value="{{realName}}" bindinput="onInput" data-field="realName"/>
+    </view>
+    <view class="form-item">
+      <text class="label">身份证号</text>
+      <input class="input" placeholder="请输入身份证号" value="{{idCard}}" bindinput="onInput" data-field="idCard"/>
+    </view>
+    <view class="form-item">
+      <text class="label">执业证号</text>
+      <input class="input" placeholder="请输入经纪人执业证号" value="{{agentLicense}}" bindinput="onInput" data-field="agentLicense"/>
+    </view>
+    <view class="form-item">
+      <text class="label">所属公司</text>
+      <input class="input" placeholder="请输入所属公司" value="{{company}}" bindinput="onInput" data-field="company"/>
+    </view>
+    <view class="form-item">
+      <text class="label">联系电话</text>
+      <input class="input" placeholder="请输入联系电话" type="number" value="{{phone}}" bindinput="onInput" data-field="phone"/>
+    </view>
+  </view>
+
+  <view class="submit-btn" bindtap="submit">提交申请</view>
+</view>
