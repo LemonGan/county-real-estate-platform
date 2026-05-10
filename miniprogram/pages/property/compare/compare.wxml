@@ -1,4 +1,4 @@
-<!-- 房源对比 -->
+<!-- 房源对比 - 纵向卡片式 -->
 <view class="cmp-container">
   <!-- 空状态 -->
   <view class="empty-state" wx:if="{{list.length === 0}}">
@@ -8,53 +8,69 @@
     <view class="empty-state-btn" bindtap="goToList">去看看房源</view>
   </view>
 
-  <!-- 对比卡片列表 -->
-  <scroll-view class="cmp-scroll" scroll-x wx:if="{{list.length > 0}}">
-    <view class="cmp-card" wx:for="{{list}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
-      <!-- 房源图 -->
-      <view class="cmp-img-wrap">
-        <image class="cmp-img" src="{{item.coverUrl || '/assets/images/placeholder.png'}}" mode="aspectFill"/>
-        <view class="cmp-remove" catchtap="removeItem" data-id="{{item.id}}">✕</view>
+  <!-- 对比内容 -->
+  <view class="cmp-content" wx:if="{{list.length > 0}}">
+    <!-- 头部提示 -->
+    <view class="cmp-header">
+      <text class="cmp-header-title">⚖️ 房源对比</text>
+      <text class="cmp-header-sub">共 {{list.length}} 套房源</text>
+    </view>
+
+    <!-- 每套房一张大卡片 -->
+    <view class="cmp-card" wx:for="{{list}}" wx:key="id">
+      <!-- 房号标签 -->
+      <view class="cmp-card-tag">房源 {{index + 1}}</view>
+
+      <!-- 图片 + 标题 + 价格 -->
+      <view class="cmp-card-top">
+        <image class="cmp-card-img" src="{{item.coverUrl || '/assets/images/placeholder.png'}}" mode="aspectFill" bindtap="goToDetail" data-id="{{item.id}}"/>
+        <view class="cmp-card-info">
+          <text class="cmp-card-title ellipsis-2">{{item.title}}</text>
+          <view class="cmp-card-price">
+            <text class="cmp-price-num">{{item.price / 10000}}</text>
+            <text class="cmp-price-unit">万元</text>
+          </view>
+          <text class="cmp-card-remove" catchtap="removeItem" data-id="{{item.id}}">移除</text>
+        </view>
       </view>
-      <!-- 信息 -->
-      <view class="cmp-body">
-        <text class="cmp-title ellipsis-2">{{item.title}}</text>
-        <view class="cmp-price">¥{{item.price / 10000}}<text class="cmp-price-unit">万</text></view>
-        <view class="cmp-row">
-          <text class="cmp-label">面积</text>
-          <text class="cmp-val">{{item.area}}㎡</text>
+
+      <!-- 属性列表 -->
+      <view class="cmp-attrs">
+        <view class="cmp-attr">
+          <text class="cmp-attr-label">面积</text>
+          <text class="cmp-attr-val">{{item.area}}㎡</text>
         </view>
-        <view class="cmp-row">
-          <text class="cmp-label">户型</text>
-          <text class="cmp-val">{{item.rooms}}室{{item.halls}}厅</text>
+        <view class="cmp-attr">
+          <text class="cmp-attr-label">户型</text>
+          <text class="cmp-attr-val">{{item.rooms}}室{{item.halls}}厅</text>
         </view>
-        <view class="cmp-row">
-          <text class="cmp-label">朝向</text>
-          <text class="cmp-val">{{item.orientation || '--'}}</text>
+        <view class="cmp-attr">
+          <text class="cmp-attr-label">朝向</text>
+          <text class="cmp-attr-val">{{item.orientation || '--'}}</text>
         </view>
-        <view class="cmp-row">
-          <text class="cmp-label">楼层</text>
-          <text class="cmp-val">{{item.floor || '--'}}</text>
+        <view class="cmp-attr">
+          <text class="cmp-attr-label">楼层</text>
+          <text class="cmp-attr-val">{{item.floor || '--'}}</text>
         </view>
-        <view class="cmp-row">
-          <text class="cmp-label">装修</text>
-          <text class="cmp-val">{{item.decoration || '--'}}</text>
+        <view class="cmp-attr">
+          <text class="cmp-attr-label">装修</text>
+          <text class="cmp-attr-val">{{item.decoration || '--'}}</text>
         </view>
-        <view class="cmp-row">
-          <text class="cmp-label">年代</text>
-          <text class="cmp-val">{{item.buildYear || '--'}}年</text>
+        <view class="cmp-attr">
+          <text class="cmp-attr-label">年代</text>
+          <text class="cmp-attr-val">{{item.buildYear || '--'}}年</text>
         </view>
-        <view class="cmp-row">
-          <text class="cmp-label">区域</text>
-          <text class="cmp-val">{{item.district || '--'}}</text>
+        <view class="cmp-attr">
+          <text class="cmp-attr-label">区域</text>
+          <text class="cmp-attr-val cmp-attr-val-district">{{item.district || '--'}}</text>
         </view>
       </view>
     </view>
-  </scroll-view>
+  </view>
 
   <!-- 底部 -->
   <view class="cmp-bottom" wx:if="{{list.length > 0}}">
-    <view class="cmpb-btn gray" bindtap="clearAll">清空</view>
+    <view class="cmpb-btn gray" bindtap="clearAll">清空对比</view>
     <view class="cmpb-btn primary" bindtap="goToList">添加更多</view>
   </view>
 </view>

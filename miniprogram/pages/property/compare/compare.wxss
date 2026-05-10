@@ -1,43 +1,57 @@
-/* 房源对比 - 卡片式 */
-.cmp-container { min-height: 100vh; display: flex; flex-direction: column; padding-bottom: 130rpx; }
+/* 房源对比 - 纵向卡片 */
+.cmp-container { min-height: 100vh; padding-bottom: 140rpx; }
+.cmp-content { padding: 16rpx 24rpx; }
 
-/* 空状态复用全局 empty-state */
+/* 头部 */
+.cmp-header { padding: 16rpx 0 24rpx; }
+.cmp-header-title { font-size: var(--font-xl); font-weight: 700; color: var(--color-text-primary); }
+.cmp-header-sub { font-size: var(--font-sm); color: var(--color-text-hint); margin-left: 12rpx; }
 
-/* 横向滚动 */
-.cmp-scroll { white-space: nowrap; padding: 24rpx; }
+/* 卡片 */
 .cmp-card {
-  display: inline-block; width: 300rpx; background: var(--color-card);
-  border-radius: var(--radius-lg); overflow: hidden; margin-right: 20rpx;
-  box-shadow: var(--shadow-md); vertical-align: top; white-space: normal;
-  animation: fadeInUp 0.35s ease both;
+  background: var(--color-card); border-radius: var(--radius-lg);
+  margin-bottom: 20rpx; box-shadow: var(--shadow-sm);
+  animation: fadeInUp 0.35s ease both; position: relative; overflow: hidden;
 }
-.cmp-card:last-child { margin-right: 0; }
-
-.cmp-img-wrap { position: relative; }
-.cmp-img { width: 100%; height: 200rpx; }
-.cmp-remove {
-  position: absolute; top: 12rpx; right: 12rpx;
-  width: 40rpx; height: 40rpx; background: rgba(0,0,0,0.5); color: #fff;
-  border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  font-size: 22rpx;
+.cmp-card-tag {
+  position: absolute; top: 0; left: 0;
+  background: var(--color-gradient); color: #fff;
+  padding: 6rpx 20rpx; border-radius: 0 0 16rpx 0;
+  font-size: var(--font-xs); font-weight: 600; z-index: 1;
 }
 
-.cmp-body { padding: 20rpx; }
-.cmp-title {
+/* 图片 + 信息列 */
+.cmp-card-top {
+  display: flex; padding: 36rpx 20rpx 20rpx 20rpx;
+}
+.cmp-card-img {
+  width: 200rpx; height: 150rpx; border-radius: var(--radius-sm); flex-shrink: 0;
+}
+.cmp-card-info { flex: 1; margin-left: 16rpx; display: flex; flex-direction: column; min-width: 0; }
+.cmp-card-title {
   font-size: var(--font-sm); font-weight: 600; color: var(--color-text-primary);
-  line-height: 1.4; margin-bottom: 12rpx;
+  line-height: 1.5; margin-bottom: 8rpx;
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
 }
-.cmp-price {
-  font-size: var(--font-xl); font-weight: 700; color: var(--color-price);
-  margin-bottom: 16rpx; padding-bottom: 16rpx; border-bottom: 1rpx dashed #eee;
+.cmp-card-price { display: flex; align-items: baseline; margin-bottom: 8rpx; }
+.cmp-price-num { font-size: var(--font-xl); font-weight: 700; color: var(--color-price); }
+.cmp-price-unit { font-size: var(--font-xs); color: var(--color-text-hint); margin-left: 4rpx; }
+.cmp-card-remove {
+  font-size: var(--font-xs); color: var(--color-primary); padding: 4rpx 0; align-self: flex-start;
 }
-.cmp-price-unit { font-size: var(--font-sm); font-weight: 400; }
 
-.cmp-row { display: flex; justify-content: space-between; padding: 10rpx 0; }
-.cmp-row:nth-child(even) { background: #fafbfe; margin: 0 -20rpx; padding: 10rpx 20rpx; }
-.cmp-label { font-size: var(--font-xs); color: var(--color-text-hint); }
-.cmp-val { font-size: var(--font-sm); color: var(--color-text-primary); font-weight: 500; }
+/* 属性列表 */
+.cmp-attrs {
+  display: flex; flex-wrap: wrap; padding: 0 20rpx 20rpx;
+}
+.cmp-attr {
+  width: 50%; display: flex; padding: 12rpx 0; border-bottom: 1rpx solid #f5f5f5;
+}
+.cmp-attr:nth-child(even) { padding-left: 16rpx; border-left: 1rpx solid #f5f5f5; }
+.cmp-attr:nth-child(odd) { padding-right: 16rpx; }
+.cmp-attr-label { font-size: var(--font-xs); color: var(--color-text-hint); width: 80rpx; flex-shrink: 0; }
+.cmp-attr-val { font-size: var(--font-sm); color: var(--color-text-primary); font-weight: 500; }
+.cmp-attr-val-district { color: var(--color-primary); }
 
 /* 底部 */
 .cmp-bottom {
