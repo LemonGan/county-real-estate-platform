@@ -1,4 +1,4 @@
-﻿/* 首页样式 */
+/* 首页样式 */
 .page-container { min-height: 100vh; display: flex; flex-direction: column; }
 
 /* ===== Hero ===== */
