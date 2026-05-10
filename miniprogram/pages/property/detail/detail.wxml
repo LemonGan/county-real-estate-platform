@@ -62,7 +62,7 @@
     <!-- 房源标题 -->
     <view class="section-card title-section">
       <text class="title">{{property.title}}</text>
-      <text class="subtitle">{{property.community_name}}</text>
+      <text class="subtitle" bindtap="goToCommunity">{{property.community_name}} ›</text>
     </view>
 
     <!-- 位置信息 -->

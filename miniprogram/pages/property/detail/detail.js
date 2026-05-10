@@ -158,19 +158,15 @@ Page({
       if (this.data.isFavorite) {
         await api.delete(`/favorites/properties/${this.data.propertyId}`)
         this.setData({ isFavorite: false })
-        wx.showToast({
-          title: '已取消收藏',
-          icon: 'success'
-        })
+        priceTrack.removeTrack(this.data.propertyId)
+        wx.showToast({ title: '已取消收藏', icon: 'success' })
       } else {
         await api.post(`/favorites/properties/${this.data.propertyId}`, {
           property_id: this.data.propertyId
         })
         this.setData({ isFavorite: true })
-        wx.showToast({
-          title: '收藏成功',
-          icon: 'success'
-        })
+        priceTrack.trackPrice(this.data.propertyId, this.data.property.total_price || this.data.property.price)
+        wx.showToast({ title: '收藏成功', icon: 'success' })
       }
     } catch (err) {
       console.error('收藏操作失败:', err)
@@ -355,6 +351,14 @@ Page({
     const cover = p.cover_image_url || '';
     const params = `id=${p.id || this.data.propertyId}&title=${encodeURIComponent(p.title || '')}&price=${p.total_price || p.price || 0}&area=${p.area || ''}&rooms=${p.room_count || ''}&halls=${p.hall_count || ''}&community=${encodeURIComponent(p.community_name || '')}&cover=${encodeURIComponent(cover)}`;
     wx.navigateTo({ url: '/pages/property/poster/poster?' + params });
+  },
+
+  goToCommunity() {
+    const p = this.data.property;
+    if (!p || !p.community_name) return;
+    wx.navigateTo({
+      url: `/pages/property/community/community?name=${encodeURIComponent(p.community_name)}&city=${encodeURIComponent(p.city || '')}&district=${encodeURIComponent(p.district || '')}`
+    });
   },
 
   goToPoster() {

@@ -28,7 +28,7 @@
         </view>
         <view class="property-price">
           <text class="price">{{item.property.price/10000}}万</text>
-          <text class="unit">元/套</text>
+          <text class="price-drop" wx:if="{{item.priceDrop}}">↓{{item.priceDrop}}万</text>
         </view>
         <view class="favorite-time">收藏于 {{item.created_at}}</view>
       </view>

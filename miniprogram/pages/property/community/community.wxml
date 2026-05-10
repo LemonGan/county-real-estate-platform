@@ -1,0 +1,46 @@
+<!-- 小区详情页 -->
+<view class="community-container">
+  <!-- 顶部信息 -->
+  <view class="cm-header">
+    <text class="cm-name">{{communityName}}</text>
+    <view class="cm-stats">
+      <view class="cm-stat">
+        <text class="cm-stat-val">{{properties.length}}</text>
+        <text class="cm-stat-label">在售房源</text>
+      </view>
+      <view class="cm-stat">
+        <text class="cm-stat-val">{{avgPrice}}</text>
+        <text class="cm-stat-label">均价(万)</text>
+      </view>
+      <view class="cm-stat">
+        <text class="cm-stat-val">{{minPrice}}-{{maxPrice}}</text>
+        <text class="cm-stat-label">价格区间(万)</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 房源列表 -->
+  <view class="cm-list-label">小区在售房源</view>
+  <view class="property-list">
+    <view class="p-item card-animate" style="animation-delay:{{index*0.06}}s" wx:for="{{properties}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+      <image class="p-thumb" src="{{item.cover_url || '/assets/images/placeholder.png'}}" mode="aspectFill" lazy-load/>
+      <view class="p-info">
+        <text class="p-title ellipsis">{{item.title}}</text>
+        <view class="p-meta">
+          <text>{{item.rooms}}室{{item.halls}}厅 · {{item.area}}㎡ · {{item.orientation || '--'}}</text>
+        </view>
+        <view class="p-price">
+          <text class="price-num">{{item.total_price_text}}</text>
+          <text>万</text>
+          <text class="p-unit" wx:if="{{item.unit_price}}">{{item.unit_price}}元/㎡</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{properties.length === 0 && !loading}}">
+    <text class="empty-icon">🏘️</text>
+    <text class="empty-text">暂无在售房源</text>
+  </view>
+</view>

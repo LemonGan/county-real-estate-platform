@@ -1,6 +1,7 @@
 // 我的收藏页
 const api = require('../../../utils/api')
 const { formatPrice } = require('../../../utils/format')
+const priceTrack = require('../../../utils/price_track')
 
 Page({
   data: {
@@ -33,17 +34,22 @@ Page({
     try {
       const res = await api.get('/favorites/')
 
+      const rawList = res.list || res.items || res || [];
+      // 检查降价
+      const favorites = rawList.map(item => {
+        const prop = item.property || item;
+        const currentPrice = prop.total_price || prop.price || 0;
+        const drop = priceTrack.checkPriceDrop(prop.id, currentPrice);
+        return { ...item, priceDrop: drop.dropped ? (drop.diff / 10000).toFixed(1) : null };
+      });
       this.setData({
-        favorites: res.list || res.items || res,
+        favorites,
         loading: false,
-        empty: (!res.list || res.list.length === 0) && (!res.items || res.items.length === 0) && (!res || res.length === 0)
+        empty: favorites.length === 0
       })
     } catch (err) {
       console.error('加载收藏失败:', err)
-      this.setData({
-        loading: false,
-        empty: true
-      })
+      this.setData({ loading: false, empty: true })
 
       wx.showToast({
         title: err.message || '加载失败',

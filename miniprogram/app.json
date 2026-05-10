@@ -9,6 +9,7 @@
     "pages/property/list/list",
     "pages/property/detail/detail",
     "pages/property/compare/compare",
+    "pages/property/community/community",
     "pages/property/search/search",
     "pages/property/appointment/appointment",
     "pages/property/map/map",

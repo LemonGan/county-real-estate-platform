@@ -74,7 +74,7 @@
 /* ===== 标题 + 小区名 ===== */
 .title-section { animation-delay: 0.1s; }
 .title-section .title { display: block; font-size: var(--font-xl); font-weight: 600; color: var(--color-text-primary); margin-bottom: 10rpx; }
-.title-section .subtitle { display: block; font-size: var(--font-sm); color: var(--color-text-secondary); }
+.title-section .subtitle { display: block; font-size: var(--font-sm); color: var(--color-primary); }
 
 /* ===== 位置 ===== */
 .location-section { animation-delay: 0.14s; display: flex; align-items: flex-start; }
