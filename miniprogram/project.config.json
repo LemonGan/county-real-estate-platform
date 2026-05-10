@@ -13,7 +13,7 @@
     },
     "useCompilerPlugins": false,
     "minifyWXML": true,
-    "urlCheck": true,
+    "urlCheck": false,
     "scopeDataCheck": false,
     "coverView": true,
     "lazyCodeLoading": "requiredComponents"
