@@ -118,3 +118,16 @@
   border-radius: 20rpx; font-size: var(--font-xs); margin-right: 12rpx;
 }
 .news-time { font-size: var(--font-xs); color: var(--color-text-hint); }
+
+/* 对比浮动栏 */
+.compare-float-bar {
+  position: fixed; bottom: 100rpx; left: 24rpx; right: 24rpx;
+  background: var(--color-gradient); color: #fff;
+  border-radius: var(--radius-round); padding: 20rpx 28rpx;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 8rpx 24rpx rgba(102,126,234,0.4); z-index: 99;
+  animation: scaleIn 0.3s ease;
+}
+.cfb-icon { font-size: 36rpx; }
+.cfb-text { font-size: var(--font-md); font-weight: 500; }
+.cfb-arrow { font-size: var(--font-sm); opacity: 0.8; }

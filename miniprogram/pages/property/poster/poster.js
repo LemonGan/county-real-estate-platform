@@ -43,9 +43,10 @@ Page({
       canvas.height = canvasHeight * dpr;
       ctx.scale(dpr, dpr);
 
-      // 白色背景
+      // 白色背景 + 圆角阴影效果
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+      this.roundRect(ctx, 0, 0, canvasWidth, canvasHeight, 16);
+      ctx.fill();
 
       // 顶部渐变色条
       const gradient = ctx.createLinearGradient(0, 0, canvasWidth, 0);

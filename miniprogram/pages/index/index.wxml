@@ -1,4 +1,4 @@
-<!-- 首页 -->
+﻿<!-- 首页 -->
 <view class="page-container">
   <!-- Hero 区域 -->
   <view class="hero-section">
@@ -150,4 +150,11 @@
 
   <!-- 底部留白 -->
   <view style="height: 120rpx;"></view>
+
+  <!-- 对比浮动栏 -->
+  <view class="compare-float-bar" wx:if="{{compareCount > 0}}" bindtap="goToCompare">
+    <text class="cfb-icon">⚖️</text>
+    <text class="cfb-text">房源对比 ({{compareCount}}/4)</text>
+    <text class="cfb-arrow">查看 ›</text>
+  </view>
 </view>

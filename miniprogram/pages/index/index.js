@@ -2,6 +2,7 @@
 const app = getApp()
 const api = require('../../utils/api')
 const format = require('../../utils/format')
+const compareUtil = require('../../utils/compare')
 
 Page({
   data: {
@@ -12,7 +13,8 @@ Page({
     loading: false,
     hasMore: true,
     currentPage: 1,
-    pageSize: 5
+    pageSize: 5,
+    compareCount: 0
   },
 
   /**
@@ -28,6 +30,7 @@ Page({
    * 页面显示
    */
   onShow() {
+    this.setData({ compareCount: compareUtil.getCompareList().length });
     // 刷新推荐房源
     if (app.globalData.isLogin) {
       this.loadRecommendProperties()
@@ -229,6 +232,10 @@ Page({
     wx.navigateTo({
       url: `/pages/news/detail/detail?id=${id}`
     })
+  },
+
+  goToCompare() {
+    wx.navigateTo({ url: '/pages/property/compare/compare' });
   },
 
   /**
