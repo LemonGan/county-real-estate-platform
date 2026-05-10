@@ -94,14 +94,20 @@
 .action-section {
   animation-delay: 0.22s;
   display: flex; justify-content: space-around;
+  padding: 24rpx 12rpx;
 }
 .action-item {
-  display: flex; flex-direction: column; align-items: center;
-  background: transparent; border: none; padding: 0;
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: transparent; border: none; padding: 12rpx 0;
+  line-height: 1.2; min-height: auto;
 }
 .action-item::after { border: none; }
+button.action-item {
+  margin: 0; padding: 12rpx 0; border-radius: 0; background: transparent;
+  font-size: inherit; color: inherit; line-height: 1.2;
+}
 .action-icon { width: 44rpx; height: 44rpx; margin-bottom: 8rpx; }
-.action-emoji { font-size: 40rpx; margin-bottom: 6rpx; }
+.action-emoji { font-size: 40rpx; margin-bottom: 6rpx; line-height: 1; }
 .action-text { font-size: var(--font-sm); color: var(--color-text-secondary); }
 
 /* ===== 经纪人 ===== */

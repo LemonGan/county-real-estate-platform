@@ -1,11 +1,24 @@
-<!-- pages/property/poster/poster.wxml -->
-<view class="container">
-  <view class="poster-wrapper">
-    <canvas type="2d" id="posterCanvas" class="poster-canvas"></canvas>
+<!-- 房源海报生成页 -->
+<view class="poster-container">
+  <!-- 海报预览区 -->
+  <view class="poster-preview" wx:if="{{!saving}}">
+    <canvas type="2d" id="posterCanvas" class="poster-canvas" style="width:{{canvasWidth}}px;height:{{canvasHeight}}px"></canvas>
   </view>
-  
-  <view class="actions">
-    <button class="btn save" bindtap="savePoster">保存图片</button>
-    <button class="btn share" open-type="share">分享好友</button>
+
+  <!-- 保存中 -->
+  <view class="saving-tip" wx:if="{{saving}}">
+    <text class="saving-icon">⏳</text>
+    <text>正在生成海报...</text>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="poster-actions" wx:if="{{!saving}}">
+    <view class="pa-btn primary" bindtap="savePoster">保存到相册</view>
+    <view class="pa-btn gray" bindtap="redraw">重新生成</view>
+  </view>
+
+  <!-- 提示 -->
+  <view class="poster-tip">
+    <text>长按海报可分享给好友或朋友圈</text>
   </view>
 </view>

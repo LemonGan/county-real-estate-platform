@@ -90,6 +90,10 @@
         <text class="action-emoji">{{inCompare ? '✅' : '⚖️'}}</text>
         <text class="action-text">{{inCompare ? '已对比' : '对比'}}</text>
       </view>
+      <view class="action-item" bindtap="makePoster">
+        <text class="action-emoji">🖼️</text>
+        <text class="action-text">海报</text>
+      </view>
       <button class="action-item" open-type="share">
         <image class="action-icon" src="/assets/icons/share.png"></image>
         <text class="action-text">分享</text>

@@ -12,6 +12,7 @@ Page({
     isFavorite: false,
     showShare: false,
     showContact: false,
+    inCompare: false,
     imageUrls: []  // 图片URL列表
   },
 
@@ -348,11 +349,16 @@ Page({
   /**
    * 生成海报
    */
+  makePoster() {
+    const p = this.data.property;
+    if (!p) return;
+    const cover = p.cover_image_url || '';
+    const params = `id=${p.id || this.data.propertyId}&title=${encodeURIComponent(p.title || '')}&price=${p.total_price || p.price || 0}&area=${p.area || ''}&rooms=${p.room_count || ''}&halls=${p.hall_count || ''}&community=${encodeURIComponent(p.community_name || '')}&cover=${encodeURIComponent(cover)}`;
+    wx.navigateTo({ url: '/pages/property/poster/poster?' + params });
+  },
+
   goToPoster() {
-    const property = encodeURIComponent(JSON.stringify(this.data.property))
-    wx.navigateTo({
-      url: '/pages/property/poster/poster?property=' + property
-    })
+    this.makePoster();
   },
 
   onShareTap() {

@@ -1,50 +1,31 @@
-/* 海报生成页面样式 */
-.container {
-  min-height: 100vh;
-  background-color: #f8f9fa;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 40rpx;
+/* 海报生成 */
+.poster-container {
+  min-height: 100vh; background: #f0f0f0;
+  display: flex; flex-direction: column; align-items: center; padding: 40rpx 0;
 }
-
-.poster-wrapper {
-  background: #fff;
-  border-radius: 24rpx;
-  padding: 20rpx;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+.poster-preview {
+  background: #fff; border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg); overflow: hidden;
 }
+.poster-canvas { display: block; }
 
-.poster-canvas {
-  width: 600rpx;
-  height: 900rpx;
-  background: #fff;
+.saving-tip {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 200rpx 0; color: var(--color-text-hint); font-size: var(--font-md);
 }
+.saving-icon { font-size: 60rpx; margin-bottom: 20rpx; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.actions {
-  display: flex;
-  gap: 30rpx;
-  margin-top: 40rpx;
-  width: 100%;
+.poster-actions {
+  display: flex; gap: 20rpx; margin: 40rpx 24rpx; width: calc(100% - 48rpx);
 }
-
-.btn {
-  flex: 1;
-  padding: 28rpx 0;
-  font-size: 30rpx;
-  font-weight: 500;
-  border-radius: 48rpx;
-  text-align: center;
+.pa-btn {
+  flex: 1; height: 88rpx; display: flex; align-items: center; justify-content: center;
+  border-radius: 44rpx; font-size: var(--font-lg); font-weight: 500;
 }
+.pa-btn.primary { background: var(--color-gradient); color: #fff; box-shadow: 0 6rpx 20rpx rgba(102,126,234,0.35); }
+.pa-btn.gray { background: #fff; color: var(--color-text-secondary); }
 
-.btn.save {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
-  box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.3);
-}
-
-.btn.share {
-  background: #fff;
-  color: #667eea;
-  border: 2rpx solid #667eea;
+.poster-tip {
+  text-align: center; padding: 20rpx; color: var(--color-text-hint); font-size: var(--font-xs);
 }
