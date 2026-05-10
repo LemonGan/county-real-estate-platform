@@ -3,6 +3,7 @@ const app = getApp()
 const api = require('../../../utils/api')
 const format = require('../../../utils/format')
 const cache = require('../../../utils/cache')
+const compareUtil = require('../../../utils/compare')
 
 Page({
   data: {
@@ -33,6 +34,7 @@ Page({
 
     // 筛选面板
     showFilter: false,
+    compareCount: 0,
     filterOptions: {
       distances: [
         { label: '不限', value: '' },
@@ -115,6 +117,9 @@ Page({
    * 页面显示
    */
   onShow() {
+    // 更新对比计数
+    this.setData({ compareCount: compareUtil.getCompareList().length });
+
     // 检查是否有从地图页传来的筛选条件
     const app = getApp()
     if (app && app.globalFilters) {
@@ -365,6 +370,10 @@ Page({
     wx.navigateTo({
       url: '/pages/property/search/search'
     })
+  },
+
+  goToCompare() {
+    wx.navigateTo({ url: '/pages/property/compare/compare' });
   },
 
   /**

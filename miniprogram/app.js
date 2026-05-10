@@ -3,7 +3,7 @@ App({
   globalData: {
     userInfo: null,
     token: null,
-    baseUrl: 'https://api.imlemon.top/api/v1', // 生产环境API
+    baseUrl: 'http://8.138.129.142:8881/api/v1', // 开发调试用
     isLogin: false, 
     location: null
   },

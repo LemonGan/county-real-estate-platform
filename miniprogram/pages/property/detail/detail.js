@@ -180,6 +180,19 @@ Page({
     }
   },
 
+  /** 加入/移除对比 */
+  toggleCompare() {
+    const { property, inCompare } = this.data;
+    if (!property) return;
+    if (inCompare) {
+      compareUtil.removeFromCompare(property.id);
+      this.setData({ inCompare: false });
+    } else {
+      const added = compareUtil.addToCompare(property);
+      if (added) this.setData({ inCompare: true });
+    }
+  },
+
   /**
    * 分享
    */
@@ -203,6 +216,18 @@ Page({
       title: property ? `${property.title} - ${formatPrice(property.price)}` : '房源详情',
       query: `id=${this.data.propertyId}`,
       imageUrl: shareImage
+    }
+  },
+
+  /**
+   * 联系经纪人
+   */
+  callAgent() {
+    const { property } = this.data;
+    if (property && property.agent && property.agent.phone) {
+      wx.makePhoneCall({ phoneNumber: property.agent.phone });
+    } else {
+      wx.showToast({ title: '暂无经纪人电话', icon: 'none' });
     }
   },
 

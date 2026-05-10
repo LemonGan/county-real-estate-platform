@@ -86,14 +86,14 @@
         <image class="action-icon" src="{{isFavorite ? '/assets/icons/favorite-filled.png' : '/assets/icons/favorite.png'}}"></image>
         <text class="action-text">{{isFavorite ? '已收藏' : '收藏'}}</text>
       </view>
+      <view class="action-item" bindtap="toggleCompare">
+        <text class="action-emoji">{{inCompare ? '✅' : '⚖️'}}</text>
+        <text class="action-text">{{inCompare ? '已对比' : '对比'}}</text>
+      </view>
       <button class="action-item" open-type="share">
         <image class="action-icon" src="/assets/icons/share.png"></image>
         <text class="action-text">分享</text>
       </button>
-      <view class="action-item" bindtap="goToReview">
-        <image class="action-icon" src="/assets/icons/edit.png"></image>
-        <text class="action-text">评价</text>
-      </view>
     </view>
 
     <!-- 经纪人信息 -->
@@ -105,7 +105,8 @@
           <text class="agent-name">{{property.agent.nickname}}</text>
           <text class="agent-title">金牌经纪人</text>
         </view>
-        <button class="contact-btn" bindtap="contactAgent">联系</button>
+        <button class="contact-btn" bindtap="callAgent" wx:if="{{property.agent.phone}}">📞 致电</button>
+        <button class="contact-btn" bindtap="contactAgent" wx:else>联系</button>
       </view>
     </view>
 
@@ -115,7 +116,8 @@
 
   <!-- 底部固定按钮 -->
   <view class="bottom-bar">
-    <view class="bottom-btn gray" bindtap="contactAgent">电话咨询</view>
+    <view class="bottom-btn gray" bindtap="callAgent" wx:if="{{property.agent && property.agent.phone}}">📞 电话咨询</view>
+    <view class="bottom-btn gray" bindtap="contactAgent" wx:else>电话咨询</view>
     <view class="bottom-btn primary" bindtap="makeAppointment">预约看房</view>
   </view>
 </view>

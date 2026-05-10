@@ -1,0 +1,93 @@
+<!-- 房源对比页 -->
+<view class="compare-container">
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{list.length === 0}}">
+    <text class="empty-icon">⚖️</text>
+    <text class="empty-text">还没有添加对比房源</text>
+    <text class="empty-hint">在房源详情页点击"对比"加入</text>
+    <view class="empty-btn" bindtap="goToList">去看看房源</view>
+  </view>
+
+  <!-- 对比表 -->
+  <scroll-view class="compare-table" scroll-x wx:if="{{list.length > 0}}">
+    <!-- 表头：图片 + 标题 -->
+    <view class="ct-row ct-header">
+      <view class="ct-label-col">基本信息</view>
+      <view class="ct-col" wx:for="{{list}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+        <image class="ct-cover" src="{{item.coverUrl || '/assets/images/placeholder.png'}}" mode="aspectFill"/>
+        <text class="ct-title">{{item.title}}</text>
+        <text class="ct-remove" bindtap="removeItem" data-id="{{item.id}}">✕ 移除</text>
+      </view>
+    </view>
+
+    <!-- 价格 -->
+    <view class="ct-row">
+      <view class="ct-label-col">总价</view>
+      <view class="ct-col" wx:for="{{list}}" wx:key="id">
+        <text class="ct-value price">{{item.price / 10000}}万</text>
+      </view>
+    </view>
+
+    <!-- 面积 -->
+    <view class="ct-row">
+      <view class="ct-label-col">面积</view>
+      <view class="ct-col" wx:for="{{list}}" wx:key="id">
+        <text class="ct-value">{{item.area}}㎡</text>
+      </view>
+    </view>
+
+    <!-- 户型 -->
+    <view class="ct-row">
+      <view class="ct-label-col">户型</view>
+      <view class="ct-col" wx:for="{{list}}" wx:key="id">
+        <text class="ct-value">{{item.rooms}}室{{item.halls}}厅</text>
+      </view>
+    </view>
+
+    <!-- 朝向 -->
+    <view class="ct-row">
+      <view class="ct-label-col">朝向</view>
+      <view class="ct-col" wx:for="{{list}}" wx:key="id">
+        <text class="ct-value">{{item.orientation || '--'}}</text>
+      </view>
+    </view>
+
+    <!-- 楼层 -->
+    <view class="ct-row">
+      <view class="ct-label-col">楼层</view>
+      <view class="ct-col" wx:for="{{list}}" wx:key="id">
+        <text class="ct-value">{{item.floor || '--'}}</text>
+      </view>
+    </view>
+
+    <!-- 装修 -->
+    <view class="ct-row">
+      <view class="ct-label-col">装修</view>
+      <view class="ct-col" wx:for="{{list}}" wx:key="id">
+        <text class="ct-value">{{item.decoration || '--'}}</text>
+      </view>
+    </view>
+
+    <!-- 建筑年代 -->
+    <view class="ct-row">
+      <view class="ct-label-col">年代</view>
+      <view class="ct-col" wx:for="{{list}}" wx:key="id">
+        <text class="ct-value">{{item.buildYear || '--'}}年</text>
+      </view>
+    </view>
+
+    <!-- 区域 -->
+    <view class="ct-row">
+      <view class="ct-label-col">区域</view>
+      <view class="ct-col" wx:for="{{list}}" wx:key="id">
+        <text class="ct-value">{{item.district || '--'}}</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 底部操作 -->
+  <view class="bottom-bar" wx:if="{{list.length > 0}}">
+    <view class="bb-btn gray" bindtap="clearAll">清空对比</view>
+    <view class="bb-btn primary" bindtap="goToList">添加更多</view>
+  </view>
+</view>

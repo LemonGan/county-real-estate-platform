@@ -1,209 +1,86 @@
-/* 计算器样式 */
-.calculator-container {
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding-bottom: 40rpx;
+/* 房贷计算器 */
+.calc-container { padding: 20rpx 24rpx; }
+
+/* 卡片 */
+.calc-card {
+  background: var(--color-card); border-radius: var(--radius-lg);
+  padding: 28rpx 24rpx; margin-bottom: 20rpx; box-shadow: var(--shadow-sm);
+}
+.calc-title { font-size: var(--font-lg); font-weight: 600; margin-bottom: 20rpx; color: var(--color-text-primary); }
+
+/* 金额输入 */
+.price-input-row {
+  display: flex; align-items: center; margin-bottom: 20rpx;
+}
+.price-unit { font-size: var(--font-xl); color: var(--color-text-secondary); margin-right: 12rpx; }
+.price-input {
+  flex: 1; font-size: 52rpx; font-weight: 700;
+  color: var(--color-text-primary); border-bottom: 3rpx solid var(--color-border); padding: 8rpx 0;
+}
+.price-suffix { font-size: var(--font-md); color: var(--color-text-hint); margin-left: 12rpx; }
+
+/* 快捷金额 */
+.quick-prices { display: flex; gap: 12rpx; }
+.qp-item {
+  flex: 1; text-align: center; padding: 12rpx 0;
+  background: var(--color-bg); border-radius: 12rpx;
+  font-size: var(--font-sm); color: var(--color-text-secondary);
+}
+.qp-item.active { background: var(--color-primary); color: #fff; font-weight: 600; }
+
+/* 首付比例 */
+.ratio-row { display: flex; gap: 16rpx; margin-bottom: 20rpx; }
+.ratio-item {
+  flex: 1; text-align: center; padding: 16rpx 0;
+  background: var(--color-bg); border-radius: 12rpx;
+  font-size: var(--font-md); font-weight: 600; color: var(--color-text-secondary);
+}
+.ratio-item.active { background: var(--color-gradient); color: #fff; }
+
+.info-row { display: flex; justify-content: space-between; padding: 10rpx 0; }
+.info-label { font-size: var(--font-sm); color: var(--color-text-hint); }
+.info-value { font-size: var(--font-md); color: var(--color-text-primary); font-weight: 600; }
+.info-value.highlight { color: var(--color-primary); font-size: var(--font-lg); }
+
+/* 参数行 */
+.param-row { display: flex; gap: 30rpx; margin-bottom: 20rpx; }
+.param-item { flex: 1; }
+.param-label { display: block; font-size: var(--font-sm); color: var(--color-text-hint); margin-bottom: 8rpx; }
+.rate-input-wrap { display: flex; align-items: center; }
+.rate-symbol { font-size: var(--font-sm); color: var(--color-text-hint); }
+.rate-input { width: 100rpx; font-size: var(--font-xl); font-weight: 700; text-align: center; color: var(--color-text-primary); }
+.picker-display {
+  font-size: var(--font-xl); font-weight: 700; color: var(--color-text-primary);
+  padding: 8rpx 0; border-bottom: 3rpx solid var(--color-border);
 }
 
-/* 输入区域 */
-.input-section {
-  padding: 20rpx;
+/* 还款方式 */
+.payment-tabs { display: flex; gap: 16rpx; }
+.pt-item {
+  flex: 1; text-align: center; padding: 16rpx 0;
+  background: var(--color-bg); border-radius: 12rpx;
+  font-size: var(--font-md); color: var(--color-text-secondary);
 }
+.pt-item.active { background: var(--color-gradient); color: #fff; font-weight: 600; }
 
-.input-card {
-  background-color: #fff;
-  border-radius: 16rpx;
-  padding: 32rpx;
-  margin-bottom: 20rpx;
-}
-
-.card-title {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 32rpx;
-}
-
-.form-item {
-  margin-bottom: 32rpx;
-}
-
-.form-item:last-child {
-  margin-bottom: 0;
-}
-
-.label {
-  display: block;
-  font-size: 28rpx;
-  color: #666;
-  margin-bottom: 16rpx;
-}
-
-.input {
-  width: 100%;
-  height: 80rpx;
-  background-color: #f5f5f5;
-  border-radius: 8rpx;
-  padding: 0 24rpx;
-  font-size: 28rpx;
-  color: #333;
-  box-sizing: border-box;
-}
-
-/* 还款方式选择 */
-.payment-type-tabs {
-  display: flex;
-  background-color: #f5f5f5;
-  border-radius: 8rpx;
-  overflow: hidden;
-}
-
-.tab-item {
-  flex: 1;
-  height: 80rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28rpx;
-  color: #666;
-  background-color: #f5f5f5;
-  transition: all 0.3s;
-}
-
-.tab-item.active {
-  background-color: #667eea;
-  color: #fff;
-}
-
-/* 操作按钮 */
-.action-buttons {
-  display: flex;
-  gap: 20rpx;
-}
-
-.calculate-btn,
-.reset-btn {
-  flex: 1;
-  height: 88rpx;
-  border-radius: 12rpx;
-  font-size: 32rpx;
-  font-weight: 500;
-  border: none;
-}
-
-.calculate-btn {
-  background-color: #667eea;
-  color: #fff;
-}
-
-.calculate-btn::after {
-  border: none;
-}
-
-.reset-btn {
-  background-color: #fff;
-  color: #666;
-  border: 1rpx solid #e8e8e8;
-}
-
-.reset-btn::after {
-  border: none;
-}
-
-/* 计算结果 */
-.result-section {
-  padding: 0 20rpx;
-}
-
+/* 结果 */
 .result-card {
-  background-color: #fff;
-  border-radius: 16rpx;
-  padding: 32rpx;
+  background: var(--color-card); border-radius: var(--radius-lg);
+  padding: 28rpx 24rpx; margin-bottom: 20rpx; box-shadow: var(--shadow-sm);
+  animation: fadeInUp 0.3s ease both;
 }
+.result-header { font-size: var(--font-lg); font-weight: 600; margin-bottom: 20rpx; }
+.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20rpx; }
+.rg-item { text-align: center; }
+.rg-value { display: block; font-size: var(--font-xl); font-weight: 700; color: var(--color-text-primary); }
+.rg-value.primary { color: var(--color-price); font-size: var(--font-xxl); }
+.rg-label { font-size: var(--font-xs); color: var(--color-text-hint); margin-top: 4rpx; }
 
-.result-summary {
-  display: flex;
-  padding: 32rpx 0;
-  margin-bottom: 32rpx;
-  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-  border-radius: 12rpx;
+/* 计算按钮 */
+.calc-btn {
+  margin: 20rpx 0; padding: 24rpx 0; text-align: center;
+  background: var(--color-gradient); color: #fff;
+  border-radius: var(--radius-round); font-size: var(--font-lg); font-weight: 600;
+  box-shadow: 0 6rpx 20rpx rgba(102,126,234,0.35);
 }
-
-.summary-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0 16rpx;
-}
-
-.summary-label {
-  font-size: 24rpx;
-  color: #8c8c8c;
-  margin-bottom: 8rpx;
-}
-
-.summary-value {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #667eea;
-}
-
-.summary-divider {
-  width: 1rpx;
-  background-color: rgba(102, 126, 234, 0.2);
-}
-
-/* 还款计划表 */
-.payment-schedule {
-  margin-top: 32rpx;
-}
-
-.schedule-title {
-  font-size: 28rpx;
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 16rpx;
-}
-
-.schedule-table {
-  border: 1rpx solid #e8e8e8;
-  border-radius: 8rpx;
-  overflow: hidden;
-}
-
-.table-header {
-  display: flex;
-  background-color: #fafafa;
-  border-bottom: 1rpx solid #e8e8e8;
-}
-
-.header-cell {
-  flex: 1;
-  padding: 20rpx 8rpx;
-  text-align: center;
-  font-size: 24rpx;
-  color: #666;
-  font-weight: 500;
-}
-
-.table-body {
-  max-height: 600rpx;
-}
-
-.table-row {
-  display: flex;
-  border-bottom: 1rpx solid #e8e8e8;
-}
-
-.table-row:last-child {
-  border-bottom: none;
-}
-
-.body-cell {
-  flex: 1;
-  padding: 20rpx 8rpx;
-  text-align: center;
-  font-size: 24rpx;
-  color: #333;
-}
+.calc-btn:active { opacity: 0.85; }
