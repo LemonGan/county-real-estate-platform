@@ -12,12 +12,17 @@
           <text class="search-icon-text">🔍</text>
           <text class="search-placeholder">搜索房源、小区、地址...</text>
         </view>
-        <view class="hero-compare" wx:if="{{compareCount > 0}}" bindtap="goToCompare">
-          <text class="hc-icon">⚖️</text>
-          <text class="hc-badge">{{compareCount}}</text>
-        </view>
       </view>
     </view>
+  </view>
+
+  <!-- 对比横幅 -->
+  <view class="compare-banner" wx:if="{{compareCount > 0}}" bindtap="goToCompare">
+    <view class="cb-left">
+      <text class="cb-icon">⚖️</text>
+      <text class="cb-text">已添加 <text class="cb-num">{{compareCount}}</text> 套房源，点击查看对比</text>
+    </view>
+    <text class="cb-arrow">›</text>
   </view>
 
   <!-- 快捷入口 - 4格 -->

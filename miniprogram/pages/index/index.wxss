@@ -1,4 +1,4 @@
-/* 首页样式 */
+﻿/* 首页样式 */
 .page-container { min-height: 100vh; display: flex; flex-direction: column; }
 
 /* ===== Hero ===== */
@@ -118,23 +118,20 @@
   border-radius: 20rpx; font-size: var(--font-xs); margin-right: 12rpx;
 }
 .news-time { font-size: var(--font-xs); color: var(--color-text-hint); }
-
-
-
-/* Hero 底部行（搜索+对比） */
-.hero-bottom-row {
-  width: 100%; display: flex; align-items: center; gap: 16rpx;
-}
+/* Hero 底部行 */
+.hero-bottom-row { width: 100%; }
 .hero-bottom-row .hero-search { flex: 1; }
-.hero-compare {
-  width: 72rpx; height: 72rpx; background: rgba(255,255,255,0.2);
-  border-radius: 50%; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; position: relative;
-  border: 2rpx solid rgba(255,255,255,0.4); flex-shrink: 0;
+
+/* 对比横幅 */
+.compare-banner {
+  margin: 0 24rpx 16rpx; background: var(--color-card);
+  border-radius: var(--radius-md); padding: 20rpx 24rpx;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: var(--shadow-sm); border-left: 6rpx solid var(--color-primary);
+  animation: fadeInUp 0.3s ease both;
 }
-.hc-icon { font-size: 28rpx; }
-.hc-badge {
-  position: absolute; top: -6rpx; right: -6rpx;
-  min-width: 28rpx; height: 28rpx; background: #ff4d4f; color: #fff;
-  border-radius: 14rpx; font-size: 18rpx; text-align: center; line-height: 28rpx; padding: 0 4rpx;
-}
+.cb-left { display: flex; align-items: center; }
+.cb-icon { font-size: 36rpx; margin-right: 14rpx; }
+.cb-text { font-size: var(--font-sm); color: var(--color-text-secondary); }
+.cb-num { color: var(--color-primary); font-weight: 700; font-size: var(--font-md); }
+.cb-arrow { font-size: var(--font-lg); color: var(--color-text-hint); }
