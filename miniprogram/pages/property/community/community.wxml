@@ -31,7 +31,6 @@
         </view>
         <view class="p-price">
           <text class="price-num">{{item.total_price_text}}</text>
-          <text>万</text>
           <text class="p-unit" wx:if="{{item.unit_price}}">{{item.unit_price}}元/㎡</text>
         </view>
       </view>

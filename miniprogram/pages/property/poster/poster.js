@@ -24,7 +24,8 @@ Page({
         rooms: parseInt(rooms) || 0,
         halls: parseInt(halls) || 0,
         community: decodeURIComponent(community || ''),
-        cover: decodeURIComponent(cover || '')
+        cover: decodeURIComponent(cover || ''),
+        transaction_type: parseInt(options.type) || 0
       }
     });
     this.drawPoster();
@@ -82,15 +83,22 @@ Page({
 
   drawInfo(ctx, w) {
     const { property } = this.data;
-    const priceWan = (property.price / 10000).toFixed(0);
 
     // 价格
     ctx.fillStyle = '#ff4d4f';
-    ctx.font = 'bold 36px sans-serif';
-    ctx.fillText(priceWan + '万', 24, 340);
+    ctx.font = 'bold 32px sans-serif';
+    const priceWan = (property.price / 10000).toFixed(0);
+    const priceText = priceWan + '万';
+    const priceWidth = ctx.measureText(priceText).width;
+    ctx.fillText(priceText, 24, 340);
+
+    // 单位
     ctx.fillStyle = '#999';
     ctx.font = '14px sans-serif';
-    ctx.fillText(property.transaction_type ? '元/月' : '元/套', 24 + ctx.measureText(priceWan + '万').width + 8, 340);
+    const unitText = property.transaction_type === 2 ? '元/月' : '';
+    if (unitText) {
+      ctx.fillText(unitText, 24 + priceWidth + 10, 340);
+    }
 
     // 标签
     const tags = [];

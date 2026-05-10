@@ -2,6 +2,8 @@
 const api = require('../../../utils/api')
 const app = getApp()
 const { formatPrice, formatDate } = require('../../../utils/format')
+const compareUtil = require('../../../utils/compare')
+const priceTrack = require('../../../utils/price_track')
 
 Page({
   data: {
@@ -349,7 +351,7 @@ Page({
     const p = this.data.property;
     if (!p) return;
     const cover = p.cover_image_url || '';
-    const params = `id=${p.id || this.data.propertyId}&title=${encodeURIComponent(p.title || '')}&price=${p.total_price || p.price || 0}&area=${p.area || ''}&rooms=${p.room_count || ''}&halls=${p.hall_count || ''}&community=${encodeURIComponent(p.community_name || '')}&cover=${encodeURIComponent(cover)}`;
+    const params = `id=${p.id || this.data.propertyId}&title=${encodeURIComponent(p.title || '')}&price=${p.total_price || p.price || 0}&area=${p.area || ''}&rooms=${p.room_count || ''}&halls=${p.hall_count || ''}&community=${encodeURIComponent(p.community_name || '')}&cover=${encodeURIComponent(cover)}&type=${p.transaction_type || ''}`;
     wx.navigateTo({ url: '/pages/property/poster/poster?' + params });
   },
 
