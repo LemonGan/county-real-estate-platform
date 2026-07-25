@@ -5,7 +5,7 @@
 
 set -e
 
-PROJECT_DIR="/www/wwwroot/county-real-estate"
+PROJECT_DIR="/www/wwwroot/my_work/buyHouse"
 VENV_DIR="$PROJECT_DIR/venv"
 BACKEND_DIR="$PROJECT_DIR/backend"
 
@@ -46,23 +46,14 @@ if [ ! -f "$BACKEND_DIR/.env" ]; then
 fi
 echo "  OK"
 
-# 5. 初始化数据库
-echo "[5/6] 初始化数据库表..."
-python -c "
-import asyncio
-from app.core.database import engine, Base
-from app.models import *
-async def init():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    print('  数据库表创建完成')
-asyncio.run(init())
-"
+# 5. 执行数据库迁移
+echo "[5/6] 执行数据库迁移..."
+alembic upgrade head
 echo "  OK"
 
 # 6. 重启服务
 echo "[6/6] 重启服务..."
-supervisorctl restart county_real_estate
+supervisorctl restart buyhouse_api
 echo "  OK"
 
 echo ""
