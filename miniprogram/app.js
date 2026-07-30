@@ -3,7 +3,8 @@ App({
   globalData: {
     userInfo: null,
     token: null,
-    baseUrl: 'http://8.138.129.142:8881/api/v1', // 开发调试用
+    // 生产环境只使用已在微信公众平台登记的 HTTPS 域名。
+    baseUrl: 'https://api.imlemon.top/api/v1',
     isLogin: false, 
     location: null
   },

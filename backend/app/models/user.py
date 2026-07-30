@@ -1,7 +1,7 @@
 """
 用户数据模型
 """
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, SmallInteger, JSON
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, SmallInteger, JSON, ForeignKey
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.core.database import Base
@@ -41,9 +41,16 @@ class User(Base):
     user_type = Column(SmallInteger, default=1, comment="用户类型：1普通用户，2改善用户，3投资用户")
     is_active = Column(Boolean, default=True, comment="是否激活")
     is_superuser = Column(Boolean, default=False, comment="是否超级用户")
+    roles = Column(JSON, nullable=True, comment="后台角色数组")
     is_verified = Column(Boolean, default=False, comment="是否实名认证")
     is_agent = Column(Boolean, default=False, comment="是否经纪人")
     agent_license = Column(String(50), nullable=True, comment="经纪人执业证号")
+    agent_application_status = Column(String(20), nullable=False, default="none", comment="经纪人申请状态")
+    agent_company = Column(String(100), nullable=True, comment="经纪人所属公司")
+    agent_application_submitted_at = Column(DateTime(timezone=True), nullable=True)
+    agent_reviewed_at = Column(DateTime(timezone=True), nullable=True)
+    agent_reviewed_by = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    agent_review_note = Column(Text, nullable=True)
     
     # 会员信息
     member_level = Column(SmallInteger, default=0, comment="会员等级：0普通，1月卡，2季卡，3年卡")

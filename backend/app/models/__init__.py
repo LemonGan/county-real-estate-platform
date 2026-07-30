@@ -12,6 +12,8 @@ from app.models.appointment import Appointment, AppointmentStatus, AppointmentTy
 from app.models.agent_availability import AgentAvailability
 from app.models.short_video import ShortVideo
 from app.models.video_recommendation import VideoRecommendation
+from app.models.audit_log import AuditLog
+from app.models.feedback import Feedback
 
 __all__ = [
     "User",
@@ -30,4 +32,6 @@ __all__ = [
     "AgentAvailability",
     "ShortVideo",
     "VideoRecommendation",
+    "AuditLog",
+    "Feedback",
 ]

@@ -4,7 +4,7 @@
   <view class="user-card" wx:if="{{isLogin}}">
     <view class="user-info" bindtap="goToEdit">
       <image class="user-avatar"
-             src="{{userInfo.avatar || '/assets/images/default-avatar.png'}}"
+             src="{{userInfo.avatarDisplay || '/assets/images/default-avatar.png'}}"
              mode="aspectFill"></image>
       <view class="user-detail">
         <view class="user-name">{{userInfo.nickname || userInfo.phone || '用户'}}</view>

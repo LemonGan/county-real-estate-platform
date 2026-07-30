@@ -25,7 +25,9 @@ async def create_property_endpoint(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    """创建新的房源信息"""
+    """创建新房源；只有已审核通过的经纪人可投稿，投稿默认待审核。"""
+    if not current_user.is_agent or current_user.agent_application_status != "approved":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="只有审核通过的经纪人可以发布房源")
     property = await create_property(db, property_data, current_user.id)
     return property
 
@@ -127,6 +129,43 @@ async def get_nearby_properties(
     }
 
 
+@router.get("/mine", response_model=PropertyListResponse, summary="获取我的房源（含待审核状态）")
+async def get_my_properties(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(10, ge=1, le=100),
+    status_filter: Optional[int] = Query(None, ge=1, le=3),
+    audit_status: Optional[int] = Query(None, ge=0, le=2),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    properties, total = await get_properties(
+        db, page=page, page_size=page_size, status=status_filter,
+        agent_id=current_user.id, audit_status=audit_status, only_approved=False,
+    )
+    return {"list": properties, "total": total, "page": page, "page_size": page_size}
+
+
+@router.get("/mine/{property_id}", response_model=PropertyResponse, summary="获取我可编辑的房源")
+async def get_my_property_detail(
+    property_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """获取当前经纪人自己的房源，允许读取待审核或被拒绝的记录以便修正。"""
+    property = await get_property_by_id(db, property_id=property_id)
+    if not property:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="房源不存在",
+        )
+    if property.agent_id != current_user.id and not current_user.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="无权查看此房源",
+        )
+    return property
+
+
 @router.get("/{property_id}", response_model=PropertyResponse, summary="获取房源详情")
 async def get_property_detail(
     property_id: int,
@@ -134,7 +173,7 @@ async def get_property_detail(
 ):
     """根据ID获取房源详细信息"""
     property = await get_property_by_id(db, property_id=property_id)
-    if not property:
+    if not property or property.audit_status != 1:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="房源不存在"
@@ -164,10 +203,20 @@ async def update_property_endpoint(
             detail="无权修改此房源"
         )
     
+    update_data = property_data.model_dump(exclude_unset=True)
+    if update_data:
+        # 已通过的公开房源一旦改动，必须重新审核后才能再次展示。
+        update_data.update({
+            "audit_status": 0,
+            "status": 3,
+            "audit_reviewed_at": None,
+            "audit_reviewed_by": None,
+            "audit_review_note": None,
+        })
     updated_property = await update_property(
         db,
         property_id=property_id,
-        property_data=property_data.model_dump(exclude_unset=True)
+        property_data=update_data
     )
     return updated_property
 
@@ -223,6 +272,12 @@ async def update_property_status(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="无权修改此房源状态"
+        )
+
+    if new_status == 1 and property.audit_status != 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="房源通过审核后才能设置为在售",
         )
 
     updated_property = await update_property(

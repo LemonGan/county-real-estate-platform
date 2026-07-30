@@ -1,4 +1,5 @@
 // 预约看房页
+const app = getApp()
 const api = require('../../../utils/api')
 
 Page({
@@ -50,8 +51,19 @@ Page({
 
     try {
       const res = await api.get(`/properties/${id}`, {}, false)
+      const origin = (app.globalData.baseUrl || 'https://api.imlemon.top/api/v1').replace('/api/v1', '')
+      const firstImage = res.images && res.images[0]
+      const imageValue = res.cover_url || (typeof firstImage === 'string' ? firstImage : (firstImage && firstImage.image_url)) || ''
+      const coverImageUrl = imageValue && !imageValue.startsWith('http')
+        ? origin + (imageValue.startsWith('/static/') ? imageValue : `/static/${imageValue.replace(/^\//, '')}`)
+        : imageValue
       this.setData({
-        property: res,
+        property: {
+          ...res,
+          cover_image_url: coverImageUrl,
+          address_text: [res.province, res.city, res.district, res.detail_address].filter(Boolean).join(''),
+          price_wan: Number((Number(res.total_price || res.price || 0) / 10000).toFixed(2))
+        },
         loading: false
       })
     } catch (err) {
@@ -198,30 +210,9 @@ Page({
     }
   },
 
-  /**
-   * 联系经纪人
-   */
-  contactAgent() {
-    const { property } = this.data
-    if (!property || !property.agent) {
-      wx.showToast({
-        title: '暂无经纪人信息',
-        icon: 'none'
-      })
-      return
+  goToDetail() {
+    if (this.data.propertyId) {
+      wx.navigateTo({ url: `/pages/property/detail/detail?id=${this.data.propertyId}` });
     }
-
-    wx.showModal({
-      title: '联系经纪人',
-      content: `经纪人：${property.agent.nickname}\n电话：${property.agent.phone}`,
-      confirmText: '拨打电话',
-      success: (res) => {
-        if (res.confirm) {
-          wx.makePhoneCall({
-            phoneNumber: property.agent.phone
-          })
-        }
-      }
-    })
-  }
+  },
 })

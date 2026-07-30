@@ -60,7 +60,7 @@
     <view class="section-header">
       <view class="section-title-wrap">
         <view class="section-dot"></view>
-        <text class="section-title">✨ 为您推荐</text>
+        <text class="section-title">✨ 最新上架</text>
       </view>
       <text class="section-more" bindtap="goToList">更多 ›</text>
     </view>
@@ -75,7 +75,6 @@
           </view>
           <view class="p-card-price">
             <text class="price-num">{{item.total_price_text}}</text>
-            <text class="price-unit">万</text>
           </view>
         </view>
       </view>
@@ -121,7 +120,6 @@
           <view class="p-item-footer">
             <view class="p-item-price">
               <text class="price-num">{{item.total_price_text}}</text>
-              <text class="price-unit">万</text>
             </view>
             <text class="p-item-unit" wx:if="{{item.unit_price}}">{{item.unit_price}}元/㎡</text>
           </view>

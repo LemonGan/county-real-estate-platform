@@ -1,6 +1,11 @@
 // 搜索页
 const api = require('../../../utils/api')
 
+const SERVICE_CITY = '钦州市'
+const SERVICE_REGION = '灵山县'
+const SERVICE_LONGITUDE = 109.29
+const SERVICE_LATITUDE = 22.42
+
 Page({
   data: {
     mode: 'property',  // 'property' 搜索房源, 'location' 选择位置
@@ -16,8 +21,8 @@ Page({
     searchTimer: null,  // 搜索防抖定时器
     
     // 地图相关
-    mapLongitude: 120.2,
-    mapLatitude: 30.3,
+    mapLongitude: SERVICE_LONGITUDE,
+    mapLatitude: SERVICE_LATITUDE,
     mapMarkers: [],
     selectedProperty: null,
     showPropertyCard: false
@@ -33,8 +38,10 @@ Page({
     if (options.mode === 'select') {
       this.setData({ mode: 'location' })
       wx.setNavigationBarTitle({
-        title: '搜索位置'
+        title: '搜索灵山县位置'
       })
+      this.loadSearchHistory()
+      this.loadHotSearches()
     } else {
       this.setData({ mode: 'property' })
       this.loadSearchHistory()
@@ -53,6 +60,19 @@ Page({
     } catch (err) {
       console.error('加载搜索历史失败:', err)
     }
+  },
+
+  clearHistory() {
+    const historyKey = this.data.mode === 'location' ? 'locationSearchHistory' : 'searchHistory';
+    wx.showModal({
+      title: '清空搜索历史？',
+      content: '清空后无法恢复。',
+      success: (res) => {
+        if (!res.confirm) return;
+        wx.removeStorageSync(historyKey);
+        this.setData({ history: [] });
+      },
+    });
   },
 
   /**
@@ -87,7 +107,7 @@ Page({
     // 位置搜索模式的热门位置
     if (this.data.mode === 'location') {
       this.setData({
-        hotSearches: ['西湖', '钱江新城', '滨江', '西湖区', '上城区', '拱墅区', '西湖景区', '城西银泰']
+        hotSearches: ['灵山县', '灵城街道', '三海街道', '武利镇', '新圩镇', '檀圩镇']
       })
       return
     }
@@ -159,7 +179,8 @@ Page({
       // 调用后端地图搜索API
       const res = await api.get('/map/search', {
         keyword: keyword,
-        city: '杭州'  // 可以根据用户当前位置动态设置
+        city: SERVICE_CITY,
+        region: SERVICE_REGION
       }, false)
 
       console.log('位置搜索结果:', res)
@@ -175,9 +196,12 @@ Page({
         locationResults: []
       })
 
-      // 静默失败，不显示错误提示
       if (err.message && !err.message.includes('abort')) {
         console.warn('搜索位置失败:', err.message)
+        wx.showToast({
+          title: err.message.includes('暂未配置') ? '地图搜索服务暂未配置' : '位置搜索暂不可用',
+          icon: 'none'
+        })
       }
     }
   },
@@ -400,7 +424,7 @@ Page({
     let property = this.data.searchResults.find(p => p.id === markerId)
     if (property) {
       // 处理图片
-      const baseUrl = getApp().globalData.baseUrl || 'http://127.0.0.1:8000/api/v1'
+      const baseUrl = getApp().globalData.baseUrl || 'https://api.imlemon.top/api/v1'
       const staticUrl = baseUrl.replace('/api/v1', '') + '/static'
       let coverUrl = property.cover_url || (property.images && property.images[0] ? property.images[0].image_url : '')
       if (coverUrl && !coverUrl.startsWith('http')) {

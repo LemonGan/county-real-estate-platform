@@ -2,12 +2,15 @@
 用户行为管理API
 """
 from fastapi import APIRouter, Depends, Query
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 
 from app.core.database import get_db
 from app.api.deps import get_current_active_user
+from app.models.property import Property
 from app.models.user import User
+from app.models.user_behavior import UserBehavior
 from app.schemas.user_behavior import (
     UserBehaviorCreate, UserBehaviorResponse, UserBehaviorListResponse,
     UserBehaviorStatsResponse
@@ -75,3 +78,53 @@ async def get_my_behavior_stats(
     """获取当前用户的行为统计数据"""
     stats = await get_user_behavior_stats(db, current_user.id, days=days)
     return stats
+
+@router.get("/history/properties", summary="获取当前用户的房源浏览历史")
+async def get_property_browsing_history(
+    page: int = Query(1, ge=1, description="页码"),
+    page_size: int = Query(10, ge=1, le=50, description="每页数量"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """仅返回当前仍公开可见的房源摘要，不暴露已下线或未审核内容。"""
+    conditions = (
+        UserBehavior.user_id == current_user.id,
+        UserBehavior.behavior_type == 1,
+        UserBehavior.target_type == 1,
+        Property.deleted_at.is_(None),
+        Property.audit_status == 1,
+    )
+    total = (await db.execute(
+        select(func.count(UserBehavior.id))
+        .select_from(UserBehavior)
+        .join(Property, Property.id == UserBehavior.target_id)
+        .where(*conditions)
+    )).scalar() or 0
+    rows = (await db.execute(
+        select(UserBehavior, Property)
+        .join(Property, Property.id == UserBehavior.target_id)
+        .where(*conditions)
+        .order_by(UserBehavior.created_at.desc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+    )).all()
+    items = []
+    for behavior, property_item in rows:
+        items.append({
+            "id": behavior.id,
+            "property_id": property_item.id,
+            "viewed_at": behavior.created_at,
+            "property": {
+                "id": property_item.id,
+                "title": property_item.title,
+                "total_price": property_item.total_price,
+                "area": property_item.area,
+                "room_count": property_item.room_count,
+                "hall_count": property_item.hall_count,
+                "district": property_item.district,
+                "detail_address": property_item.detail_address,
+                "cover_url": property_item.cover_url or property_item.cover_image_url or "",
+                "status": property_item.status,
+            },
+        })
+    return {"list": items, "total": total, "page": page, "page_size": page_size}

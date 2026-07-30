@@ -57,27 +57,8 @@
       </view>
     </view>
 
-    <!-- 验证码（预留） -->
-    <view class="form-item">
-      <view class="input-wrapper code-wrapper">
-        <image class="input-icon" src="/assets/icons/code.png" />
-        <input
-          class="input-field code-input"
-          type="text"
-          placeholder="验证码（可选）"
-          placeholder-class="input-placeholder"
-          data-field="code"
-          value="{{code}}"
-          bindinput="onInputChange"
-        />
-        <button
-          class="code-btn"
-          bindtap="sendCode"
-          disabled="{{countdown > 0}}"
-        >
-          {{countdown > 0 ? countdown + 's' : '获取验证码'}}
-        </button>
-      </view>
+    <view class="register-tip">
+      <text>当前为手机号密码注册，短信验证服务尚未接入。</text>
     </view>
 
     <!-- 用户协议 -->
@@ -86,9 +67,9 @@
         <label class="agreement-label">
           <checkbox value="agree" checked="{{agree}}" />
           <text class="agreement-text">我已阅读并同意</text>
-          <text class="agreement-link">《用户协议》</text>
+          <text class="agreement-link" catchtap="goToAgreement">《用户协议》</text>
           <text class="agreement-text">和</text>
-          <text class="agreement-link">《隐私政策》</text>
+          <text class="agreement-link" catchtap="goToPrivacy">《隐私政策》</text>
         </label>
       </checkbox-group>
     </view>

@@ -33,19 +33,16 @@ Page({
       const apptRes = await api.get('/agents/appointment-stats');
       if (apptRes) this.setData({ appointmentStats: apptRes });
     } catch (err) {
-      // 使用模拟数据兜底
-      this.setData({
-        workbench: { today_appointments: 3, pending_appointments: 5, property_count: 12, customer_count: 28, new_customers_yesterday: 2, monthly_sales: 0, monthly_views: 156 },
-        propertyStats: { total: 12, on_sale: 8, sold: 4, total_views: 2340, total_favorites: 156 },
-        appointmentStats: { total: 45, completed: 32, cancelled: 8, pending: 5, success_rate: 71.1 }
-      });
+      wx.showToast({ title: '工作台数据加载失败', icon: 'none' });
     }
   },
 
-  goToAppointments() { wx.navigateTo({ url: '/pages/user/appointments/appointments' }); },
-  goToPending() { wx.navigateTo({ url: '/pages/user/appointments/appointments?status=1' }); },
+  goToAppointments() { wx.navigateTo({ url: '/pages/user/appointments/appointments?scope=agent' }); },
+  goToPending() { wx.navigateTo({ url: '/pages/user/appointments/appointments?scope=agent&status=1' }); },
   goToProperties() { wx.navigateTo({ url: '/pages/agent/properties/properties' }); },
   goToCustomers() { wx.navigateTo({ url: '/pages/agent/customers/customers' }); },
+  goToPropertyStats() { this.goToProperties(); },
+  goToAppointmentStats() { this.goToAppointments(); },
   addProperty() { wx.navigateTo({ url: '/pages/property/add/add' }); },
   scanQR() { wx.scanCode({ success() { wx.showToast({ title: '扫码成功', icon: 'success' }); } }); },
   makePoster() { wx.navigateTo({ url: '/pages/property/poster/poster' }); },

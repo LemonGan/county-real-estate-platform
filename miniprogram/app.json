@@ -16,9 +16,14 @@
     "pages/property/vr/vr",
     "pages/property/video/video",
     "pages/user/profile/profile",
+    "pages/user/edit/edit",
+    "pages/user/history/history",
     "pages/user/favorites/favorites",
     "pages/user/appointments/appointments",
     "pages/user/setting/setting",
+    "pages/user/agreement/agreement",
+    "pages/user/privacy/privacy",
+    "pages/user/feedback/feedback",
     "pages/user/about/about",
     "pages/tools/calculator/calculator",
     "pages/login/login",
@@ -28,9 +33,9 @@
     "pages/news/list/list",
     "pages/news/detail/detail",
     "pages/property/add/add",
+    "pages/property/edit/edit",
     "pages/agent/detail/detail",
-    "pages/user/agent-apply/agent-apply",
-    "pages/user/member/member"
+    "pages/user/agent-apply/agent-apply"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -81,10 +86,6 @@
   "requiredPrivateInfos": [
     "getLocation",
     "chooseLocation"
-  ],
-  "requiredBackgroundModes": [
-    "audio",
-    "location"
   ],
   "sitemapLocation": "sitemap.json",
   "style": "v2",

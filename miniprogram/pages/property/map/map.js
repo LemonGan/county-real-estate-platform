@@ -4,9 +4,9 @@ const api = require('../../../utils/api.js')
 
 Page({
   data: {
-    longitude: 103.5,
-    latitude: 36.0,
-    scale: 5,
+    longitude: 109.29,
+    latitude: 22.42,
+    scale: 11,
     markers: [],
     allMarkers: [],
     polyline: [],
@@ -68,7 +68,7 @@ Page({
 
   // 初始化地图
   initMap() {
-    // 先加载全国房源
+    // 默认展示灵山县服务范围内的房源
     this.loadAllProperties()
 
     // 获取当前位置并更新地图中心
@@ -82,7 +82,7 @@ Page({
         })
       },
       fail: () => {
-        // 定位失败，保持中国地理中心
+        // 定位失败时保持灵山县默认中心
       }
     })
   },
@@ -97,8 +97,10 @@ Page({
       const res = await api.get('/properties/', {
         page: 1,
         page_size: 50,
-        status_filter: 1
-      }, true)
+        status_filter: 1,
+        city: '钦州市',
+        district: '灵山县'
+      }, false)
 
       const markers = []
       if (res.list && res.list.length > 0) {
@@ -248,7 +250,11 @@ Page({
     try {
       const res = await api.get(`/properties/${propertyId}/`, {}, false)
       this.setData({
-        selectedProperty: res,
+        selectedProperty: {
+          ...res,
+          price_wan: Number(((Number(res.total_price || res.price || 0)) / 10000).toFixed(2)),
+          address_text: [res.province, res.city, res.district, res.detail_address].filter(Boolean).join('')
+        },
         showPropertyCard: true
       })
     } catch (error) {

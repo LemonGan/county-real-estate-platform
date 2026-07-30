@@ -122,6 +122,11 @@
   color: #667eea;
 }
 
+.action-btn.sold {
+  background: #fff0f0;
+  color: #c44949;
+}
+
 /* 空状态 */
 .empty {
   padding: 120rpx 0;
@@ -156,4 +161,11 @@
   box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.4);
   font-size: 60rpx;
   color: #fff;
+}
+.audit-note {
+  display: block;
+  margin-top: 8rpx;
+  color: #a35c00;
+  font-size: 24rpx;
+  line-height: 1.4;
 }

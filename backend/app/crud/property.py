@@ -89,13 +89,22 @@ async def get_properties(
     keyword: Optional[str] = None,
     user_lat: Optional[float] = None,
     user_lon: Optional[float] = None,
-    max_distance: Optional[int] = None
+    max_distance: Optional[int] = None,
+    agent_id: Optional[int] = None,
+    audit_status: Optional[int] = None,
+    only_approved: bool = True
 ) -> Tuple[List[Property], int]:
     """获取房源列表（分页和筛选）"""
 
     def _apply_filters(q):
         """应用筛选条件到查询"""
         q = q.where(Property.deleted_at.is_(None))
+        if only_approved:
+            q = q.where(Property.audit_status == 1)
+        if agent_id is not None:
+            q = q.where(Property.agent_id == agent_id)
+        if audit_status is not None:
+            q = q.where(Property.audit_status == audit_status)
         if city:
             q = q.where(Property.city == city)
         if district:
@@ -194,22 +203,18 @@ async def create_property(
     if images and len(images) > 0:
         property_dict['cover_url'] = images[0]
     
-    # 创建房源
+    # 新投稿必须经过后台审核，不能由客户端直接设置公开状态。
+    property_dict.pop("status", None)
+    property_dict.pop("audit_status", None)
     db_property = Property(
         **property_dict,
-        agent_id=owner_id
+        agent_id=owner_id,
+        status=3,
+        audit_status=0,
     )
     db.add(db_property)
     await db.commit()
     await db.refresh(db_property)
-    
-    # 预加载 images 关系以避免序列化时出现懒加载问题
-    result = await db.execute(
-        select(Property)
-        .where(Property.id == db_property.id)
-        .options(selectinload(Property.images))
-    )
-    db_property = result.scalar_one()
     
     # 保存图片关联
     if images:
@@ -223,8 +228,14 @@ async def create_property(
             )
             db.add(img)
         await db.commit()
-    
-    return db_property
+
+    # 图片关联创建后重新加载，确保创建接口立即返回完整图片列表。
+    result = await db.execute(
+        select(Property)
+        .where(Property.id == db_property.id)
+        .options(selectinload(Property.images))
+    )
+    return result.scalar_one()
 
 
 async def update_property(

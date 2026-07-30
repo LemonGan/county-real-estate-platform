@@ -1,0 +1,18 @@
+<view class="page" wx:if="{{!loading}}">
+  <view class="card avatar-card" bindtap="chooseAvatar">
+    <text class="label">头像</text>
+    <view class="avatar-wrap">
+      <image class="avatar" src="{{avatarPreview || '/assets/images/default-avatar.png'}}" mode="aspectFill"></image>
+      <text class="change-text">更换</text>
+    </view>
+  </view>
+
+  <view class="card field-card">
+    <text class="label">昵称</text>
+    <input class="nickname-input" value="{{nickname}}" maxlength="50" placeholder="请输入昵称" bindinput="onNicknameInput" />
+  </view>
+
+  <text class="hint">头像和昵称仅用于展示；请勿填写身份证号、银行卡号等敏感信息。</text>
+  <button class="save-btn" loading="{{saving}}" disabled="{{saving}}" bindtap="saveProfile">保存资料</button>
+</view>
+<view class="loading" wx:else>加载中...</view>

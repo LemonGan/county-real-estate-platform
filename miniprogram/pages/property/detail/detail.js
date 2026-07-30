@@ -47,7 +47,7 @@ Page({
       const res = await api.get(`/properties/${id}`, {}, false)
 
       // 处理图片URL
-      const baseUrl = app.globalData.baseUrl || 'http://127.0.0.1:8000/api/v1'
+      const baseUrl = app.globalData.baseUrl || 'https://api.imlemon.top/api/v1'
       const staticUrl = baseUrl.replace('/api/v1', '') + '/static'
 
       // 提取图片URL列表（后端返回的是字符串数组）
@@ -94,6 +94,7 @@ Page({
         loading: false
       })
 
+      this.loadFavoriteStatus(id)
       // 记录浏览行为
       this.recordView(id)
     } catch (err) {
@@ -104,6 +105,17 @@ Page({
         title: err.message || '加载失败',
         icon: 'none'
       })
+    }
+  },
+
+  async loadFavoriteStatus(propertyId) {
+    if (!wx.getStorageSync('token')) return
+    try {
+      const result = await api.get(`/favorites/properties/${propertyId}/status`)
+      this.setData({ isFavorite: Boolean(result.is_favorited) })
+    } catch (err) {
+      // 收藏状态读取失败不影响公开房源详情浏览。
+      console.log('收藏状态读取失败:', err.message)
     }
   },
 
@@ -158,7 +170,7 @@ Page({
   async toggleFavorite() {
     try {
       if (this.data.isFavorite) {
-        await api.delete(`/favorites/properties/${this.data.propertyId}`)
+        await api.del(`/favorites/properties/${this.data.propertyId}`)
         this.setData({ isFavorite: false })
         priceTrack.removeTrack(this.data.propertyId)
         wx.showToast({ title: '已取消收藏', icon: 'success' })
@@ -330,9 +342,7 @@ Page({
    * 编辑房源（仅经纪人）
    */
   editProperty() {
-    wx.navigateTo({
-      url: `/pages/property/edit/edit?id=${this.data.propertyId}`
-    })
+    wx.navigateTo({ url: '/pages/agent/properties/properties' })
   },
 
   /**

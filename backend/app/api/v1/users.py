@@ -13,6 +13,11 @@ from app.crud.user import get_user_by_id, update_user
 router = APIRouter()
 
 
+def can_view_full_user_profile(requested_user_id: int, current_user: User) -> bool:
+    """完整用户资料仅供本人和服务器维护的超级管理员读取。"""
+    return current_user.id == requested_user_id or current_user.is_superuser
+
+
 @router.get("/me", response_model=UserResponse, summary="获取当前用户信息")
 async def get_current_user_info(
     current_user: User = Depends(get_current_active_user)
@@ -47,7 +52,9 @@ async def get_user(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    """根据ID获取用户信息（需登录）"""
+    """根据 ID 获取完整用户资料（仅本人或超级管理员）。"""
+    if not can_view_full_user_profile(user_id, current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权查看其他用户的完整资料")
     user = await get_user_by_id(db, user_id=user_id)
     if not user:
         raise HTTPException(

@@ -1,0 +1,77 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="loading-state">正在加载房源信息…</view>
+  <scroll-view wx:else scroll-y class="form-scroll">
+    <view class="notice">
+      <view class="notice-title">保存后将重新审核</view>
+      <text>修改内容会使房源下架，审核通过后才会再次公开展示。</text>
+    </view>
+
+    <view class="card">
+      <view class="card-title">基础信息</view>
+      <view class="field">
+        <text class="label required">房源标题</text>
+        <input class="input" value="{{title}}" data-field="title" bindinput="onInput" maxlength="50" placeholder="例如：城区电梯三房，采光好" />
+      </view>
+      <view class="field">
+        <text class="label required">总价（万）</text>
+        <input class="input" type="digit" value="{{price}}" data-field="price" bindinput="onInput" placeholder="请输入总价" />
+      </view>
+      <view class="field">
+        <text class="label required">面积（㎡）</text>
+        <input class="input" type="digit" value="{{area}}" data-field="area" bindinput="onInput" placeholder="请输入建筑面积" />
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">房屋信息</view>
+      <view class="field">
+        <text class="label">交易方式</text>
+        <view class="segmented">
+          <view class="segment {{transactionType === 1 ? 'active' : ''}}" bindtap="selectTransactionType" data-type="1">出售</view>
+          <view class="segment {{transactionType === 2 ? 'active' : ''}}" bindtap="selectTransactionType" data-type="2">出租</view>
+        </view>
+      </view>
+      <view class="field">
+        <text class="label">房源类型</text>
+        <picker mode="selector" range="{{propertyTypes}}" value="{{propertyTypeIndex}}" bindchange="onPropertyTypeChange">
+          <view class="picker-value">{{propertyTypes[propertyTypeIndex]}}<text class="chevron">›</text></view>
+        </picker>
+      </view>
+      <view class="room-row">
+        <view class="small-field"><text>室</text><input type="number" value="{{roomCount}}" data-field="roomCount" bindinput="onInput" placeholder="0" /></view>
+        <view class="small-field"><text>厅</text><input type="number" value="{{hallCount}}" data-field="hallCount" bindinput="onInput" placeholder="0" /></view>
+        <view class="small-field"><text>卫</text><input type="number" value="{{bathroomCount}}" data-field="bathroomCount" bindinput="onInput" placeholder="0" /></view>
+      </view>
+      <view class="field">
+        <text class="label">所在楼层</text>
+        <input class="input" value="{{floorInfo}}" data-field="floorInfo" bindinput="onInput" maxlength="50" placeholder="例如：中层 / 8层" />
+      </view>
+      <view class="field">
+        <text class="label">总楼层</text>
+        <input class="input" type="number" value="{{totalFloors}}" data-field="totalFloors" bindinput="onInput" placeholder="选填" />
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">位置与描述</view>
+      <view class="field">
+        <text class="label required">详细地址</text>
+        <input class="input" value="{{address}}" data-field="address" bindinput="onInput" maxlength="200" placeholder="请输入详细地址" />
+      </view>
+      <view class="description-field">
+        <textarea value="{{description}}" data-field="description" bindinput="onInput" maxlength="500" placeholder="补充房源亮点、配套和看房说明" />
+        <text class="counter">{{description.length}}/500</text>
+      </view>
+    </view>
+
+    <view class="media-tip">
+      <text class="media-tip-title">图片与视频</text>
+      <text>本次编辑不会替换已上传的图片和视频，避免误删现有素材。</text>
+    </view>
+    <view class="safe-space"></view>
+  </scroll-view>
+
+  <view wx:if="{{!loading}}" class="bottom-bar">
+    <button class="save-button" bindtap="confirmSave" disabled="{{saving}}">{{saving ? '保存中…' : '保存并提交审核'}}</button>
+  </view>
+</view>

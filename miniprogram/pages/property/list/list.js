@@ -190,10 +190,11 @@ Page({
     // 转换字段名（驼峰转下划线）
     if (filters.city) params.city = filters.city
     if (filters.district) params.district = filters.district
-    if (filters.minPrice) params.min_price = filters.minPrice
-    if (filters.maxPrice) params.max_price = filters.maxPrice
-    if (filters.minArea) params.min_area = filters.minArea
-    if (filters.maxArea) params.max_area = filters.maxArea
+    // 页面以“万”为单位，房源列表接口以“元”为单位。
+    if (filters.minPrice !== '') params.min_price = Math.round(Number(filters.minPrice) * 10000)
+    if (filters.maxPrice !== '') params.max_price = Math.round(Number(filters.maxPrice) * 10000)
+    if (filters.minArea !== '') params.min_area = Number(filters.minArea)
+    if (filters.maxArea !== '') params.max_area = Number(filters.maxArea)
     if (filters.rooms) params.rooms = filters.rooms
     if (filters.distance) {
       params.max_distance = parseInt(filters.distance)
@@ -226,18 +227,13 @@ Page({
 
       const res = await api.get('/properties', params, false)
 
-      const baseUrl = app.globalData.baseUrl || 'http://127.0.0.1:8000/api/v1'
-      const staticUrl = baseUrl.replace('/api/v1', '') + '/static'
+      const origin = (app.globalData.baseUrl || 'https://api.imlemon.top/api/v1').replace('/api/v1', '')
       const properties = (res.list || []).map(item => {
-        // 处理封面图
-        let coverUrl = item.cover_url || (item.images && item.images[0] ? item.images[0].image_url : '')
-        if (coverUrl && !coverUrl.startsWith('http')) {
-          coverUrl = staticUrl + coverUrl
-        }
-        // 确保是http开头的网络请求
-        if (coverUrl && !coverUrl.startsWith('http')) {
-          coverUrl = 'http://' + coverUrl
-        }
+        const firstImage = item.images && item.images[0]
+        const imageValue = item.cover_url || (typeof firstImage === 'string' ? firstImage : (firstImage && firstImage.image_url)) || ''
+        const coverUrl = imageValue && !imageValue.startsWith('http')
+          ? origin + (imageValue.startsWith('/static/') ? imageValue : `/static/${imageValue.replace(/^\//, '')}`)
+          : imageValue
         return {
           ...item,
           cover_image_url: coverUrl,
@@ -317,11 +313,15 @@ Page({
    */
   onFilterChange(e) {
     const { field } = e.currentTarget.dataset
-    const { value } = e.detail
+    const inputValue = e.detail && e.detail.value
+    const rawValue = inputValue !== undefined ? inputValue : e.currentTarget.dataset.value
+    if (!field || rawValue === undefined) return
 
-    this.setData({
-      [`filters.${field}`]: value
-    })
+    let value = rawValue
+    if (field === 'propertyType' || field === 'transactionType') {
+      value = rawValue === '' || rawValue === null || rawValue === 'null' ? null : Number(rawValue)
+    }
+    this.setData({ [`filters.${field}`]: value })
   },
 
   /**
@@ -336,6 +336,8 @@ Page({
         maxPrice: '',
         minArea: '',
         maxArea: '',
+        rooms: '',
+        distance: '',
         propertyType: null,
         transactionType: null,
         keyword: ''
@@ -348,7 +350,21 @@ Page({
   /**
    * 应用筛选
    */
+  validateFilters() {
+    const { minPrice, maxPrice, minArea, maxArea } = this.data.filters
+    if (minPrice !== '' && maxPrice !== '' && Number(minPrice) > Number(maxPrice)) {
+      wx.showToast({ title: '最低价不能高于最高价', icon: 'none' })
+      return false
+    }
+    if (minArea !== '' && maxArea !== '' && Number(minArea) > Number(maxArea)) {
+      wx.showToast({ title: '最小面积不能大于最大面积', icon: 'none' })
+      return false
+    }
+    return true
+  },
+
   applyFilters() {
+    if (!this.validateFilters()) return
     this.hideFilterPanel()
     this.refreshList()
   },
@@ -362,6 +378,9 @@ Page({
       url: `/pages/property/detail/detail?id=${id}`
     })
   },
+
+  // 阻止筛选面板内部点击冒泡到遮罩层。
+  stopPropagation() {},
 
   /**
    * 跳转搜索页

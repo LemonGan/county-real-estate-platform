@@ -85,7 +85,7 @@
     </view>
 
     <!-- 热门搜索 -->
-    <view class="hot-section">
+    <view class="hot-section" wx:if="{{hotSearches.length > 0}}">
       <view class="section-header">
         <image class="hot-icon" src="/assets/icons/hot.png"></image>
         <text class="section-title">{{mode === 'location' ? '热门位置' : '热门搜索'}}</text>

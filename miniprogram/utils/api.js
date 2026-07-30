@@ -43,8 +43,9 @@ function request(url, method = 'GET', data = {}, needAuth = true) {
           reject(new Error('未授权'));
         } else {
           console.log('API错误响应:', { statusCode: res.statusCode, data: res.data });
-          wx.showToast({ title: res.data.message || '请求失败', icon: 'none' });
-          reject(new Error(res.data.message || '请求失败'));
+          const message = res.data && (res.data.detail || res.data.message) || '请求失败';
+          wx.showToast({ title: message, icon: 'none' });
+          reject(new Error(message));
         }
       },
       fail: (err) => {
@@ -76,19 +77,31 @@ function uploadImage(filePath) {
   return new Promise((resolve, reject) => {
     wx.showLoading({ title: '上传中...', mask: true });
     const token = wx.getStorageSync('token');
+    if (!token) {
+      wx.hideLoading();
+      reject(new Error('请先登录'));
+      return;
+    }
     wx.uploadFile({
-      url: `${app.globalData.baseUrl}/properties/images`,
+      url: `${app.globalData.baseUrl}/upload`,
       filePath: filePath,
       name: 'file',
       header: { 'Authorization': `Bearer ${token}` },
       success: (res) => {
         wx.hideLoading();
-        const data = JSON.parse(res.data);
-        if (data.code === 0) {
-          resolve(data.data);
+        let data;
+        try {
+          data = JSON.parse(res.data);
+        } catch (error) {
+          reject(new Error('上传响应格式错误'));
+          return;
+        }
+        if (res.statusCode >= 200 && res.statusCode < 300 && data.url) {
+          resolve(data);
         } else {
-          wx.showToast({ title: data.message || '上传失败', icon: 'none' });
-          reject(new Error(data.message));
+          const message = data.detail || data.message || '上传失败';
+          wx.showToast({ title: message, icon: 'none' });
+          reject(new Error(message));
         }
       },
       fail: (err) => {

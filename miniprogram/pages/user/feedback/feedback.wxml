@@ -1,0 +1,37 @@
+<view class="page">
+  <view class="intro">
+    <text class="eyebrow">LISTENING</text>
+    <text class="title">意见反馈</text>
+    <text class="subtitle">你的建议会帮助我们把灵山房产做得更好。</text>
+  </view>
+
+  <view class="form-card">
+    <text class="field-label">反馈类型</text>
+    <view class="category-list">
+      <view wx:for="{{categories}}" wx:key="key" class="category {{category === item.key ? 'active' : ''}}" data-key="{{item.key}}" bindtap="chooseCategory">{{item.label}}</view>
+    </view>
+
+    <text class="field-label">具体内容</text>
+    <textarea class="content-input" value="{{content}}" data-field="content" bindinput="onInput" maxlength="500" placeholder="请描述你遇到的问题或建议（至少 5 个字）" placeholder-class="placeholder"></textarea>
+    <view class="count">{{content.length}} / 500</view>
+
+    <text class="field-label">联系方式 <text class="optional">选填</text></text>
+    <input class="contact-input" value="{{contact}}" data-field="contact" bindinput="onInput" maxlength="100" placeholder="方便我们联系你时填写" placeholder-class="placeholder" />
+
+    <button class="submit-button" loading="{{submitting}}" disabled="{{submitting}}" bindtap="submit">提交反馈</button>
+  </view>
+
+  <view class="history-head">
+    <view><text class="history-title">我的反馈</text><text class="history-subtitle">可查看处理进度和回复</text></view>
+    <text class="history-count">{{feedbacks.length}} 条</text>
+  </view>
+  <view class="history-card" wx:if="{{feedbacks.length}}">
+    <view class="feedback-item" wx:for="{{feedbacks}}" wx:key="id">
+      <view class="feedback-top"><text class="feedback-category">{{item.category}}</text><text class="status status-{{item.status}}">{{item.status_label}}</text></view>
+      <text class="feedback-content">{{item.content}}</text>
+      <text class="feedback-time">{{item.created_display}}</text>
+      <view class="response" wx:if="{{item.admin_response}}"><text class="response-label">处理回复</text><text class="response-content">{{item.admin_response}}</text></view>
+    </view>
+  </view>
+  <view class="history-empty" wx:elif="{{!loading}}">还没有提交过反馈</view>
+</view>

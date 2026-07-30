@@ -4,7 +4,8 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_
-from typing import Optional
+from typing import Optional, List
+from pydantic import BaseModel, Field
 
 from app.core.database import get_db
 from app.api.deps import get_current_active_user
@@ -13,6 +14,38 @@ from app.models.property import Property
 from app.models.property_review import PropertyReview
 
 router = APIRouter()
+
+
+class ReviewCreate(BaseModel):
+    rating: float = Field(..., ge=1, le=5)
+    content: Optional[str] = Field(default=None, max_length=500)
+    images: Optional[List[str]] = None
+
+
+@router.get("/reviews/my", summary="获取当前用户的房源评价")
+async def get_my_reviews(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    result = await db.execute(
+        select(PropertyReview)
+        .where(PropertyReview.user_id == current_user.id)
+        .order_by(PropertyReview.created_at.desc())
+    )
+    reviews = result.scalars().all()
+    return {
+        "list": [
+            {
+                "id": review.id,
+                "property_id": review.property_id,
+                "rating": review.rating,
+                "status": review.status,
+                "is_verified": review.is_verified,
+                "created_at": review.created_at.isoformat() if review.created_at else None,
+            }
+            for review in reviews
+        ]
+    }
 
 
 @router.get("/{property_id}/reviews", summary="获取房源评价列表")
@@ -86,9 +119,7 @@ async def get_reviews(
 @router.post("/{property_id}/reviews", summary="添加房源评价")
 async def create_review(
     property_id: int,
-    rating: float = Query(..., ge=1, le=5),
-    content: Optional[str] = None,
-    images: Optional[str] = None,
+    review_data: ReviewCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
@@ -118,9 +149,9 @@ async def create_review(
     review = PropertyReview(
         property_id=property_id,
         user_id=current_user.id,
-        rating=rating,
-        content=content,
-        images=images,
+        rating=review_data.rating,
+        content=review_data.content,
+        images=",".join(review_data.images) if review_data.images else None,
         status=1,
         is_verified=0  # 需要审核
     )

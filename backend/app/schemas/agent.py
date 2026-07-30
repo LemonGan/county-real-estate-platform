@@ -1,23 +1,21 @@
-"""
-经纪人相关Schema
-"""
-from pydantic import BaseModel
+"""经纪人公开响应 Schema。"""
+from typing import Optional
+
+from pydantic import BaseModel, Field
 
 
 class AgentResponse(BaseModel):
-    """经纪人响应"""
+    """仅包含已审核经纪人的真实公开资料。"""
+
     id: int
     nickname: str
-    avatar: str = None
-    avatar_url: str = None
-    phone: str = None
-    company: str = None
-    experience: int = 0
-    rating: float = 0.0
+    avatar: Optional[str] = None
+    avatar_url: Optional[str] = None
+    company: Optional[str] = None
     sales_count: int = 0
     service_count: int = 0
-    introduction: str = None
-    tags: list = []
+    property_count: int = 0
+    tags: list[str] = Field(default_factory=list)
     is_verified: bool = False
 
     class Config:
@@ -25,7 +23,6 @@ class AgentResponse(BaseModel):
 
 
 class AgentListResponse(BaseModel):
-    """经纪人列表响应"""
     list: list[AgentResponse]
     total: int
     page: int

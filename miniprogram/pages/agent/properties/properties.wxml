@@ -2,9 +2,10 @@
 <view class="container">
   <!-- 筛选tabs -->
   <view class="tabs">
-    <view class="tab {{status === 1 ? 'active' : ''}}" bindtap="switchStatus" data-status="1">在售</view>
-    <view class="tab {{status === 2 ? 'active' : ''}}" bindtap="switchStatus" data-status="2">已租</view>
-    <view class="tab {{status === 3 ? 'active' : ''}}" bindtap="switchStatus" data-status="3">已售</view>
+    <view class="tab {{status === 'pending' ? 'active' : ''}}" bindtap="switchStatus" data-status="pending">审核中</view>
+    <view class="tab {{status === '1' ? 'active' : ''}}" bindtap="switchStatus" data-status="1">在售</view>
+    <view class="tab {{status === '2' ? 'active' : ''}}" bindtap="switchStatus" data-status="2">已售</view>
+    <view class="tab {{status === '3' ? 'active' : ''}}" bindtap="switchStatus" data-status="3">已下架</view>
   </view>
 
   <!-- 房源列表 -->
@@ -17,17 +18,26 @@
         <view class="property-tags">
           <text class="tag">{{item.rooms}}室{{item.halls}}厅</text>
           <text class="tag">{{item.area}}㎡</text>
-          <text class="tag price">¥{{item.total_price}}万</text>
+          <text class="tag price">¥{{item.price_in_wan}}万</text>
         </view>
         <view class="property-stats">
           <text>浏览 {{item.view_count}}</text>
           <text>收藏 {{item.favorite_count}}</text>
         </view>
+        <text class="audit-note" wx:if="{{item.audit_status === 2 && item.audit_review_note}}">审核备注：{{item.audit_review_note}}</text>
+        <view class="action-btns">
+          <view class="action-btn primary" catchtap="editProperty" data-id="{{item.id}}">编辑房源</view>
+          <view class="action-btn" wx:if="{{item.audit_status === 1 && item.status === 1}}" catchtap="changePropertyStatus" data-id="{{item.id}}" data-status="3">下架</view>
+          <view class="action-btn sold" wx:if="{{item.audit_status === 1 && item.status === 1}}" catchtap="changePropertyStatus" data-id="{{item.id}}" data-status="2">标记已售</view>
+          <view class="action-btn primary" wx:if="{{item.audit_status === 1 && (item.status === 2 || item.status === 3)}}" catchtap="changePropertyStatus" data-id="{{item.id}}" data-status="1">重新上架</view>
+        </view>
       </view>
       <view class="property-status status-{{item.status}}">
-        <text wx:if="{{item.status === 1}}">在售</text>
-        <text wx:elif="{{item.status === 2}}">已租</text>
-        <text wx:elif="{{item.status === 3}}">已售</text>
+        <text wx:if="{{item.audit_status === 0}}">审核中</text>
+        <text wx:elif="{{item.audit_status === 2}}">未通过</text>
+        <text wx:elif="{{item.status === 1}}">在售</text>
+        <text wx:elif="{{item.status === 2}}">已售</text>
+        <text wx:elif="{{item.status === 3}}">已下架</text>
       </view>
     </view>
   </view>

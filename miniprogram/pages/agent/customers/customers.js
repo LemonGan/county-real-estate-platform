@@ -1,5 +1,4 @@
 // pages/agent/customers.js
-const app = getApp();
 const api = require('../../../utils/api');
 
 Page({
@@ -20,23 +19,17 @@ Page({
     const page = loadMore ? this.data.page + 1 : 1;
 
     try {
-      const res = await api.get('/agents/customers', { page, page_size: this.data.pageSize });
+      const res = await api.get('/agents/customers', { page, page_size: this.data.pageSize, keyword: this.data.searchKeyword });
       if (res && res.list) {
         const newList = loadMore ? [...this.data.customerList, ...res.list] : res.list;
         this.setData({ customerList: newList, page, hasMore: res.list.length >= this.data.pageSize });
       }
     } catch (err) {
-      if (!loadMore) {
-        this.setData({ customerList: [
-          { id: 1, nickname: '张三', phone: '138****1234', avatar: '', current_city: '深圳', hometown_city: '湖南', favorite_count: 5 },
-          { id: 2, nickname: '李四', phone: '139****5678', avatar: '', current_city: '广州', hometown_city: '江西', favorite_count: 3 },
-          { id: 3, nickname: '王五', phone: '137****9012', avatar: '', current_city: '东莞', hometown_city: '湖北', favorite_count: 8 }
-        ]});
-      }
+      if (!loadMore) this.setData({ customerList: [], hasMore: false });
     }
     this.setData({ loading: false });
   },
 
-  onSearch(e) { this.setData({ searchKeyword: e.detail.value }); },
-  viewCustomer(e) { wx.navigateTo({ url: `/pages/agent/customer-detail/customer-detail?id=${e.currentTarget.dataset.id}` }); }
+  onSearch(e) { this.setData({ searchKeyword: e.detail.value }, () => this.loadCustomers()); },
+  viewCustomer() { wx.showToast({ title: '客户详情即将推出', icon: 'none' }); }
 });

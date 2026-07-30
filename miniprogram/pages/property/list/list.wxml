@@ -106,7 +106,6 @@
         <view class="property-footer">
           <view class="property-price">
             <text class="price-integer">{{item.total_price_text}}</text>
-            <text class="price-unit" wx:if="{{item.total_price >= 10000}}">万</text>
           </view>
           <text class="property-unitprice" wx:if="{{item.unit_price}}">{{item.unit_price}}元/㎡</text>
         </view>

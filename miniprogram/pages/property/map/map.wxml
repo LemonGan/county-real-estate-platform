@@ -61,16 +61,16 @@
       <view class="property-info">
         <view class="property-title">{{selectedProperty.title}}</view>
         <view class="property-tags">
-          <text class="tag tag-primary">{{selectedProperty.rooms}}室</text>
+          <text class="tag tag-primary">{{selectedProperty.rooms || selectedProperty.room_count || 0}}室</text>
           <text class="tag tag-success">{{selectedProperty.area}}㎡</text>
           <text class="tag tag-warning">{{selectedProperty.orientation}}</text>
         </view>
         <view class="property-address">
           <image class="address-icon" src="/assets/icons/location-gray.png" />
-          <text class="address-text">{{selectedProperty.address}}</text>
+          <text class="address-text">{{selectedProperty.address_text}}</text>
         </view>
         <view class="property-price">
-          <text class="price-value">{{selectedProperty.price}}</text>
+          <text class="price-value">{{selectedProperty.price_wan}}</text>
           <text class="price-unit">万</text>
           <text class="price-per-sqm" wx:if="{{selectedProperty.unit_price}}">
             {{selectedProperty.unit_price}}元/㎡
@@ -136,7 +136,7 @@
             <view class="location-info">
               <image class="location-icon-small" src="/assets/icons/location-gray.png" />
               <view class="location-text">
-                <view class="location-name">{{centerLocation ? centerLocation.name : '未设置（显示全国房源）'}}</view>
+                <view class="location-name">{{centerLocation ? centerLocation.name : '未设置（默认灵山县）'}}</view>
               </view>
             </view>
             <image class="arrow-right-icon" src="/assets/icons/arrow-right.png" />

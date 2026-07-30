@@ -13,11 +13,6 @@ Page({
     },
     menuList: [
       {
-        icon: '/assets/icons/vip.png',
-        title: '会员中心',
-        url: '/pages/user/member/member'
-      },
-      {
         icon: '/assets/icons/favorites.png',
         title: '我的收藏',
         url: '/pages/user/favorites/favorites'
@@ -56,16 +51,54 @@ Page({
 
   onShow() {
     this.checkLoginStatus()
+    if (app.globalData.isLogin) {
+      this.refreshUserInfo()
+      this.loadStats()
+    }
+  },
+
+  async loadStats() {
+    const [favorites, appointments, behaviors] = await Promise.allSettled([
+      api.get('/favorites/', { page: 1, page_size: 1 }),
+      api.get('/appointments/', { page: 1, page_size: 1 }),
+      api.get('/users/behaviors/stats', { days: 30 })
+    ])
+    const value = (result, fallback) => result.status === 'fulfilled' ? result.value : fallback
+    const favoriteData = value(favorites, { total: 0 })
+    const appointmentData = value(appointments, { total: 0 })
+    const behaviorData = value(behaviors, { behavior_type: { view: 0 } })
+    this.setData({
+      stats: {
+        favorites: favoriteData.total || 0,
+        appointments: appointmentData.total || 0,
+        views: (behaviorData.behavior_type && behaviorData.behavior_type.view) || 0
+      }
+    })
+  },
+
+  async refreshUserInfo() {
+    try {
+      const user = await api.get('/users/me')
+      app.globalData.userInfo = user
+      wx.setStorageSync('userInfo', user)
+      this.setData({ userInfo: this.formatUserInfo(user), isLogin: true })
+    } catch (err) {
+      console.log('用户资料刷新失败:', err.message)
+    }
+  },
+
+  formatUserInfo(userInfo) {
+    if (!userInfo) return null
+    const avatar = userInfo.avatar || ''
+    const origin = (app.globalData.baseUrl || '').replace('/api/v1', '')
+    const avatarDisplay = avatar && !avatar.startsWith('http') && avatar.startsWith('/static/') ? origin + avatar : avatar
+    return { ...userInfo, avatarDisplay }
   },
 
   checkLoginStatus() {
     const isLogin = app.globalData.isLogin
-    const userInfo = app.globalData.userInfo
-
-    this.setData({
-      isLogin,
-      userInfo
-    })
+    const userInfo = this.formatUserInfo(app.globalData.userInfo)
+    this.setData({ isLogin, userInfo })
   },
 
   goToLogin() {
@@ -106,10 +139,7 @@ Page({
   },
 
   goToHistory() {
-    wx.showToast({
-      title: '浏览历史功能开发中',
-      icon: 'none'
-    })
+    wx.navigateTo({ url: '/pages/user/history/history' })
   },
 
   handleLogout() {

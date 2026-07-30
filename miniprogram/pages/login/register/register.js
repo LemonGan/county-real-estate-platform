@@ -7,8 +7,6 @@ Page({
     phone: '',
     password: '',
     confirmPassword: '',
-    code: '',
-    countdown: 0,
     agree: false
   },
 
@@ -20,49 +18,6 @@ Page({
     this.setData({
       [field]: e.detail.value
     })
-  },
-
-  /**
-   * 发送验证码
-   */
-  async sendCode() {
-    const { phone } = this.data
-
-    if (!phone) {
-      wx.showToast({
-        title: '请输入手机号',
-        icon: 'none'
-      })
-      return
-    }
-
-    if (!/^1[3-9]\d{9}$/.test(phone)) {
-      wx.showToast({
-        title: '手机号格式不正确',
-        icon: 'none'
-      })
-      return
-    }
-
-    try {
-      // TODO: 调用发送验证码API
-      wx.showToast({
-        title: '验证码已发送',
-        icon: 'success'
-      })
-
-      // 倒计时
-      this.setData({ countdown: 60 })
-      const timer = setInterval(() => {
-        if (this.data.countdown > 0) {
-          this.setData({ countdown: this.data.countdown - 1 })
-        } else {
-          clearInterval(timer)
-        }
-      }, 1000)
-    } catch (err) {
-      console.error('发送验证码失败:', err)
-    }
   },
 
   /**
@@ -159,6 +114,14 @@ Page({
       wx.hideLoading()
       console.error('注册失败:', err)
     }
+  },
+
+  goToAgreement() {
+    wx.navigateTo({ url: '/pages/user/agreement/agreement' })
+  },
+
+  goToPrivacy() {
+    wx.navigateTo({ url: '/pages/user/privacy/privacy' })
   },
 
   /**

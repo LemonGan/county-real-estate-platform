@@ -1,5 +1,5 @@
 // pages/property/review/review.js
-const app = getApp()
+const api = require('../../../utils/api')
 
 Page({
   data: {
@@ -48,28 +48,21 @@ Page({
     const page = loadMore ? this.data.page + 1 : 1
     
     try {
-      const token = wx.getStorageSync('token')
-      const res = await new Promise((resolve, reject) => {
-        wx.request({
-          url: `${app.globalData.baseUrl}/properties/${this.data.propertyId}/reviews`,
-          method: 'GET',
-          data: { page, page_size: this.data.pageSize },
-          header: token ? { 'Authorization': `Bearer ${token}` } : {},
-          success: resolve,
-          fail: reject
-        })
-      })
+      const res = await api.get(`/properties/${this.data.propertyId}/reviews`, {
+        page,
+        page_size: this.data.pageSize
+      }, false)
       
-      if (res.data && res.data.list) {
-        const newList = loadMore ? [...this.data.reviewList, ...res.data.list] : res.data.list
+      if (res && res.list) {
+        const newList = loadMore ? [...this.data.reviewList, ...res.list] : res.list
         this.setData({
           reviewList: newList,
           page,
-          hasMore: res.data.list.length >= this.data.pageSize,
+          hasMore: res.list.length >= this.data.pageSize,
           stats: {
-            avg_rating: res.data.avg_rating || 0,
-            avgRating: res.data.avg_rating || 0,
-            total_count: res.data.total_count || 0
+            avg_rating: res.avg_rating || 0,
+            avgRating: res.avg_rating || 0,
+            total_count: res.total_count || 0
           }
         })
       }
@@ -85,18 +78,10 @@ Page({
     if (!token) return
     
     try {
-      const res = await new Promise((resolve, reject) => {
-        wx.request({
-          url: `${app.globalData.baseUrl}/api/v1/properties/reviews/my`,
-          method: 'GET',
-          header: { 'Authorization': `Bearer ${token}` },
-          success: resolve,
-          fail: reject
-        })
-      })
+      const res = await api.get('/properties/reviews/my')
       
-      if (res.data && res.data.list) {
-        const myReview = res.data.list.find(r => r.property_id == this.data.propertyId)
+      if (res && res.list) {
+        const myReview = res.list.find(r => r.property_id == this.data.propertyId)
         if (myReview) {
           this.setData({ hasReviewed: true })
         }
@@ -141,23 +126,14 @@ Page({
     wx.showLoading({ title: '提交中...' })
     
     try {
-      const res = await new Promise((resolve, reject) => {
-        wx.request({
-          url: `${app.globalData.baseUrl}/properties/${this.data.propertyId}/reviews`,
-          method: 'POST',
-          data: {
-            rating: this.data.myRating,
-            content: this.data.content
-          },
-          header: { 'Authorization': `Bearer ${token}` },
-          success: resolve,
-          fail: reject
-        })
+      const res = await api.post(`/properties/${this.data.propertyId}/reviews`, {
+        rating: this.data.myRating,
+        content: this.data.content
       })
       
       wx.hideLoading()
       
-      if (res.data && res.data.id) {
+      if (res && res.id) {
         wx.showToast({ title: '提交成功', icon: 'success' })
         this.closeModal()
         this.setData({ hasReviewed: true })

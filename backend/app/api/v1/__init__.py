@@ -3,7 +3,7 @@ API v1版本路由
 """
 from fastapi import APIRouter
 
-from app.api.v1 import auth, users, properties, appointments, tools, favorites, property_images, user_preferences, statistics, user_behaviors, short_videos, recommendations, news, agents, map, property_reviews, messages, upload, agent_auth, member, feedback
+from app.api.v1 import auth, users, properties, appointments, tools, favorites, property_images, user_preferences, statistics, user_behaviors, short_videos, recommendations, news, agents, map, property_reviews, messages, upload, agent_auth, member, feedback, admin
 
 api_router = APIRouter()
 
@@ -29,3 +29,4 @@ api_router.include_router(upload.router, tags=["上传"])
 api_router.include_router(agent_auth.router, prefix="/agent-auth", tags=["经纪人认证"])
 api_router.include_router(member.router, prefix="/member", tags=["会员管理"])
 api_router.include_router(feedback.router, tags=["反馈"])
+api_router.include_router(admin.router, prefix="/admin", tags=["后台权限"])

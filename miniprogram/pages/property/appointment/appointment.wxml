@@ -15,14 +15,14 @@
       </view>
       <view class="property-info" bindtap="goToDetail" data-id="{{property.id}}">
         <image class="property-image"
-               src="{{property.images[0] ? property.images[0].url : '/assets/images/default-property.png'}}"
+               src="{{property.cover_image_url || '/assets/images/default-property.png'}}"
                mode="aspectFill"></image>
         <view class="property-detail">
           <text class="property-title">{{property.title}}</text>
-          <text class="property-address">{{property.address}}</text>
+          <text class="property-address">{{property.address_text || '地址待完善'}}</text>
           <view class="property-price">
-            <text class="price">{{property.price/10000}}万</text>
-            <text class="unit">元/套</text>
+            <text class="price">{{property.price_wan}}万</text>
+            <text class="unit">总价</text>
           </view>
         </view>
       </view>
@@ -106,18 +106,13 @@
       </view>
     </view>
 
-    <!-- 经纪人信息 -->
-    <view class="agent-card" wx:if="{{property.agent}}">
+    <view class="tips-card">
       <view class="card-header">
-        <text class="card-title">房源经纪人</text>
+        <text class="card-title">预约后服务</text>
       </view>
-      <view class="agent-info">
-        <image class="agent-avatar" src="{{property.agent.avatar || '/assets/images/default-avatar.png'}}"></image>
-        <view class="agent-detail">
-          <text class="agent-name">{{property.agent.nickname}}</text>
-          <text class="agent-title">金牌经纪人</text>
-        </view>
-        <button class="contact-btn" bindtap="contactAgent">联系</button>
+      <view class="tips-content">
+        <text class="tip-item">• 提交后将由负责经纪人确认预约</text>
+        <text class="tip-item">• 可在“我的预约”查看处理进度</text>
       </view>
     </view>
 
@@ -129,7 +124,7 @@
       </view>
       <view class="tips-content">
         <text class="tip-item">• 请提前安排好时间，准时到达</text>
-        <text class="tip-item">• 如需改期请提前联系经纪人</text>
+        <text class="tip-item">• 如需调整，请取消原预约后重新提交</text>
         <text class="tip-item">• 我们将在24小时内确认您的预约</text>
       </view>
     </view>

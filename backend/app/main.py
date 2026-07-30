@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 import logging
 
@@ -54,6 +54,21 @@ if settings.BACKEND_CORS_ORIGINS:
 
 # 注册API路由
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+
+@app.get("/admin", include_in_schema=False)
+@app.get("/admin/", include_in_schema=False)
+async def admin_console():
+    """提供不缓存的后台审核管理页面，数据请求仍受 API 角色权限保护。"""
+    admin_page = Path(__file__).resolve().parent / "static" / "admin" / "index.html"
+    return FileResponse(
+        admin_page,
+        headers={
+            "Cache-Control": "no-store",
+            "Referrer-Policy": "no-referrer",
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
 
 # 配置静态文件服务
 # 确保静态文件目录存在

@@ -21,6 +21,9 @@ from app.crud.short_video import (
 router = APIRouter()
 
 
+SHORT_VIDEO_INTERACTION_MESSAGE = "短视频互动功能暂未开放"
+
+
 @router.post("", response_model=ShortVideoResponse, status_code=201, summary="创建短视频")
 async def create_short_video_endpoint(
     video_data: ShortVideoCreate,
@@ -236,11 +239,10 @@ async def like_video(
             detail="短视频不存在"
         )
 
-    # TODO: 实现点赞/取消点赞逻辑（需要user_video_likes表）
-    # 这里暂时只增加统计
-    await increment_video_stat(db, video_id, "like")
-
-    return {"liked": True, "like_count": video.like_count + 1}
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail=SHORT_VIDEO_INTERACTION_MESSAGE,
+    )
 
 
 @router.post("/{video_id}/favorite/", summary="收藏短视频")
@@ -258,11 +260,10 @@ async def favorite_video(
             detail="短视频不存在"
         )
 
-    # TODO: 实现收藏/取消收藏逻辑（需要user_video_favorites表）
-    # 这里暂时只增加统计
-    await increment_video_stat(db, video_id, "favorite")
-
-    return {"favorited": True, "favorite_count": video.favorite_count + 1}
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail=SHORT_VIDEO_INTERACTION_MESSAGE,
+    )
 
 
 @router.get("/{video_id}/comments/", summary="获取视频评论列表")
@@ -291,56 +292,47 @@ async def get_video_comments(
     }
 
 
-@router.post("/{video_id}/comments/", status_code=201, summary="发表视频评论")
+@router.post("/{video_id}/comments/", status_code=501, summary="发表视频评论")
 async def create_video_comment(
     video_id: int,
     comment_data: dict,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
 ):
-    """发表短视频评论"""
-    # 检查视频是否存在
+    """评论数据表未接入前，不伪造一条看似已发布的评论。"""
     video = await get_short_video_by_id(db, video_id)
     if not video:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="短视频不存在"
+            detail="短视频不存在",
         )
-
-    # TODO: 实现评论创建逻辑（需要video_comments表）
-    # 这里暂时返回模拟数据
-    return {
-        "id": 1,
-        "video_id": video_id,
-        "user_id": current_user.id,
-        "user_name": current_user.nickname or current_user.phone,
-        "user_avatar": current_user.avatar_url,
-        "content": comment_data.get("content", ""),
-        "parent_id": comment_data.get("parent_id"),
-        "like_count": 0,
-        "is_liked": False,
-        "is_owner": True,
-        "created_at": "刚刚"
-    }
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail=SHORT_VIDEO_INTERACTION_MESSAGE,
+    )
 
 
-@router.post("/comments/{comment_id}/like/", summary="点赞评论")
+@router.post("/comments/{comment_id}/like/", status_code=501, summary="点赞评论")
 async def like_comment(
     comment_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
 ):
-    """点赞/取消点赞评论"""
-    # TODO: 实现评论点赞逻辑（需要comment_likes表）
-    return {"liked": True}
+    """评论点赞功能尚未开放。"""
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail=SHORT_VIDEO_INTERACTION_MESSAGE,
+    )
 
 
-@router.delete("/comments/{comment_id}/", status_code=204, summary="删除评论")
+@router.delete("/comments/{comment_id}/", status_code=501, summary="删除评论")
 async def delete_comment(
     comment_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
 ):
-    """删除评论（仅评论者可删除）"""
-    # TODO: 实现评论删除逻辑
-    return None
+    """评论删除功能尚未开放。"""
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail=SHORT_VIDEO_INTERACTION_MESSAGE,
+    )

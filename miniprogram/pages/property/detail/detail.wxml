@@ -107,7 +107,7 @@
         <image class="agent-avatar" src="{{property.agent.avatar || '/assets/images/default-avatar.png'}}"></image>
         <view class="agent-detail">
           <text class="agent-name">{{property.agent.nickname}}</text>
-          <text class="agent-title">金牌经纪人</text>
+          <text class="agent-title">已审核经纪人</text>
         </view>
         <button class="contact-btn" bindtap="callAgent" wx:if="{{property.agent.phone}}">📞 致电</button>
         <button class="contact-btn" bindtap="contactAgent" wx:else>联系</button>

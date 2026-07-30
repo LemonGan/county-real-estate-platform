@@ -1,0 +1,22 @@
+<view class="page">
+  <view class="loading" wx:if="{{loading && history.length === 0}}">加载中...</view>
+  <view class="history-list" wx:if="{{history.length}}">
+    <view class="history-item" wx:for="{{history}}" wx:key="id" bindtap="goToDetail" data-id="{{item.property_id}}">
+      <image class="cover" src="{{item.property.displayImage}}" mode="aspectFill"></image>
+      <view class="content">
+        <text class="title">{{item.property.title}}</text>
+        <text class="meta">{{item.property.room_count || 0}}室{{item.property.hall_count || 0}}厅 · {{item.property.area || '--'}}㎡</text>
+        <text class="address">{{item.property.district || ''}}{{item.property.detail_address || ''}}</text>
+        <view class="footer"><text class="price">{{item.priceText}}</text><text class="time">{{item.viewedAtText}}</text></view>
+      </view>
+    </view>
+    <view class="more" wx:if="{{loading}}">加载中...</view>
+    <view class="more" wx:elif="{{!hasMore}}">没有更多记录了</view>
+  </view>
+  <view class="empty" wx:if="{{!loading && empty}}">
+    <image class="empty-image" src="/assets/images/default-property.png" mode="aspectFit"></image>
+    <text class="empty-title">暂无浏览记录</text>
+    <text class="empty-tip">去看看感兴趣的房源吧</text>
+    <button class="go-btn" bindtap="goToList">浏览房源</button>
+  </view>
+</view>

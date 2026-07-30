@@ -1,0 +1,18 @@
+<view class="page">
+  <view class="hero">
+    <text class="eyebrow">PRE-LAUNCH DRAFT</text>
+    <text class="title">用户服务协议</text>
+    <text class="subtitle">灵山房产信息平台体验版</text>
+  </view>
+  <view class="draft-notice">
+    <text class="notice-title">上线前待确认</text>
+    <text>本协议为产品体验阶段草案。正式发布前，运营主体、联系渠道、生效日期及争议处理信息须由平台运营方确认后替换。</text>
+  </view>
+  <view class="card">
+    <view class="section"><text class="section-title">1. 服务说明</text><text class="paragraph">本平台提供灵山县及周边区域的房源信息展示、预约看房、经纪人服务和信息反馈等功能。平台展示信息仅供用户决策参考，不构成交易承诺或专业意见。</text></view>
+    <view class="section"><text class="section-title">2. 账号与使用规范</text><text class="paragraph">用户应妥善保管登录凭证，不得冒用他人身份、发布违法或虚假信息、干扰平台正常运行。经纪人发布房源前需完成平台审核。</text></view>
+    <view class="section"><text class="section-title">3. 房源与服务信息</text><text class="paragraph">房源与经纪人信息经平台审核后展示，但价格、状态、面积和交易条件可能发生变化。用户应在交易前与经纪人、产权人或相关机构进一步核验。</text></view>
+    <view class="section"><text class="section-title">4. 内容处理</text><text class="paragraph">平台可对涉嫌虚假、侵权、违法或不符合发布规则的信息采取下架、限制展示或终止服务等措施，并保留相关处理记录。</text></view>
+    <view class="section"><text class="section-title">5. 联系与更新</text><text class="paragraph">体验阶段如有问题，请通过“设置－意见反馈”提交。正式服务协议将以平台正式公布版本为准。</text></view>
+  </view>
+</view>

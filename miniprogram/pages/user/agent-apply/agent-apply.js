@@ -71,16 +71,12 @@ Page({
         phone: phone
       }, true)
 
-      wx.showToast({ title: '申请成功', icon: 'success' })
-
-      app.globalData.userInfo.is_agent = true
-      wx.setStorageSync('userInfo', app.globalData.userInfo)
-
-      setTimeout(() => {
-        wx.switchTab({
-          url: '/pages/agent/workbench/workbench'
-        })
-      }, 1500)
+      wx.showModal({
+        title: '申请已提交',
+        content: (res && res.message) || '资料已提交，等待后台审核通过后即可使用经纪人工作台。',
+        showCancel: false,
+        success: () => wx.navigateBack()
+      })
 
     } catch (err) {
       wx.showToast({

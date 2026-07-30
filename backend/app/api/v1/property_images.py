@@ -21,6 +21,18 @@ from app.utils.upload import save_uploaded_image
 router = APIRouter()
 
 
+async def _request_reaudit(property) -> None:
+    """图片变化会影响公开展示内容，已通过房源需重新审核。"""
+    if property.audit_status == 1:
+        property.audit_status = 0
+        property.status = 3
+        property.audit_reviewed_at = None
+        property.audit_reviewed_by = None
+        property.audit_review_note = None
+        await db.commit()
+        await db.refresh(property)
+
+
 @router.post("/properties/{property_id}/images", response_model=PropertyImageResponse, status_code=201, summary="上传房源图片")
 async def upload_property_image(
     property_id: int,
@@ -75,6 +87,7 @@ async def upload_property_image(
         width=image_info.get("width"),
         height=image_info.get("height")
     )
+    await _request_reaudit(property)
     
     return db_image
 
@@ -137,6 +150,7 @@ async def update_property_image_info(
         sort_order=image_data.sort_order,
         is_cover=image_data.is_cover
     )
+    await _request_reaudit(property)
     return updated_image
 
 
@@ -169,6 +183,7 @@ async def delete_property_image_endpoint(
             detail="删除失败"
         )
     
+    await _request_reaudit(property)
     return None
 
 
@@ -202,4 +217,5 @@ async def set_property_cover_image(
         )
     
     image = await get_property_image_by_id(db, image_id)
+    await _request_reaudit(property)
     return image

@@ -12,6 +12,7 @@ Page({
     page: 1,
     hasMore: true,
     currentVideoId: null,
+    currentVideoIndex: 0,
     isPlaying: false
   },
 
@@ -68,7 +69,7 @@ Page({
         type: tabType
       }, false)
 
-      const videos = res.items || []
+      const videos = res.list || res.items || []
 
       this.setData({
         videoList: videos,
@@ -99,7 +100,7 @@ Page({
         type: tabType
       }, false)
 
-      const videos = res.items || []
+      const videos = res.list || res.items || []
 
       this.setData({
         videoList: [...this.data.videoList, ...videos],
@@ -133,6 +134,25 @@ Page({
       const nextVideo = this.data.videoList[currentIndex + 1]
       this.setData({ currentVideoId: nextVideo.id })
     }
+  },
+
+  onSwiperChange(e) {
+    const currentVideoIndex = Number(e.detail.current) || 0;
+    const currentVideo = this.data.videoList[currentVideoIndex];
+    this.setData({
+      currentVideoIndex,
+      currentVideoId: currentVideo ? currentVideo.id : null,
+      isPlaying: Boolean(currentVideo),
+    });
+  },
+
+  goToAgent(e) {
+    const agentId = e.currentTarget.dataset.agentId;
+    if (!agentId) {
+      wx.showToast({ title: '暂无经纪人信息', icon: 'none' });
+      return;
+    }
+    wx.navigateTo({ url: `/pages/agent/detail/detail?id=${agentId}` });
   },
 
   // 点赞

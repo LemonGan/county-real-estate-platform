@@ -1,0 +1,18 @@
+<view class="page">
+  <view class="hero">
+    <text class="eyebrow">PRE-LAUNCH DRAFT</text>
+    <text class="title">隐私政策</text>
+    <text class="subtitle">灵山房产信息平台体验版</text>
+  </view>
+  <view class="draft-notice">
+    <text class="notice-title">上线前待确认</text>
+    <text>本政策为产品体验阶段草案。正式发布前，运营主体、个人信息保护负责人、联系渠道和生效日期须由平台运营方确认后替换。</text>
+  </view>
+  <view class="card">
+    <view class="section"><text class="section-title">1. 我们处理的信息</text><text class="paragraph">为提供登录、预约、收藏和反馈服务，平台可能处理手机号、微信登录标识、昵称和头像。用户主动发布房源、申请经纪人或提交反馈时，平台还会处理相应的房源资料、联系信息、证照资料或反馈内容。</text></view>
+    <view class="section"><text class="section-title">2. 位置信息</text><text class="paragraph">仅在你主动使用地图选点、附近房源等功能并授权后处理位置信息。拒绝授权不会影响其他不依赖位置的基础功能。</text></view>
+    <view class="section"><text class="section-title">3. 使用目的</text><text class="paragraph">信息用于身份验证、服务履行、安全风控、房源及经纪人审核、客户支持和问题处理。不会将个人信息出售给第三方。</text></view>
+    <view class="section"><text class="section-title">4. 保存与保护</text><text class="paragraph">平台采取访问控制、权限分级、操作审计等措施保护信息。经纪人证照、身份证等敏感资料仅用于审核，不会在公开页面展示。</text></view>
+    <view class="section"><text class="section-title">5. 你的权利</text><text class="paragraph">你可通过“设置－意见反馈”申请查询、更正、删除相关信息或撤回授权。平台将在核验身份后处理你的请求。</text></view>
+  </view>
+</view>

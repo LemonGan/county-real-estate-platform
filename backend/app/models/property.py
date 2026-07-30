@@ -85,7 +85,10 @@ class Property(Base):
     
     # 状态管理
     status = Column(SmallInteger, default=1, index=True, comment="状态：1在售，2已售，3下架")
-    audit_status = Column(SmallInteger, default=0, comment="审核状态：0待审核，1已通过，2已拒绝")
+    audit_status = Column(SmallInteger, default=0, index=True, comment="审核状态：0待审核，1已通过，2已拒绝")
+    audit_reviewed_at = Column(DateTime(timezone=True), nullable=True)
+    audit_reviewed_by = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    audit_review_note = Column(Text, nullable=True)
     verify_status = Column(Boolean, default=False, comment="真实性验证")
     
     # 营销统计

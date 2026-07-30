@@ -141,15 +141,12 @@ Page({
    */
   contactService() {
     wx.showModal({
-      title: '联系客服',
-      content: '客服电话：400-123-4567\n工作时间：9:00-18:00',
-      confirmText: '拨打电话',
+      title: '联系平台',
+      content: '平台客服渠道正在完善。你可以通过“意见反馈”提交问题，我们会尽快处理。',
+      confirmText: '去反馈',
+      cancelText: '暂不处理',
       success: (res) => {
-        if (res.confirm) {
-          wx.makePhoneCall({
-            phoneNumber: '4001234567'
-          })
-        }
+        if (res.confirm) this.goToFeedback()
       }
     })
   },

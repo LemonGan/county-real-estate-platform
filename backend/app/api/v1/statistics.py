@@ -1,7 +1,7 @@
 """
 数据统计API
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -75,32 +75,9 @@ async def get_favorite_stats(
     stats = await get_favorite_statistics(db)
     return stats
 
-
 @router.get("/hot-search", summary="获取热门搜索关键词")
 async def get_hot_search(
-    limit: int = 10,
-    db: AsyncSession = Depends(get_db)
+    limit: int = Query(10, ge=1, le=50),
 ):
-    """
-    获取热门搜索关键词
-    返回用户搜索最频繁的关键词列表
-    """
-    # TODO: 实现热门搜索查询逻辑（需要search_logs表）
-    # 这里暂时返回模拟数据
-
-    hot_keywords = [
-        {"keyword": "两室一厅", "count": 1523},
-        {"keyword": "学区房", "count": 1245},
-        {"keyword": "南北通透", "count": 982},
-        {"keyword": "精装修", "count": 876},
-        {"keyword": "新房", "count": 765},
-        {"keyword": "二手房", "count": 654},
-        {"keyword": "电梯房", "count": 543},
-        {"keyword": "急售", "count": 432},
-        {"keyword": "拎包入住", "count": 321},
-        {"keyword": "低楼层", "count": 210}
-    ]
-
-    return {
-        "keywords": hot_keywords[:limit]
-    }
+    """搜索日志功能接入前，不返回伪造的热门关键词。"""
+    return {"keywords": []}

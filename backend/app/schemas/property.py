@@ -47,6 +47,7 @@ class PropertyBase(BaseModel):
     hall_count: Optional[int] = Field(None, description="厅数")
     bathroom_count: Optional[int] = Field(None, description="卫数")
     floor_info: Optional[str] = Field(None, max_length=50, description="楼层信息")
+    total_floors: Optional[int] = Field(None, description="总楼层")
     # 兼容旧字段
     community: Optional[str] = Field(None, max_length=100, description="小区名称（兼容字段）")
     room_type: Optional[str] = Field(None, max_length=20, description="户型（兼容字段）")
@@ -62,6 +63,8 @@ class PropertyBase(BaseModel):
 
 class PropertyCreate(PropertyBase):
     """创建房源请求"""
+    images: Optional[List[str]] = Field(default=None, description="已上传图片地址列表")
+
     from pydantic import model_validator
     
     @model_validator(mode='after')
@@ -94,6 +97,9 @@ class PropertyUpdate(BaseModel):
     hall_count: Optional[int] = None
     bathroom_count: Optional[int] = None
     floor_info: Optional[str] = Field(None, max_length=50)
+    total_floors: Optional[int] = Field(None, ge=1, le=200)
+    longitude: Optional[float] = None
+    latitude: Optional[float] = None
     status: Optional[int] = Field(None, ge=1, le=3, description="状态：1在售，2已售，3下架")
 
 
@@ -105,8 +111,8 @@ class PropertyResponse(PropertyBase):
     @classmethod
     def serialize_images(cls, data):
         if hasattr(data, '__dict__'):
-            result = {'id': data.id, 'agent_id': data.agent_id, 'status': data.status}
-            for field in ['view_count', 'favorite_count', 'inquiry_count', 'share_count', 'cover_url', 'created_at', 'updated_at', 'title', 'description', 'total_price', 'unit_price', 'area', 'province', 'city', 'district', 'town', 'detail_address', 'longitude', 'latitude', 'property_type', 'transaction_type', 'room_count', 'hall_count', 'bathroom_count', 'floor_info', 'community', 'room_type', 'floor', 'orientation', 'decoration', 'contact_phone', 'contact_name', 'vr_url', 'video_urls', 'has_vr', 'has_video']:
+            result = {'id': data.id, 'agent_id': data.agent_id, 'status': data.status, 'audit_status': data.audit_status, 'audit_review_note': data.audit_review_note}
+            for field in ['view_count', 'favorite_count', 'inquiry_count', 'share_count', 'cover_url', 'created_at', 'updated_at', 'title', 'description', 'total_price', 'unit_price', 'area', 'province', 'city', 'district', 'town', 'detail_address', 'longitude', 'latitude', 'property_type', 'transaction_type', 'room_count', 'hall_count', 'bathroom_count', 'floor_info', 'total_floors', 'community', 'room_type', 'floor', 'orientation', 'decoration', 'contact_phone', 'contact_name', 'vr_url', 'video_urls', 'has_vr', 'has_video']:
                 if hasattr(data, field):
                     result[field] = getattr(data, field)
             if hasattr(data, 'images') and data.images:
@@ -117,6 +123,8 @@ class PropertyResponse(PropertyBase):
     id: int
     agent_id: int  # 经纪人ID
     status: int  # 使用int类型，因为数据库中是SmallInteger
+    audit_status: int = 0
+    audit_review_note: Optional[str] = None
     view_count: Optional[int] = 0
     favorite_count: Optional[int] = 0
     inquiry_count: Optional[int] = 0

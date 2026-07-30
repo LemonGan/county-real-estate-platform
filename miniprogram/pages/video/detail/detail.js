@@ -232,7 +232,7 @@ Page({
       success: async (res) => {
         if (res.confirm) {
           try {
-            await api.delete(`/short-videos/comments/${commentId}/`)
+            await api.del(`/short-videos/comments/${commentId}/`)
             const comments = [...this.data.comments]
             comments.splice(index, 1)
             this.setData({ comments })

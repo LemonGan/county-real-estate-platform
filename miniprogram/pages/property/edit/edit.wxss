@@ -1,0 +1,28 @@
+.page { min-height: 100vh; background: #f5f7fb; color: #1f2937; }
+.form-scroll { height: 100vh; box-sizing: border-box; }
+.loading-state { padding-top: 220rpx; text-align: center; color: #7a8495; font-size: 28rpx; }
+.notice { margin: 24rpx 24rpx 16rpx; padding: 22rpx 24rpx; border-radius: 16rpx; background: #fff6e6; color: #9a5b00; font-size: 24rpx; line-height: 1.6; }
+.notice-title { margin-bottom: 4rpx; font-size: 28rpx; font-weight: 650; color: #7a4500; }
+.card { margin: 16rpx 24rpx; padding: 8rpx 28rpx; border-radius: 20rpx; background: #fff; box-shadow: 0 6rpx 24rpx rgba(31, 41, 55, .045); }
+.card-title { padding: 24rpx 0 14rpx; font-weight: 650; font-size: 30rpx; }
+.field { min-height: 98rpx; display: flex; align-items: center; border-top: 1rpx solid #edf0f5; }
+.label { width: 176rpx; flex-shrink: 0; font-size: 27rpx; color: #4b5563; }
+.required::before { content: '*'; margin-right: 6rpx; color: #e45656; }
+.input { flex: 1; text-align: right; font-size: 27rpx; color: #111827; }
+.segmented { flex: 1; display: flex; justify-content: flex-end; gap: 12rpx; }
+.segment { width: 118rpx; padding: 14rpx 0; border-radius: 12rpx; text-align: center; background: #f2f4f8; color: #6b7280; font-size: 26rpx; }
+.segment.active { background: #e8f0ff; color: #2f6fed; font-weight: 600; }
+.picker-value { text-align: right; font-size: 27rpx; color: #111827; }
+.chevron { margin-left: 14rpx; color: #9ca3af; font-size: 38rpx; vertical-align: -2rpx; }
+.room-row { display: flex; padding: 22rpx 0; border-top: 1rpx solid #edf0f5; gap: 16rpx; }
+.small-field { flex: 1; display: flex; align-items: center; padding: 14rpx 16rpx; background: #f7f8fb; border-radius: 12rpx; color: #6b7280; font-size: 25rpx; }
+.small-field input { min-width: 0; flex: 1; margin-left: 10rpx; text-align: center; color: #111827; font-size: 27rpx; }
+.description-field { position: relative; padding: 20rpx 0 10rpx; border-top: 1rpx solid #edf0f5; }
+.description-field textarea { width: 100%; min-height: 210rpx; box-sizing: border-box; font-size: 27rpx; line-height: 1.6; color: #111827; }
+.counter { display: block; text-align: right; font-size: 23rpx; color: #9ca3af; }
+.media-tip { margin: 16rpx 24rpx; padding: 22rpx 24rpx; border-radius: 16rpx; background: #eef5ff; color: #5f6f86; font-size: 24rpx; line-height: 1.65; }
+.media-tip-title { display: block; color: #3267b8; font-weight: 600; font-size: 27rpx; }
+.safe-space { height: 150rpx; }
+.bottom-bar { position: fixed; left: 0; right: 0; bottom: 0; padding: 20rpx 28rpx calc(20rpx + env(safe-area-inset-bottom)); background: rgba(255,255,255,.96); box-shadow: 0 -4rpx 18rpx rgba(31, 41, 55, .08); }
+.save-button { border-radius: 14rpx; background: #2f6fed; color: #fff; font-weight: 600; font-size: 30rpx; line-height: 92rpx; }
+.save-button[disabled] { opacity: .62; }

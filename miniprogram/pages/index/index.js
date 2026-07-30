@@ -31,7 +31,7 @@ Page({
    */
   onShow() {
     this.setData({ compareCount: compareUtil.getCompareList().length });
-    // 刷新推荐房源
+    // 刷新最新上架房源
     if (app.globalData.isLogin) {
       this.loadRecommendProperties()
     }
@@ -57,37 +57,31 @@ Page({
    * 处理房源图片URL
    */
   processProperties(list) {
-    const baseUrl = app.globalData.baseUrl || 'http://127.0.0.1:8000/api/v1'
-    const staticUrl = baseUrl.replace('/api/v1', '') + '/static'
+    const origin = (app.globalData.baseUrl || 'https://api.imlemon.top/api/v1').replace('/api/v1', '')
     return (list || []).map(item => {
-      let coverUrl = item.cover_url || (item.images && item.images[0] ? item.images[0].image_url : '')
-      if (coverUrl && !coverUrl.startsWith('http')) {
-        coverUrl = staticUrl + coverUrl
+      const firstImage = item.images && item.images[0]
+      const imageValue = item.cover_url || (typeof firstImage === 'string' ? firstImage : (firstImage && firstImage.image_url)) || ''
+      const coverUrl = imageValue && !imageValue.startsWith('http')
+        ? origin + (imageValue.startsWith('/static/') ? imageValue : `/static/${imageValue.replace(/^\//, '')}`)
+        : imageValue
+      return {
+        ...item,
+        cover_image_url: coverUrl,
+        total_price_text: format.formatPrice(item.total_price),
+        area_text: format.formatArea(item.area),
+        room_type: format.formatRoomType(item),
+        property_type_text: format.formatPropertyType(item.property_type),
+        transaction_type_text: format.formatTransactionType(item.transaction_type)
       }
-      // 确保是http开头的网络请求
-      if (coverUrl && !coverUrl.startsWith('http')) {
-        coverUrl = 'http://' + coverUrl
-      }
-      return { ...item, cover_image_url: coverUrl }
     })
   },
 
   /**
    * 加载轮播图
    */
-  async loadBanners() {
-    try {
-      // TODO: 调用轮播图API
-      const banners = [
-        { id: 1, image: '/assets/images/banner1.jpg', title: '精选房源推荐' },
-        { id: 2, image: '/assets/images/banner2.jpg', title: '新房上市' },
-        { id: 3, image: '/assets/images/banner3.jpg', title: '热门房源' }
-      ]
-
-      this.setData({ banners })
-    } catch (err) {
-      console.error('加载轮播图失败:', err)
-    }
+  loadBanners() {
+    // 运营后台尚未接入轮播素材，不展示占位图片。
+    this.setData({ banners: [] })
   },
 
   /**
@@ -116,11 +110,10 @@ Page({
   },
 
   /**
-   * 加载推荐房源
+   * 加载最新上架房源
    */
   async loadRecommendProperties() {
     try {
-      // TODO: 调用推荐算法API
       const res = await api.get('/properties', {
         page: 1,
         page_size: 5,
@@ -236,6 +229,10 @@ Page({
 
   goToCompare() {
     wx.navigateTo({ url: '/pages/property/compare/compare' });
+  },
+
+  goToMap() {
+    wx.navigateTo({ url: '/pages/property/map/map' });
   },
 
   /**

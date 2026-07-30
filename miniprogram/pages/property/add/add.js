@@ -1,5 +1,4 @@
 // pages/property/add/add.js
-const app = getApp()
 const api = require('../../../utils/api')
 
 Page({
@@ -150,10 +149,10 @@ Page({
         images: imageUrls,
         vr_url: this.data.vrUrl || null,
         video_urls: this.data.video ? [this.data.video] : null,
-        status: 1,
-        province: '浙江省',
-        city: '杭州市',
-        district: this.data.address ? '未知' : '',
+        province: '广西壮族自治区',
+        city: '钦州市',
+        district: '灵山县',
+        detail_address: this.data.address,
         longitude: this.data.longitude,
         latitude: this.data.latitude
       };
@@ -176,17 +175,11 @@ Page({
       const imagePath = this.data.images[i];
       if (imagePath.startsWith('http')) { urls.push(imagePath); continue; }
       try {
-        const res = await new Promise((resolve, reject) => {
-          wx.uploadFile({
-            url: app.globalData.baseUrl + '/api/v1/upload',
-            filePath: imagePath, name: 'file',
-            success: resolve, fail: reject
-          });
-        });
-        const data = JSON.parse(res.data);
-        if (data.url) urls.push(data.url);
+        const data = await api.uploadImage(imagePath);
+        if (!data || !data.url) throw new Error('图片上传失败');
+        urls.push(data.url);
       } catch (err) {
-        // upload failed, skip
+        throw new Error('图片上传失败，请重试');
       }
     }
     return urls;

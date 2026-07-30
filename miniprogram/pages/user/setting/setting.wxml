@@ -39,7 +39,7 @@
     <view class="setting-item" bindtap="contactService">
       <view class="setting-left">
         <image class="setting-icon" src="/assets/icons/service.png"></image>
-        <text class="setting-title">联系客服</text>
+        <text class="setting-title">联系平台</text>
       </view>
       <view class="setting-right">
         <image class="arrow-icon" src="/assets/icons/arrow-right.png"></image>

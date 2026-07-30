@@ -1,37 +1,20 @@
-"""
-会员管理API
-"""
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from pydantic import BaseModel
-from datetime import datetime, timedelta
+"""会员接口占位：付费能力审批完成前不得开通或兑换会员。"""
 from typing import Optional
 
-from app.core.database import get_db
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.api.deps import get_current_active_user
+from app.core.database import get_db
 from app.models.user import User
 
 router = APIRouter()
-
-
-# 会员配置
-MEMBER_CONFIG = {
-    1: {"name": "月卡", "days": 30, "price": 9.9},
-    2: {"name": "季卡", "days": 90, "price": 19.9},
-    3: {"name": "年卡", "days": 365, "price": 59.9},
-}
-
-# 兑换码配置
-MEMBER_CODES = {
-    "VIP888": {"level": 3, "days": 365, "name": "年卡兑换码"},
-    "VIP666": {"level": 2, "days": 90, "name": "季卡兑换码"},
-    "VIP333": {"level": 1, "days": 30, "name": "月卡兑换码"},
-    "TEST7": {"level": 1, "days": 7, "name": "试用7天"},
-}
+PAYMENT_FEATURE_MESSAGE = "会员付费与兑换功能暂未开放"
 
 
 class MemberBuyRequest(BaseModel):
-    level: int  # 1月卡 2季卡 3年卡
+    level: int
 
 
 class MemberExchangeRequest(BaseModel):
@@ -43,133 +26,42 @@ class MemberStatusResponse(BaseModel):
     member_level: int
     member_expire: Optional[str]
     days_remaining: int
-
-
-def check_is_member(user: User) -> bool:
-    """检查用户是否是有效会员"""
-    if user.member_level == 0:
-        return False
-    if user.member_expire and user.member_expire > datetime.now():
-        return True
-    return False
+    available: bool = False
 
 
 @router.get("/status", response_model=MemberStatusResponse, summary="获取会员状态")
 async def get_member_status(
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
 ):
-    """获取当前用户的会员状态"""
-    is_member = check_is_member(current_user)
-    days_remaining = 0
-    
-    if is_member and current_user.member_expire:
-        delta = current_user.member_expire - datetime.now()
-        days_remaining = max(0, delta.days)
-    
+    """仅保留历史状态只读查询；当前不提供任何付费权益。"""
     return {
-        "is_member": is_member,
-        "member_level": current_user.member_level,
-        "member_expire": current_user.member_expire.isoformat() if current_user.member_expire else None,
-        "days_remaining": days_remaining
+        "is_member": False,
+        "member_level": 0,
+        "member_expire": None,
+        "days_remaining": 0,
+        "available": False,
     }
 
 
-@router.post("/buy", summary="购买会员")
+@router.post("/buy", summary="购买会员（暂未开放）")
 async def buy_member(
     request: MemberBuyRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
 ):
-    """购买会员（简化版：直接开通）"""
-    if request.level not in MEMBER_CONFIG:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="无效的会员等级"
-        )
-    
-    config = MEMBER_CONFIG[request.level]
-    
-    # 计算新的到期时间
-    if current_user.member_expire and current_user.member_expire > datetime.now():
-        # 续期
-        new_expire = current_user.member_expire + timedelta(days=config["days"])
-    else:
-        # 新开
-        new_expire = datetime.now() + timedelta(days=config["days"])
-    
-    current_user.member_level = request.level
-    current_user.member_expire = new_expire
-    
-    await db.commit()
-    await db.refresh(current_user)
-    
-    return {
-        "success": True,
-        "member_level": current_user.member_level,
-        "member_expire": new_expire.isoformat(),
-        "message": f"成功开通{config['name']}，到期时间：{new_expire.strftime('%Y-%m-%d')}"
-    }
+    raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=PAYMENT_FEATURE_MESSAGE)
 
 
-@router.post("/exchange", summary="兑换会员")
+@router.post("/exchange", summary="兑换会员（暂未开放）")
 async def exchange_member(
     request: MemberExchangeRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
 ):
-    """使用兑换码兑换会员"""
-    code = request.code.upper()
-    
-    if code not in MEMBER_CODES:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="无效的兑换码"
-        )
-    
-    config = MEMBER_CODES[code]
-    
-    # 计算新的到期时间
-    if current_user.member_expire and current_user.member_expire > datetime.now():
-        new_expire = current_user.member_expire + timedelta(days=config["days"])
-    else:
-        new_expire = datetime.now() + timedelta(days=config["days"])
-    
-    current_user.member_level = config["level"]
-    current_user.member_expire = new_expire
-    current_user.member_code = code
-    
-    await db.commit()
-    await db.refresh(current_user)
-    
-    return {
-        "success": True,
-        "member_level": current_user.member_level,
-        "member_expire": new_expire.isoformat(),
-        "message": f"兑换成功！已开通{config['name']}，到期时间：{new_expire.strftime('%Y-%m-%d')}"
-    }
+    raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=PAYMENT_FEATURE_MESSAGE)
 
 
-@router.get("/privileges", summary="会员权益说明")
+@router.get("/privileges", summary="会员权益（暂未开放）")
 async def get_member_privileges():
-    """获取会员权益说明"""
-    return {
-        "普通用户": {
-            "电话咨询": "每天1次",
-            "预约看房": "每天1次",
-            "房贷计算": "基础版",
-            "房源收藏": "最多5套"
-        },
-        "会员用户": {
-            "电话咨询": "无限制",
-            "预约看房": "无限制",
-            "房贷计算": "高级版（税费+装修）",
-            "房源收藏": "无限制",
-            "专属客服": "优先服务"
-        },
-        "会员特权": {
-            "1": {"name": "月卡", "days": 30, "price": 9.9},
-            "2": {"name": "季卡", "days": 90, "price": 19.9},
-            "3": {"name": "年卡", "days": 365, "price": 59.9}
-        }
-    }
+    raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=PAYMENT_FEATURE_MESSAGE)
