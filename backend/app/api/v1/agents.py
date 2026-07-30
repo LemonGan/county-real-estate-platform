@@ -390,7 +390,7 @@ async def get_agent_properties(
     agent_id: int,
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=100),
-    status_filter: Optional[int] = Query(1, description="状态筛选"),
+    status_filter: Optional[int] = Query(1, description="公开列表仅支持在售状态（1）"),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -401,6 +401,8 @@ async def get_agent_properties(
     )).scalar_one_or_none()
     if agent is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="经纪人不存在或暂不可公开查看")
+    if status_filter != 1:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="公开列表仅支持查询在售房源")
 
     from app.crud.property import get_properties
 
@@ -409,7 +411,7 @@ async def get_agent_properties(
         page=page,
         page_size=page_size,
         agent_id=agent_id,
-        status=status_filter
+        status=1
     )
 
     return {

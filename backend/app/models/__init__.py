@@ -14,6 +14,7 @@ from app.models.short_video import ShortVideo
 from app.models.video_recommendation import VideoRecommendation
 from app.models.audit_log import AuditLog
 from app.models.feedback import Feedback
+from app.models.message import Message
 
 __all__ = [
     "User",
@@ -34,4 +35,5 @@ __all__ = [
     "VideoRecommendation",
     "AuditLog",
     "Feedback",
+    "Message",
 ]

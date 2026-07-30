@@ -50,15 +50,20 @@ async def get_short_videos_list(
     keyword: Optional[str] = Query(None, description="关键词搜索（标题、描述）"),
     db: AsyncSession = Depends(get_db)
 ):
-    """获取短视频列表（支持筛选和搜索）"""
+    """获取公开短视频列表：仅返回已发布且审核通过的内容。"""
+    if is_published not in (None, True) or review_status not in (None, 1):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="公开列表仅支持查询已发布且审核通过的短视频",
+        )
     videos, total = await get_short_videos(
         db,
         page=page,
         page_size=page_size,
         creator_id=creator_id,
         property_id=property_id,
-        is_published=is_published,
-        review_status=review_status,
+        is_published=True,
+        review_status=1,
         keyword=keyword
     )
     return {
@@ -76,7 +81,7 @@ async def get_short_video_detail(
 ):
     """根据ID获取短视频详细信息"""
     video = await get_short_video_by_id(db, video_id)
-    if not video:
+    if not video or not video.is_published or video.review_status != 1:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="短视频不存在"
@@ -213,12 +218,23 @@ async def increment_stat(
     stat_type: str = Path(..., regex="^(view|like|comment|share|favorite)$", description="统计类型"),
     db: AsyncSession = Depends(get_db)
 ):
-    """增加视频统计数据（播放、点赞、评论、分享、收藏）"""
+    """仅记录公开视频的播放、分享统计，互动统计须由真实互动功能写入。"""
+    if stat_type not in {"view", "share"}:
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail=SHORT_VIDEO_INTERACTION_MESSAGE,
+        )
+    video = await get_short_video_by_id(db, video_id)
+    if not video or not video.is_published or video.review_status != 1:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="短视频不存在",
+        )
     success = await increment_video_stat(db, video_id, stat_type)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="短视频不存在"
+            detail="短视频不存在",
         )
 
     return {"message": "统计更新成功"}

@@ -27,6 +27,7 @@
 .menu-item:last-child { border-bottom: none; }
 .menu-icon { width: 44rpx; height: 44rpx; margin-right: 24rpx; }
 .menu-title { flex: 1; font-size: var(--font-lg); color: var(--color-text-primary); }
+.menu-badge { min-width: 34rpx; height: 34rpx; padding: 0 8rpx; margin-right: 16rpx; border-radius: 24rpx; background: var(--color-danger); color: #fff; font-size: 20rpx; line-height: 34rpx; text-align: center; box-sizing: border-box; }
 .menu-arrow { width: 32rpx; height: 32rpx; opacity: 0.3; }
 
 /* 退出 */

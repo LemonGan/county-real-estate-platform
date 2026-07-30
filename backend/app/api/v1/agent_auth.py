@@ -8,6 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_active_user
+from app.api.v1.messages import create_message
 from app.core.database import get_db
 from app.core.permissions import Role, get_user_roles, require_roles
 from app.models.audit_log import AuditLog
@@ -168,13 +169,35 @@ async def review_agent_application(
             "roles": sorted(get_user_roles(applicant)),
         },
     ))
-    await db.commit()
-    return {
+    response = {
         "user_id": applicant.id,
         "status": applicant.agent_application_status,
         "is_agent": applicant.is_agent,
         "message": "审核完成",
     }
+    applicant_id = applicant.id
+    review_note = applicant.agent_review_note
+    await db.commit()
+    try:
+        notification = {
+            "approve": (
+                "经纪人申请已通过",
+                "您的经纪人申请已通过审核，现可发布和管理房源。",
+            ),
+            "reject": (
+                "经纪人申请未通过",
+                f"您的经纪人申请未通过审核，{'审核说明：' + review_note if review_note else '请完善资料后重新申请。'}",
+            ),
+            "suspend": (
+                "经纪人资格已停用",
+                f"您的经纪人资格已被停用，{'说明：' + review_note if review_note else '如有疑问请联系平台运营人员。'}",
+            ),
+        }[request.action]
+        await create_message(db, applicant_id, notification[0], notification[1], message_type=1)
+    except Exception:
+        # 通知写入失败不影响已经完成的经纪人审核。
+        await db.rollback()
+    return response
 
 
 @router.get("/status", summary="获取经纪人状态")

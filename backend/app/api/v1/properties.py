@@ -45,11 +45,16 @@ async def get_properties_list(
     rooms: Optional[str] = Query(None, description="户型筛选"),
     property_type: Optional[int] = Query(None, description="房产类型：1住宅，2商铺，3写字楼，4别墅"),
     transaction_type: Optional[int] = Query(None, description="交易类型：1出售，2出租"),
-    status_filter: Optional[int] = Query(None, description="状态筛选：1在售，2已售，3下架"),
+    status_filter: Optional[int] = Query(None, description="公开列表仅支持在售状态（1）"),
     keyword: Optional[str] = Query(None, description="关键词搜索（搜索标题、描述、地址、城市、区县）"),
     db: AsyncSession = Depends(get_db)
 ):
-    """获取房源列表（支持分页、筛选和关键词搜索）"""
+    """获取公开房源列表：仅返回已审核且在售的记录。"""
+    if status_filter not in (None, 1):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="公开列表仅支持查询在售房源",
+        )
     # 转换户型
     rooms_int = int(rooms) if rooms else None
 
@@ -66,7 +71,7 @@ async def get_properties_list(
         rooms=rooms_int,
         property_type=property_type,
         transaction_type=transaction_type,
-        status=status_filter,
+        status=1,
         keyword=keyword
     )
     return {
@@ -173,7 +178,7 @@ async def get_property_detail(
 ):
     """根据ID获取房源详细信息"""
     property = await get_property_by_id(db, property_id=property_id)
-    if not property or property.audit_status != 1:
+    if not property or property.audit_status != 1 or property.status != 1:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="房源不存在"

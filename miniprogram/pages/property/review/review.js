@@ -143,7 +143,7 @@ Page({
       }
     } catch (err) {
       wx.hideLoading()
-      wx.showToast({ title: '提交失败', icon: 'none' })
+      wx.showToast({ title: err.message || '提交失败', icon: 'none' })
     }
   },
 

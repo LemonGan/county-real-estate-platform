@@ -9,7 +9,8 @@ Page({
     stats: {
       favorites: 0,
       appointments: 0,
-      views: 0
+      views: 0,
+      messages: 0
     },
     menuList: [
       {
@@ -21,6 +22,12 @@ Page({
         icon: '/assets/icons/appointment.png',
         title: '看房预约',
         url: '/pages/user/appointments/appointments'
+      },
+      {
+        icon: '/assets/icons/chat.png',
+        title: '消息通知',
+        url: '/pages/user/messages/messages',
+        badge: 0
       },
       {
         icon: '/assets/icons/calculator.png',
@@ -58,21 +65,28 @@ Page({
   },
 
   async loadStats() {
-    const [favorites, appointments, behaviors] = await Promise.allSettled([
+    const [favorites, appointments, behaviors, messages] = await Promise.allSettled([
       api.get('/favorites/', { page: 1, page_size: 1 }),
       api.get('/appointments/', { page: 1, page_size: 1 }),
-      api.get('/users/behaviors/stats', { days: 30 })
+      api.get('/users/behaviors/stats', { days: 30 }),
+      api.get('/messages/unread-count')
     ])
     const value = (result, fallback) => result.status === 'fulfilled' ? result.value : fallback
     const favoriteData = value(favorites, { total: 0 })
     const appointmentData = value(appointments, { total: 0 })
     const behaviorData = value(behaviors, { behavior_type: { view: 0 } })
+    const messageData = value(messages, { unread_count: 0 })
+    const unreadMessages = messageData.unread_count || 0
     this.setData({
       stats: {
         favorites: favoriteData.total || 0,
         appointments: appointmentData.total || 0,
-        views: (behaviorData.behavior_type && behaviorData.behavior_type.view) || 0
-      }
+        views: (behaviorData.behavior_type && behaviorData.behavior_type.view) || 0,
+        messages: unreadMessages
+      },
+      menuList: this.data.menuList.map((item) => item.url === '/pages/user/messages/messages'
+        ? { ...item, badge: unreadMessages > 99 ? '99+' : unreadMessages }
+        : item)
     })
   },
 

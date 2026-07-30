@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 from app.core.database import get_db
 from app.api.deps import get_current_active_user
 from app.models.user import User
+from app.models.appointment import Appointment, AppointmentStatus
 from app.models.property import Property
 from app.models.property_review import PropertyReview
 
@@ -124,13 +125,28 @@ async def create_review(
     current_user: User = Depends(get_current_active_user)
 ):
     """用户添加房源评价"""
-    # 检查房源是否存在
-    prop_query = select(Property).where(Property.id == property_id)
+    # 评价仅面向仍公开展示的房源，避免对已下架记录产生新互动。
+    prop_query = select(Property).where(
+        Property.id == property_id,
+        Property.deleted_at.is_(None),
+        Property.audit_status == 1,
+        Property.status == 1,
+    )
     result = await db.execute(prop_query)
     property_obj = result.scalar_one_or_none()
-    
     if not property_obj:
-        raise HTTPException(status_code=404, detail="房源不存在")
+        raise HTTPException(status_code=404, detail="房源不存在或暂不可评价")
+
+    # 只允许完成过该房源看房预约的本人评价，防止无实际体验的刷评。
+    completed_appointment_query = select(Appointment.id).where(
+        Appointment.user_id == current_user.id,
+        Appointment.property_id == property_id,
+        Appointment.status == AppointmentStatus.COMPLETED.value,
+        Appointment.deleted_at.is_(None),
+    ).limit(1)
+    completed_appointment = (await db.execute(completed_appointment_query)).scalar_one_or_none()
+    if completed_appointment is None:
+        raise HTTPException(status_code=403, detail="完成看房预约后才可评价该房源")
     
     # 检查用户是否已评价
     existing_query = select(PropertyReview).where(

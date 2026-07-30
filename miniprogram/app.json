@@ -20,6 +20,7 @@
     "pages/user/history/history",
     "pages/user/favorites/favorites",
     "pages/user/appointments/appointments",
+    "pages/user/messages/messages",
     "pages/user/setting/setting",
     "pages/user/agreement/agreement",
     "pages/user/privacy/privacy",

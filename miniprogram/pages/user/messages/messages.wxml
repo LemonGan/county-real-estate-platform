@@ -1,0 +1,42 @@
+<view class="messages-page safe-area-bottom">
+  <view class="topbar" wx:if="{{!loading}}">
+    <view class="summary">
+      <text class="summary-title">通知中心</text>
+      <text class="summary-count" wx:if="{{unreadCount}}">{{unreadCount > 99 ? '99+' : unreadCount}} 条未读</text>
+      <text class="summary-count muted" wx:else>全部已读</text>
+    </view>
+    <text class="read-all {{unreadCount ? '' : 'disabled'}}" bindtap="markAllRead">全部已读</text>
+  </view>
+
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text>正在加载通知</text>
+  </view>
+
+  <view class="message-list" wx:if="{{!loading && !empty}}">
+    <view class="message-card {{item.is_read ? 'is-read' : 'is-unread'}}"
+          wx:for="{{messages}}" wx:key="id"
+          bindtap="markRead" data-id="{{item.id}}" data-index="{{index}}" data-is-read="{{item.is_read}}">
+      <view class="message-icon {{item.typeMeta.className}}">{{item.typeMeta.icon}}</view>
+      <view class="message-content">
+        <view class="message-heading">
+          <text class="message-title">{{item.title}}</text>
+          <view class="unread-dot" wx:if="{{!item.is_read}}"></view>
+        </view>
+        <text class="message-text">{{item.content}}</text>
+        <view class="message-footer">
+          <text class="message-type {{item.typeMeta.className}}">{{item.typeMeta.text}}</text>
+          <text class="message-time">{{item.displayTime}}</text>
+        </view>
+      </view>
+    </view>
+    <view class="load-more" wx:if="{{loadingMore}}">加载中...</view>
+    <view class="load-more" wx:elif="{{!hasMore && messages.length > 0}}">没有更多消息了</view>
+  </view>
+
+  <view class="empty-state" wx:if="{{!loading && empty}}">
+    <image class="empty-image" src="/assets/icons/chat.png" mode="aspectFit"></image>
+    <text class="empty-title">暂时没有通知</text>
+    <text class="empty-hint">预约进度和重要提醒会在这里出现</text>
+  </view>
+</view>

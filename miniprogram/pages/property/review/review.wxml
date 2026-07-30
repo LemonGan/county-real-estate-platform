@@ -35,7 +35,7 @@
 
   <!-- 空状态 -->
   <view class="empty" wx:if="{{reviewList.length === 0 && !loading}}">
-    <text>暂无评价，快来抢先评价吧~</text>
+    <text>暂无已审核评价</text>
   </view>
 
   <!-- 加载中 -->

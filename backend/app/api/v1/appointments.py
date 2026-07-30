@@ -7,6 +7,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_active_user
+from app.api.v1.messages import create_message
 from app.core.database import get_db
 from app.crud.appointment import (
     cancel_appointment as crud_cancel,
@@ -20,6 +21,20 @@ from app.models.user import User
 from app.schemas.appointment import AppointmentCreate, AppointmentListResponse, AppointmentResponse
 
 router = APIRouter()
+
+
+async def notify_user(
+    db: AsyncSession,
+    user_id: int,
+    title: str,
+    content: str,
+    related_id: int,
+) -> None:
+    """通知写入失败不回滚已成功提交的预约主业务。"""
+    try:
+        await create_message(db, user_id, title, content, message_type=2, related_id=related_id)
+    except Exception:
+        await db.rollback()
 
 
 def serialize_appointment(appointment: Appointment) -> dict:
@@ -79,6 +94,14 @@ async def create_appointment_endpoint(
         appointment = await create_appointment(db, appointment_data, current_user.id)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    property_title = appointment.property.title if appointment.property else "房源"
+    await notify_user(
+        db,
+        appointment.agent_id,
+        "收到新的看房预约",
+        f"您收到“{property_title}”的预约，请及时确认接待安排。",
+        appointment.id,
+    )
     return serialize_appointment(appointment)
 
 
@@ -135,6 +158,15 @@ async def cancel_appointment_endpoint(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc)) from exc
     if not appointment:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="预约不存在")
+    if appointment.agent_id != current_user.id:
+        property_title = appointment.property.title if appointment.property else "房源"
+        await notify_user(
+            db,
+            appointment.agent_id,
+            "预约已取消",
+            f"“{property_title}”的一条看房预约已被用户取消。",
+            appointment.id,
+        )
     return serialize_appointment(appointment)
 
 
@@ -145,10 +177,26 @@ async def update_appointment_status(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
+    previous = await get_appointment_by_id(db, appointment_id)
+    previous_status = previous.status if previous else None
     try:
         appointment = await update_status(db, appointment_id, new_status, current_user)
     except PermissionError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc)) from exc
     if not appointment:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="预约不存在")
+    if appointment.status != previous_status and appointment.user_id != current_user.id:
+        status_text = {
+            AppointmentStatus.CANCELLED.value: "已取消",
+            AppointmentStatus.CONFIRMED.value: "已确认",
+            AppointmentStatus.COMPLETED.value: "已完成",
+        }.get(appointment.status, "已更新")
+        property_title = appointment.property.title if appointment.property else "房源"
+        await notify_user(
+            db,
+            appointment.user_id,
+            f"预约{status_text}",
+            f"“{property_title}”的看房预约{status_text}，可在我的预约中查看详情。",
+            appointment.id,
+        )
     return serialize_appointment(appointment)

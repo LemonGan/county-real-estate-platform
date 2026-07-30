@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.api.deps import get_current_active_user
+from app.api.v1.messages import create_message
 from app.core.database import get_db
 from app.core.permissions import Role, get_user_roles, require_roles
 from app.models.audit_log import AuditLog
@@ -203,13 +204,40 @@ async def review_property(
             "current_status": property.status,
         },
     ))
-    await db.commit()
-    return {
+    response = {
         "property_id": property.id,
         "audit_status": property.audit_status,
         "status": property.status,
         "message": "审核完成",
     }
+    property_title = property.title
+    agent_id = property.agent_id
+    review_note = property.audit_review_note
+    await db.commit()
+    try:
+        if request.action == "approve":
+            await create_message(
+                db,
+                agent_id,
+                "房源审核通过",
+                f"“{property_title}”已通过审核，现已公开展示。",
+                message_type=3,
+                related_id=property_id,
+            )
+        else:
+            reason = f"审核说明：{review_note}" if review_note else "请完善房源信息后重新提交审核。"
+            await create_message(
+                db,
+                agent_id,
+                "房源审核未通过",
+                f"“{property_title}”未通过审核，{reason}",
+                message_type=3,
+                related_id=property_id,
+            )
+    except Exception:
+        # 通知属于附属能力，不能影响已经成功提交的审核决定。
+        await db.rollback()
+    return response
 
 
 
@@ -267,5 +295,30 @@ async def update_feedback_status(
         target_id=str(feedback.id),
         details={"previous_status": previous_status, "current_status": feedback.status},
     ))
+    response = {"feedback_id": feedback.id, "status": feedback.status, "message": "处理状态已更新"}
+    feedback_user_id = feedback.user_id
+    feedback_status = feedback.status
+    feedback_response = feedback.admin_response
     await db.commit()
-    return {"feedback_id": feedback.id, "status": feedback.status, "message": "处理状态已更新"}
+    if feedback_user_id and (previous_status != feedback_status or feedback_response):
+        status_text = {
+            "processing": "已受理，正在处理中",
+            "resolved": "已处理完成",
+            "closed": "已关闭",
+        }[feedback_status]
+        content = f"您提交的反馈{status_text}。"
+        if feedback_response:
+            content += f" 回复：{feedback_response}"
+        try:
+            await create_message(
+                db,
+                feedback_user_id,
+                "反馈处理进度更新",
+                content,
+                message_type=1,
+                related_id=feedback.id,
+            )
+        except Exception:
+            # 通知属于附属能力，不能影响已成功提交的反馈处理状态。
+            await db.rollback()
+    return response
