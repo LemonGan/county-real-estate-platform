@@ -16,7 +16,7 @@
   <view class="message-list" wx:if="{{!loading && !empty}}">
     <view class="message-card {{item.is_read ? 'is-read' : 'is-unread'}}"
           wx:for="{{messages}}" wx:key="id"
-          bindtap="markRead" data-id="{{item.id}}" data-index="{{index}}" data-is-read="{{item.is_read}}">
+          bindtap="openMessage" data-id="{{item.id}}" data-index="{{index}}" data-is-read="{{item.is_read}}">
       <view class="message-icon {{item.typeMeta.className}}">{{item.typeMeta.icon}}</view>
       <view class="message-content">
         <view class="message-heading">
@@ -26,7 +26,7 @@
         <text class="message-text">{{item.content}}</text>
         <view class="message-footer">
           <text class="message-type {{item.typeMeta.className}}">{{item.typeMeta.text}}</text>
-          <text class="message-time">{{item.displayTime}}</text>
+          <text class="message-time">{{item.hasLink ? "查看详情 ›" : item.displayTime}}</text>
         </view>
       </view>
     </view>

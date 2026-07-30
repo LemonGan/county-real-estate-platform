@@ -21,6 +21,7 @@ def serialize_message(message: Message) -> dict:
         "content": message.content,
         "type": message.type,
         "related_id": message.related_id,
+        "related_type": message.related_type,
         "is_read": message.is_read,
         "created_at": message.created_at,
         "read_at": message.read_at,
@@ -34,6 +35,7 @@ async def create_message(
     content: str,
     message_type: int = 1,
     related_id: Optional[int] = None,
+    related_type: Optional[str] = None,
 ) -> Message:
     """写入一条站内通知；调用方应在其主业务提交后调用。"""
     message = Message(
@@ -42,6 +44,7 @@ async def create_message(
         content=content,
         type=message_type,
         related_id=related_id,
+        related_type=related_type,
     )
     db.add(message)
     await db.commit()

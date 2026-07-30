@@ -66,8 +66,12 @@
 
 
     #consoleView .feedback-panel { grid-column:1; }
+    #consoleView .video-comment-panel { grid-column:1; }
+    #consoleView .video-comment-panel .items { max-height:275px; min-height:135px; }
     #consoleView .feedback-panel .items { max-height:275px; min-height:135px; }
-    @media (max-width:820px) { #consoleView .feedback-panel { grid-column:1; } }
+    #consoleView .review-panel { grid-column:2; }
+    #consoleView .review-panel .items { max-height:275px; min-height:135px; }
+    @media (max-width:820px) { #consoleView .feedback-panel, #consoleView .review-panel, #consoleView .video-comment-panel { grid-column:1; } }
 
   </style>
 </head>
@@ -109,16 +113,20 @@
           <div class="topbar-status"><span class="live-dot"></span>服务正常</div><button id="logoutButton" class="secondary">退出</button>
         </div></header>
         <main>
-          <div class="page-head"><div><p class="eyebrow">审核与运营</p><h1>待办工作台</h1><p>优先处理待审核申请与房源；所有权限变更和审核操作均会记录在审计日志中。</p></div><div class="today">广西 · 钦州 · 灵山县</div></div>
+          <div class="page-head"><div><p class="eyebrow">审核与运营</p><h1>待办工作台</h1><p>优先处理待审核申请、房源与用户评价；所有权限变更和审核操作均会记录在审计日志中。</p></div><div class="today">广西 · 钦州 · 灵山县</div></div>
           <div id="notice" class="notice" role="status"></div>
           <div class="metrics" aria-label="审核概览">
             <div class="metric"><div id="metricApplications" class="metric-value">—</div><div class="metric-top"><span>待审核经纪人</span></div></div>
             <div class="metric"><div id="metricProperties" class="metric-value">—</div><div class="metric-top"><span>待审核房源</span></div></div>
+            <div class="metric"><div id="metricReviews" class="metric-value">—</div><div class="metric-top"><span>待审核评价</span></div></div>
+            <div class="metric"><div id="metricVideoComments" class="metric-value">—</div><div class="metric-top"><span>待审核视频评论</span></div></div>
             <div class="metric"><div id="metricAudit" class="metric-value">—</div><div class="metric-top"><span>最近操作记录</span></div></div>
           </div>
           <div class="dashboard-grid">
             <section class="panel applications-panel"><div class="heading"><div><h2>经纪人申请</h2><div class="hint">身份资料已自动脱敏</div></div><button id="reloadApplications" class="secondary">刷新</button></div><div id="applicationItems" class="items"><div class="empty">正在加载…</div></div></section>
             <section class="panel property-panel"><div class="heading"><div><h2>房源审核</h2><div class="hint">通过后才会公开展示</div></div><button id="reloadProperties" class="secondary">刷新</button></div><div id="propertyItems" class="items"><div class="empty">正在加载…</div></div></section>
+            <section id="reviewSection" class="panel review-panel"><div class="heading"><div><h2>用户评价审核</h2><div class="hint">仅完成看房预约的用户可提交</div></div><button id="reloadReviews" class="secondary">刷新</button></div><div id="reviewItems" class="items"><div class="empty">正在加载…</div></div></section>
+            <section id="videoCommentSection" class="panel video-comment-panel"><div class="heading"><div><h2>短视频评论审核</h2><div class="hint">通过后才会在公开评论区显示</div></div><button id="reloadVideoComments" class="secondary">刷新</button></div><div id="videoCommentItems" class="items"><div class="empty">正在加载…</div></div></section>
             <section id="auditSection" class="panel audit-panel"><div class="heading"><div><h2>操作记录</h2><div class="hint">只显示不含敏感资料的摘要</div></div><button id="reloadAuditLogs" class="secondary">刷新</button></div><div id="auditItems" class="items"><div class="empty">正在加载…</div></div></section>
             <section id="feedbackSection" class="panel feedback-panel"><div class="heading"><div><h2>用户反馈</h2><div class="hint">待处理与处理中反馈</div></div><button id="reloadFeedback" class="secondary">刷新</button></div><div id="feedbackItems" class="items"><div class="empty">正在加载…</div></div></section>
             <section id="roleSection" class="panel role-panel-wrap"><div class="heading"><div><h2>成员与权限</h2><div class="hint">仅超级管理员可以分配后台角色</div></div><span id="userCount" class="count"></span></div><form id="userSearch" class="search"><input id="keyword" placeholder="按用户 ID 或昵称查找成员"><button type="submit" class="secondary">查询</button></form><div id="userItems" class="items"><div class="empty">正在加载…</div></div></section>
@@ -135,6 +143,8 @@
       var token = sessionStorage.getItem("buyhouse_admin_token") || "";
       var applicationItems = document.getElementById("applicationItems");
       var propertyItems = document.getElementById("propertyItems");
+      var reviewItems = document.getElementById("reviewItems");
+      var videoCommentItems = document.getElementById("videoCommentItems");
       var auditItems = document.getElementById("auditItems");
       var feedbackItems = document.getElementById("feedbackItems");
       var userItems = document.getElementById("userItems");
@@ -143,6 +153,8 @@
       var consoleView = document.getElementById("consoleView");
       var roleSection = document.getElementById("roleSection");
       var auditSection = document.getElementById("auditSection");
+      var reviewSection = document.getElementById("reviewSection");
+      var videoCommentSection = document.getElementById("videoCommentSection");
       var feedbackSection = document.getElementById("feedbackSection");
       var roleOptions = [{ key: "reviewer", label: "审核员" }, { key: "operations", label: "运营" }, { key: "admin", label: "管理员" }];
 
@@ -263,6 +275,101 @@
           .then(function () { setNotice("房源已" + actionLabel + "。"); return loadProperties(); })
           .catch(handleError);
       }
+      function loadPropertyReviews() {
+        reviewItems.innerHTML = '<div class="empty">正在加载…</div>';
+        return request("/admin/property-reviews/pending").then(function (data) {
+          reviewSection.classList.remove("hidden");
+          reviewItems.innerHTML = "";
+          var items = data.items || [];
+          setMetric("metricReviews", items.length);
+          if (!items.length) { reviewItems.innerHTML = '<div class="empty">暂无待审核评价</div>'; return; }
+          items.forEach(function (item) {
+            var card = document.createElement("article");
+            card.className = "card";
+            var title = document.createElement("div");
+            title.className = "card-title";
+            title.textContent = (item.property_title || "房源") + " · 评价 #" + item.review_id;
+            card.appendChild(title);
+            addMeta(card, "提交用户", item.user_nickname);
+            addMeta(card, "评分", (item.rating || 0) + " / 5");
+            addMeta(card, "提交时间", item.submitted_at ? new Date(item.submitted_at).toLocaleString() : "");
+            var imageUrls = (item.image_urls || []).filter(function (url) { return typeof url === "string" && url.indexOf("/static/properties/") === 0; });
+            addMeta(card, "图片", imageUrls.length ? "包含 " + imageUrls.length + " 张图片" : "无");
+            addMeta(card, "评价内容", item.content || "未填写");
+            if (imageUrls.length) {
+              var imageLinks = document.createElement("div");
+              imageLinks.className = "actions";
+              imageUrls.forEach(function (url, index) {
+                var link = document.createElement("a");
+                link.href = url;
+                link.target = "_blank";
+                link.rel = "noopener";
+                link.className = "hint";
+                link.textContent = "查看图片 " + (index + 1);
+                imageLinks.appendChild(link);
+              });
+              card.appendChild(imageLinks);
+            }
+            var actions = document.createElement("div");
+            actions.className = "actions";
+            [["approve", "通过", ""], ["reject", "驳回", "danger"]].forEach(function (action) {
+              actions.appendChild(button(action[1], action[2], function () { moderatePropertyReview(item.review_id, action[0]); }));
+            });
+            card.appendChild(actions);
+            reviewItems.appendChild(card);
+          });
+        }).catch(function (error) {
+          reviewSection.classList.add("hidden");
+          if (!(error.message.indexOf("403") >= 0 || error.message.indexOf("权限") >= 0)) handleError(error);
+        });
+      }
+      function moderatePropertyReview(reviewId, action) {
+        var actionLabel = action === "approve" ? "通过" : "驳回";
+        var note = window.prompt("确认" + actionLabel + "该评价？可填写审核备注（最多 500 字）：", "");
+        if (note === null) return;
+        request("/admin/property-reviews/" + reviewId + "/review", { method: "POST", body: JSON.stringify({ action: action, note: note }) })
+          .then(function () { setNotice("评价已" + actionLabel + "。"); return Promise.all([loadPropertyReviews(), loadAuditLogs()]); })
+          .catch(handleError);
+      }
+      function loadVideoComments() {
+        videoCommentItems.innerHTML = '<div class="empty">正在加载…</div>';
+        return request("/admin/video-comments/pending").then(function (data) {
+          videoCommentSection.classList.remove("hidden");
+          videoCommentItems.innerHTML = "";
+          var items = data.items || [];
+          setMetric("metricVideoComments", items.length);
+          if (!items.length) { videoCommentItems.innerHTML = '<div class="empty">暂无待审核视频评论</div>'; return; }
+          items.forEach(function (item) {
+            var card = document.createElement("article");
+            card.className = "card";
+            var title = document.createElement("div");
+            title.className = "card-title";
+            title.textContent = (item.video_title || "短视频") + " · 评论 #" + item.comment_id;
+            card.appendChild(title);
+            addMeta(card, "提交用户", item.user_nickname);
+            addMeta(card, "提交时间", item.submitted_at ? new Date(item.submitted_at).toLocaleString() : "");
+            addMeta(card, "评论内容", item.content || "");
+            var actions = document.createElement("div");
+            actions.className = "actions";
+            [["approve", "通过", ""], ["reject", "驳回", "danger"]].forEach(function (action) {
+              actions.appendChild(button(action[1], action[2], function () { moderateVideoComment(item.comment_id, action[0]); }));
+            });
+            card.appendChild(actions);
+            videoCommentItems.appendChild(card);
+          });
+        }).catch(function (error) {
+          videoCommentSection.classList.add("hidden");
+          if (!(error.message.indexOf("403") >= 0 || error.message.indexOf("权限") >= 0)) handleError(error);
+        });
+      }
+      function moderateVideoComment(commentId, action) {
+        var actionLabel = action === "approve" ? "通过" : "驳回";
+        var note = window.prompt("确认" + actionLabel + "该视频评论？可填写审核备注（最多 500 字）：", "");
+        if (note === null) return;
+        request("/admin/video-comments/" + commentId + "/review", { method: "POST", body: JSON.stringify({ action: action, note: note }) })
+          .then(function () { setNotice("视频评论已" + actionLabel + "。"); return Promise.all([loadVideoComments(), loadAuditLogs()]); })
+          .catch(handleError);
+      }
       function auditActionLabel(action) {
         var labels = {
           "roles.updated": "更新后台角色",
@@ -270,7 +377,11 @@
           "agent_application.reject": "驳回经纪人申请",
           "agent_application.suspend": "停用经纪人",
           "property_review.approve": "通过房源审核",
-          "property_review.reject": "驳回房源审核"
+          "property_review.reject": "驳回房源审核",
+          "property_review_moderation.approve": "通过房源评价",
+          "property_review_moderation.reject": "驳回房源评价",
+          "video_comment_moderation.approve": "通过视频评论",
+          "video_comment_moderation.reject": "驳回视频评论"
         };
         return labels[action] || action;
       }
@@ -424,6 +535,8 @@
         setNotice("");
         loadApplications();
         loadProperties();
+        loadPropertyReviews();
+        loadVideoComments();
         loadAuditLogs();
         loadFeedback();
         loadUsers();
@@ -452,6 +565,8 @@
       document.getElementById("logoutButton").addEventListener("click", function () { logout(); });
       document.getElementById("reloadApplications").addEventListener("click", loadApplications);
       document.getElementById("reloadProperties").addEventListener("click", loadProperties);
+      document.getElementById("reloadReviews").addEventListener("click", loadPropertyReviews);
+      document.getElementById("reloadVideoComments").addEventListener("click", loadVideoComments);
       document.getElementById("reloadAuditLogs").addEventListener("click", loadAuditLogs);
       document.getElementById("reloadFeedback").addEventListener("click", loadFeedback);
       document.getElementById("userSearch").addEventListener("submit", function (event) { event.preventDefault(); loadUsers(); });

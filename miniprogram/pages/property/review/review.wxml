@@ -27,8 +27,8 @@
       <view class="review-content">
         <text>{{item.content}}</text>
       </view>
-      <view class="review-images" wx:if="{{item.images.length > 0}}">
-        <image wx:for="{{item.images}}" wx:key="*this" src="{{item}}" mode="aspectFill" bindtap="previewImage" data-src="{{item}}"></image>
+      <view class="review-images" wx:if="{{item.displayImages.length > 0}}">
+        <image wx:for="{{item.displayImages}}" wx:key="*this" src="{{item}}" mode="aspectFill" bindtap="previewImage" data-src="{{item}}"></image>
       </view>
     </view>
   </view>
@@ -43,9 +43,18 @@
     <text>加载中...</text>
   </view>
 
+  <view class="my-review-status status-{{myReviewStatus.className}}" wx:if="{{myReviewStatus}}">
+    <view class="my-review-head">
+      <text class="my-review-title">我的评价 · {{myReviewStatus.label}}</text>
+      <text class="my-review-rating">{{myReview.rating || 0}} / 5 分</text>
+    </view>
+    <text class="my-review-hint">{{myReviewStatus.hint}}</text>
+    <text class="my-review-note" wx:if="{{myReviewStatus.note}}">审核备注：{{myReviewStatus.note}}</text>
+  </view>
+
   <!-- 评价按钮 -->
-  <view class="fab" bindtap="openReviewModal" wx:if="{{!hasReviewed}}">
-    <text>写评价</text>
+  <view class="fab" bindtap="openReviewModal" wx:if="{{!hasReviewed || canResubmit}}">
+    <text>{{canResubmit ? '修改后重新提交' : '写评价'}}</text>
   </view>
 
   <!-- 评价弹窗 -->
@@ -63,8 +72,19 @@
             <text wx:for="{{[1,2,3,4,5]}}" wx:key="*this" class="star {{item <= myRating ? 'active' : ''}}" bindtap="setRating" data-rating="{{item}}">★</text>
           </view>
         </view>
-        <textarea class="review-input" placeholder="分享您的看房体验..." bindinput="onContentInput" maxlength="500"></textarea>
+        <textarea class="review-input" value="{{content}}" placeholder="分享您的看房体验..." bindinput="onContentInput" maxlength="500"></textarea>
         <view class="word-count">{{contentLength}}/500</view>
+        <view class="review-upload-title">现场图片 <text>选填，最多 3 张</text></view>
+        <view class="review-upload-grid">
+          <view class="review-upload-item" wx:for="{{reviewImages}}" wx:key="url">
+            <image src="{{item.displayUrl}}" mode="aspectFill" bindtap="previewReviewImage" data-index="{{index}}"></image>
+            <view class="review-image-remove" bindtap="removeReviewImage" data-index="{{index}}">×</view>
+          </view>
+          <view class="review-image-add" wx:if="{{reviewImages.length < 3}}" bindtap="chooseReviewImages">
+            <text class="review-image-add-icon">{{uploadingImages ? '…' : '+'}}</text>
+            <text>{{uploadingImages ? '上传中' : '添加图片'}}</text>
+          </view>
+        </view>
       </view>
       <view class="modal-footer">
         <button class="submit-btn" bindtap="submitReview">提交评价</button>

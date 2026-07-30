@@ -30,7 +30,7 @@
           id="video-{{item.id}}"
           class="video-player"
           src="{{item.video_url}}"
-          poster="{{item.cover_url}}"
+          poster="{{item.cover_image_url || item.cover_url}}"
           controls="{{true}}"
           autoplay="{{currentVideoId === item.id}}"
           loop="{{false}}"
@@ -72,7 +72,7 @@
           </view>
 
           <!-- 分享 -->
-          <view class="action-item" bindtap="onShare" data-id="{{item.id}}" data-title="{{item.title}}" data-cover="{{item.cover_url}}">
+          <view class="action-item" bindtap="onShare" data-id="{{item.id}}" data-title="{{item.title}}" data-cover="{{item.cover_image_url || item.cover_url}}">
             <image class="action-icon" src="/assets/icons/share.png" />
             <text class="action-count">分享</text>
           </view>

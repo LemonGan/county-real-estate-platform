@@ -10,7 +10,10 @@ Page({
     loadingMore: false,
     loadError: false,
     currentPage: 1,
-    hasMore: true
+    hasMore: true,
+    isFollowed: false,
+    followerCount: 0,
+    followLoading: false
   },
 
   onLoad(options) {
@@ -34,6 +37,7 @@ Page({
       const agent = await api.get(`/agents/${this.data.agentId}`, {}, false)
       this.setData({ agent, loading: false })
       this.loadAgentProperties()
+      this.loadFollowStatus()
     } catch (error) {
       console.error('加载经纪人详情失败:', error)
       this.setData({ loading: false, loadError: true })
@@ -60,6 +64,36 @@ Page({
     } catch (error) {
       console.error('加载经纪人房源失败:', error)
       this.setData({ loadingMore: false })
+    }
+  },
+
+  async loadFollowStatus() {
+    if (!wx.getStorageSync('token')) return
+    try {
+      const result = await api.get(`/agents/${this.data.agentId}/follow-status`)
+      this.setData({ isFollowed: Boolean(result.following), followerCount: result.follower_count || 0 })
+    } catch (error) {
+      console.error('加载关注状态失败:', error)
+    }
+  },
+
+  async onFollow() {
+    if (!wx.getStorageSync('token')) {
+      wx.navigateTo({ url: '/pages/login/login' })
+      return
+    }
+    if (this.data.followLoading) return
+    this.setData({ followLoading: true })
+    try {
+      const result = this.data.isFollowed
+        ? await api.del(`/agents/${this.data.agentId}/follow/`)
+        : await api.post(`/agents/${this.data.agentId}/follow/`, {})
+      this.setData({ isFollowed: Boolean(result.following), followerCount: result.follower_count || 0 })
+      wx.showToast({ title: result.following ? '已关注' : '已取消关注', icon: 'success' })
+    } catch (error) {
+      console.error('更新关注状态失败:', error)
+    } finally {
+      this.setData({ followLoading: false })
     }
   },
 

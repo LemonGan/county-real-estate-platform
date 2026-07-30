@@ -31,6 +31,9 @@ class PropertyReview(Base):
     
     # 审核
     is_verified = Column(SmallInteger, default=0, comment="是否审核通过：0待审核，1通过，2拒绝")
+    reviewed_at = Column(DateTime(timezone=True), nullable=True, comment="审核时间")
+    reviewed_by = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, comment="审核人")
+    review_note = Column(Text, nullable=True, comment="审核备注")
     
     # 时间
     created_at = Column(DateTime(timezone=True), server_default=func.now(), comment="创建时间")
@@ -38,7 +41,8 @@ class PropertyReview(Base):
     
     # 关系
     property = relationship("Property", back_populates="reviews")
-    user = relationship("User")
+    user = relationship("User", foreign_keys=[user_id])
+    reviewer = relationship("User", foreign_keys=[reviewed_by])
     
     def __repr__(self):
         return f"<PropertyReview(id={self.id}, property_id={self.property_id}, rating={self.rating})>"

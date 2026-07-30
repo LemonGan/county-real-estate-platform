@@ -13,7 +13,8 @@ Page({
     hasMore: true,
     currentVideoId: null,
     currentVideoIndex: 0,
-    isPlaying: false
+    isPlaying: false,
+    viewedVideoIds: {}
   },
 
   onLoad(options) {
@@ -55,6 +56,21 @@ Page({
     this.loadVideoList()
   },
 
+  async hydrateInteractionStatus(videos) {
+    const normalized = (videos || []).map((video) => ({ ...video, is_liked: false, is_favorited: false }))
+    if (!app.globalData.isLogin || normalized.length === 0) return normalized
+    const hydrated = await Promise.all(normalized.map(async (video) => {
+      try {
+        const status = await api.get(`/short-videos/${video.id}/interaction-status`)
+        return { ...video, is_liked: Boolean(status.is_liked), is_favorited: Boolean(status.is_favorited) }
+      } catch (error) {
+        console.warn('加载视频互动状态失败:', error)
+        return video
+      }
+    }))
+    return hydrated
+  },
+
   // 加载视频列表
   async loadVideoList() {
     if (this.data.loading) return
@@ -69,7 +85,7 @@ Page({
         type: tabType
       }, false)
 
-      const videos = res.list || res.items || []
+      const videos = await this.hydrateInteractionStatus(res.list || res.items || [])
 
       this.setData({
         videoList: videos,
@@ -100,7 +116,7 @@ Page({
         type: tabType
       }, false)
 
-      const videos = res.list || res.items || []
+      const videos = await this.hydrateInteractionStatus(res.list || res.items || [])
 
       this.setData({
         videoList: [...this.data.videoList, ...videos],
@@ -116,8 +132,16 @@ Page({
   // 播放视频
   onPlayVideo(e) {
     const videoId = e.currentTarget.dataset.id
+    const viewedVideoIds = { ...this.data.viewedVideoIds }
     this.setData({ currentVideoId: videoId, isPlaying: true })
     cache.setCache('currentPlayingVideo', videoId, 600)
+    if (videoId && !viewedVideoIds[videoId]) {
+      viewedVideoIds[videoId] = true
+      this.setData({ viewedVideoIds })
+      api.post(`/short-videos/${videoId}/stats/view`, {}, false).catch((error) => {
+        console.warn('记录播放失败:', error)
+      })
+    }
   },
 
   // 暂停视频
@@ -161,10 +185,10 @@ Page({
     const index = e.currentTarget.dataset.index
 
     try {
-      await api.post(`/short-videos/${videoId}/like/`)
+      const result = await api.post(`/short-videos/${videoId}/like/`)
       const videoList = [...this.data.videoList]
-      videoList[index].is_liked = !videoList[index].is_liked
-      videoList[index].like_count += videoList[index].is_liked ? 1 : -1
+      videoList[index].is_liked = Boolean(result.is_liked)
+      videoList[index].like_count = result.like_count || 0
       this.setData({ videoList })
     } catch (error) {
       console.error('点赞失败:', error)
@@ -177,13 +201,13 @@ Page({
     const index = e.currentTarget.dataset.index
 
     try {
-      await api.post(`/short-videos/${videoId}/favorite/`)
+      const result = await api.post(`/short-videos/${videoId}/favorite/`)
       const videoList = [...this.data.videoList]
-      videoList[index].is_favorited = !videoList[index].is_favorited
-      videoList[index].favorite_count += videoList[index].is_favorited ? 1 : -1
+      videoList[index].is_favorited = Boolean(result.is_favorited)
+      videoList[index].favorite_count = result.favorite_count || 0
       this.setData({ videoList })
       wx.showToast({
-        title: videoList[index].is_favorited ? '已收藏' : '已取消',
+        title: videoList[index].is_favorited ? '已收藏' : '已取消收藏',
         icon: 'success'
       })
     } catch (error) {

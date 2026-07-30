@@ -25,6 +25,7 @@
 .message-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 18rpx; }
 .message-type { padding: 4rpx 12rpx; border-radius: 8rpx; font-size: 21rpx; }
 .message-time { color: var(--color-text-hint); font-size: 22rpx; }
+.message-card.is-unread .message-time { color: var(--color-primary); }
 .load-more { padding: 16rpx 0 6rpx; color: var(--color-text-hint); text-align: center; font-size: 24rpx; }
 .empty-state { padding-top: 220rpx; }
 .empty-image { width: 112rpx; height: 112rpx; padding: 30rpx; border-radius: 50%; background: #eef0ff; opacity: .82; }

@@ -32,7 +32,7 @@ async def notify_user(
 ) -> None:
     """通知写入失败不回滚已成功提交的预约主业务。"""
     try:
-        await create_message(db, user_id, title, content, message_type=2, related_id=related_id)
+        await create_message(db, user_id, title, content, message_type=2, related_id=related_id, related_type="appointment")
     except Exception:
         await db.rollback()
 

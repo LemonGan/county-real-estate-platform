@@ -193,7 +193,7 @@ async def review_agent_application(
                 f"您的经纪人资格已被停用，{'说明：' + review_note if review_note else '如有疑问请联系平台运营人员。'}",
             ),
         }[request.action]
-        await create_message(db, applicant_id, notification[0], notification[1], message_type=1)
+        await create_message(db, applicant_id, notification[0], notification[1], message_type=1, related_id=applicant_id, related_type="agent_application")
     except Exception:
         # 通知写入失败不影响已经完成的经纪人审核。
         await db.rollback()

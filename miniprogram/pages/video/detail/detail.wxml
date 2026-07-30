@@ -6,7 +6,7 @@
       id="video-player"
       class="video-player"
       src="{{video.video_url}}"
-      poster="{{video.cover_url}}"
+      poster="{{video.cover_image_url}}"
       controls="{{true}}"
       autoplay="{{false}}"
       loop="{{false}}"
@@ -22,8 +22,8 @@
     <view class="info-main">
       <view class="video-title">{{video.title}}</view>
       <view class="video-stats">
-        <text class="stat-item">{{video.play_count}}次播放</text>
-        <text class="stat-item">{{video.create_time}}</text>
+        <text class="stat-item">{{video.view_count}}次播放</text>
+        <text class="stat-item">{{video.created_at}}</text>
       </view>
     </view>
 

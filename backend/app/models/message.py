@@ -15,6 +15,7 @@ class Message(Base):
     content = Column(Text, nullable=False)
     type = Column(SmallInteger, nullable=False, default=1, index=True, comment="1系统通知，2预约提醒，3房源动态")
     related_id = Column(Integer, nullable=True, index=True)
+    related_type = Column(String(30), nullable=True, index=True, comment="关联对象：appointment/property/property_review/agent_application/feedback")
     is_read = Column(Boolean, nullable=False, default=False, index=True)
     read_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)

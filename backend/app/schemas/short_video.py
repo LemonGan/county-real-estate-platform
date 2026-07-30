@@ -74,3 +74,9 @@ class ShortVideoReviewRequest(BaseModel):
         if v not in valid_statuses:
             raise ValueError(f'无效的审核状态: {v}，应为0-2之间的值')
         return v
+
+
+class VideoCommentCreate(BaseModel):
+    """创建短视频评论请求。"""
+    content: str = Field(..., min_length=1, max_length=500)
+    parent_id: Optional[int] = Field(None, gt=0)

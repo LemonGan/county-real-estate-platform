@@ -24,7 +24,7 @@ from app.models import (
     User, UserPreference, UserBehavior,
     Property, PropertyImage, PropertyFavorite,
     Appointment, AgentAvailability,
-    ShortVideo, VideoRecommendation
+    ShortVideo, VideoRecommendation, VideoLike, VideoFavorite, VideoComment, VideoCommentLike
 )
 
 # Alembic配置对象

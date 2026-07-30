@@ -58,7 +58,8 @@ Page({
     return {
       ...item,
       typeMeta: typeMeta[item.type] || typeMeta[1],
-      displayTime: this.formatTime(item.created_at)
+      displayTime: this.formatTime(item.created_at),
+      hasLink: Boolean(this.getMessageRoute(item))
     }
   },
 
@@ -74,6 +75,27 @@ Page({
     yesterday.setDate(now.getDate() - 1)
     if (date.toDateString() === yesterday.toDateString()) return `昨天 ${time}`
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+  },
+
+  getMessageRoute(item) {
+    if (!item.related_id || !item.related_type) return ''
+    const userInfo = getApp().globalData.userInfo || {}
+    const routes = {
+      appointment: `/pages/user/appointments/appointments?scope=${userInfo.is_agent ? 'agent' : 'user'}`,
+      property: '/pages/agent/properties/properties',
+      property_review: `/pages/property/review/review?id=${item.related_id}`,
+      agent_application: '/pages/user/agent-apply/agent-apply',
+      feedback: '/pages/user/feedback/feedback'
+    }
+    return routes[item.related_type] || ''
+  },
+
+  async openMessage(e) {
+    const message = this.data.messages[e.currentTarget.dataset.index]
+    if (!message) return
+    await this.markRead(e)
+    const url = this.getMessageRoute(message)
+    if (url) wx.navigateTo({ url })
   },
 
   async markRead(e) {

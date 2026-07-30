@@ -41,11 +41,26 @@ Page({
         }, false)
       ])
 
+      const video = { ...videoRes, is_liked: false, is_favorited: false }
+      if (app.globalData.isLogin) {
+        try {
+          const interaction = await api.get(`/short-videos/${this.data.videoId}/interaction-status`)
+          video.is_liked = Boolean(interaction.is_liked)
+          video.is_favorited = Boolean(interaction.is_favorited)
+        } catch (error) {
+          console.warn('加载互动状态失败:', error)
+        }
+      }
+      const currentUserId = app.globalData.userInfo?.id
+      const comments = (commentsRes.items || []).map((item) => ({
+        ...item,
+        is_owner: item.user_id === currentUserId
+      }))
       this.setData({
-        video: videoRes,
-        comments: commentsRes.items || [],
+        video,
+        comments,
         loading: false,
-        hasMoreComments: (commentsRes.items || []).length >= 20
+        hasMoreComments: comments.length >= 20
       })
     } catch (error) {
       console.error('加载视频详情失败:', error)
@@ -66,10 +81,10 @@ Page({
   // 点赞
   async onLike() {
     try {
-      await api.post(`/short-videos/${this.data.videoId}/like/`)
+      const result = await api.post(`/short-videos/${this.data.videoId}/like/`)
       const video = { ...this.data.video }
-      video.is_liked = !video.is_liked
-      video.like_count += video.is_liked ? 1 : -1
+      video.is_liked = Boolean(result.is_liked)
+      video.like_count = result.like_count || 0
       this.setData({ video })
     } catch (error) {
       console.error('点赞失败:', error)
@@ -79,13 +94,13 @@ Page({
   // 收藏
   async onFavorite() {
     try {
-      await api.post(`/short-videos/${this.data.videoId}/favorite/`)
+      const result = await api.post(`/short-videos/${this.data.videoId}/favorite/`)
       const video = { ...this.data.video }
-      video.is_favorited = !video.is_favorited
-      video.favorite_count += video.is_favorited ? 1 : -1
+      video.is_favorited = Boolean(result.is_favorited)
+      video.favorite_count = result.favorite_count || 0
       this.setData({ video })
       wx.showToast({
-        title: video.is_favorited ? '已收藏' : '已取消',
+        title: video.is_favorited ? '已收藏' : '已取消收藏',
         icon: 'success'
       })
     } catch (error) {
@@ -96,15 +111,14 @@ Page({
   // 关注作者
   async onFollow() {
     try {
-      await api.post(`/agents/${this.data.video.agent_id}/follow/`)
       const video = { ...this.data.video }
-      video.is_followed = !video.is_followed
-      video.follower_count += video.is_followed ? 1 : -1
+      const result = video.is_followed
+        ? await api.del(`/agents/${video.agent_id}/follow/`)
+        : await api.post(`/agents/${video.agent_id}/follow/`, {})
+      video.is_followed = Boolean(result.following)
+      video.follower_count = result.follower_count || 0
       this.setData({ video })
-      wx.showToast({
-        title: video.is_followed ? '已关注' : '已取消关注',
-        icon: 'success'
-      })
+      wx.showToast({ title: video.is_followed ? '已关注' : '已取消关注', icon: 'success' })
     } catch (error) {
       console.error('关注失败:', error)
     }
@@ -152,23 +166,21 @@ Page({
         parent_id: this.data.replyTo?.id || null
       })
 
-      // 添加到评论列表顶部
-      const comments = [res, ...this.data.comments]
-      this.setData({
-        comments,
+      const update = {
         commentText: '',
         showCommentInput: false,
         replyTo: null,
         commentLoading: false
-      })
-
-      // 更新评论数
-      const video = { ...this.data.video }
-      video.comment_count += 1
-      this.setData({ video })
-
+      }
+      if (res.status === 1) {
+        update.comments = [res, ...this.data.comments]
+        const video = { ...this.data.video }
+        video.comment_count = (video.comment_count || 0) + 1
+        update.video = video
+      }
+      this.setData(update)
       wx.showToast({
-        title: '评论成功',
+        title: res.status === 0 ? '评论已提交，审核后显示' : '评论成功',
         icon: 'success'
       })
     } catch (error) {
@@ -211,10 +223,10 @@ Page({
     const index = e.currentTarget.dataset.index
 
     try {
-      await api.post(`/short-videos/comments/${commentId}/like/`)
+      const result = await api.post(`/short-videos/comments/${commentId}/like/`)
       const comments = [...this.data.comments]
-      comments[index].is_liked = !comments[index].is_liked
-      comments[index].like_count += comments[index].is_liked ? 1 : -1
+      comments[index].is_liked = Boolean(result.is_liked)
+      comments[index].like_count = result.like_count || 0
       this.setData({ comments })
     } catch (error) {
       console.error('点赞评论失败:', error)

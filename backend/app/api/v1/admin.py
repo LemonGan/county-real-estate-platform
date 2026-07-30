@@ -15,6 +15,9 @@ from app.core.permissions import Role, get_user_roles, require_roles
 from app.models.audit_log import AuditLog
 from app.models.feedback import Feedback
 from app.models.property import Property
+from app.models.property_review import PropertyReview
+from app.models.short_video import ShortVideo
+from app.models.video_interaction import VideoComment
 from app.models.user import User
 
 router = APIRouter()
@@ -25,6 +28,11 @@ class RoleUpdateRequest(BaseModel):
 
 
 class PropertyReviewRequest(BaseModel):
+    action: Literal["approve", "reject"]
+    note: str | None = Field(default=None, max_length=500)
+
+
+class PropertyReviewModerationRequest(BaseModel):
     action: Literal["approve", "reject"]
     note: str | None = Field(default=None, max_length=500)
 
@@ -116,6 +124,7 @@ async def list_audit_logs(
         "before", "after", "roles",
         "previous_status", "current_status",
         "previous_audit_status", "current_audit_status", "current_status",
+        "property_id", "previous_verification", "current_verification",
     }
     items = []
     for audit_log, actor_nickname in result.all():
@@ -223,6 +232,7 @@ async def review_property(
                 f"“{property_title}”已通过审核，现已公开展示。",
                 message_type=3,
                 related_id=property_id,
+                related_type="property",
             )
         else:
             reason = f"审核说明：{review_note}" if review_note else "请完善房源信息后重新提交审核。"
@@ -233,12 +243,194 @@ async def review_property(
                 f"“{property_title}”未通过审核，{reason}",
                 message_type=3,
                 related_id=property_id,
+                related_type="property",
             )
     except Exception:
         # 通知属于附属能力，不能影响已经成功提交的审核决定。
         await db.rollback()
     return response
 
+
+@router.get("/property-reviews/pending", summary="获取待审核房源评价")
+async def list_pending_property_reviews(
+    limit: int = Query(default=50, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_roles(Role.REVIEWER, Role.ADMIN, Role.SUPERADMIN)),
+):
+    result = await db.execute(
+        select(PropertyReview)
+        .where(PropertyReview.status == 1, PropertyReview.is_verified == 0)
+        .order_by(PropertyReview.created_at.asc(), PropertyReview.id.asc())
+        .limit(limit)
+        .options(selectinload(PropertyReview.property), selectinload(PropertyReview.user))
+    )
+    reviews = result.scalars().all()
+    return {
+        "items": [
+            {
+                "review_id": review.id,
+                "property_id": review.property_id,
+                "property_title": review.property.title if review.property else "已删除房源",
+                "user_id": review.user_id,
+                "user_nickname": (review.user.nickname or "用户") if review.user else "用户",
+                "rating": review.rating,
+                "content": review.content or "",
+                "image_urls": review.images.split(",") if review.images else [],
+                "submitted_at": review.created_at,
+            }
+            for review in reviews
+        ],
+        "total": len(reviews),
+    }
+
+
+@router.post("/property-reviews/{review_id}/review", summary="审核房源评价")
+async def moderate_property_review(
+    review_id: int,
+    request: PropertyReviewModerationRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_roles(Role.REVIEWER, Role.ADMIN, Role.SUPERADMIN)),
+):
+    result = await db.execute(
+        select(PropertyReview)
+        .where(PropertyReview.id == review_id)
+        .options(selectinload(PropertyReview.property))
+    )
+    review = result.scalar_one_or_none()
+    if not review:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="评价不存在")
+    if review.user_id == current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="不能审核自己的评价")
+    if review.status != 1 or review.is_verified != 0:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="该评价当前不在待审核状态")
+
+    review.is_verified = 1 if request.action == "approve" else 2
+    if request.action == "reject":
+        review.status = 0
+    review.reviewed_at = datetime.now(timezone.utc)
+    review.reviewed_by = current_user.id
+    review.review_note = request.note.strip() if request.note else None
+    db.add(AuditLog(
+        actor_id=current_user.id,
+        action=f"property_review_moderation.{request.action}",
+        target_type="property_review",
+        target_id=str(review.id),
+        details={
+            "property_id": review.property_id,
+            "previous_verification": 0,
+            "current_verification": review.is_verified,
+            "current_status": review.status,
+        },
+    ))
+    response = {
+        "review_id": review.id,
+        "property_id": review.property_id,
+        "is_verified": review.is_verified,
+        "status": review.status,
+        "message": "审核完成",
+    }
+    author_id = review.user_id
+    property_id = review.property_id
+    property_title = review.property.title if review.property else "该房源"
+    review_note = review.review_note
+    await db.commit()
+    try:
+        if request.action == "approve":
+            await create_message(
+                db, author_id, "房源评价已通过",
+                f"您对“{property_title}”的评价已审核通过，现已公开展示。",
+                message_type=1, related_id=property_id, related_type="property_review",
+            )
+        else:
+            reason = f"审核说明：{review_note}" if review_note else "请调整内容后重新提交。"
+            await create_message(
+                db, author_id, "房源评价未通过",
+                f"您对“{property_title}”的评价未通过审核，{reason}",
+                message_type=1, related_id=property_id, related_type="property_review",
+            )
+    except Exception:
+        await db.rollback()
+    return response
+
+
+class VideoCommentModerationRequest(BaseModel):
+    action: Literal["approve", "reject"]
+    note: str | None = Field(default=None, max_length=500)
+
+
+@router.get("/video-comments/pending", summary="获取待审核短视频评论")
+async def list_pending_video_comments(
+    limit: int = Query(default=50, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_roles(Role.REVIEWER, Role.ADMIN, Role.SUPERADMIN)),
+):
+    result = await db.execute(
+        select(VideoComment)
+        .where(VideoComment.status == 0, VideoComment.deleted_at.is_(None))
+        .order_by(VideoComment.created_at.asc(), VideoComment.id.asc())
+        .limit(limit)
+        .options(selectinload(VideoComment.video), selectinload(VideoComment.user))
+    )
+    comments = result.scalars().all()
+    return {"items": [
+        {
+            "comment_id": comment.id,
+            "video_id": comment.video_id,
+            "video_title": comment.video.title if comment.video else "已删除视频",
+            "user_id": comment.user_id,
+            "user_nickname": (comment.user.nickname or "用户") if comment.user else "用户",
+            "content": comment.content,
+            "submitted_at": comment.created_at,
+        }
+        for comment in comments
+    ], "total": len(comments)}
+
+
+@router.post("/video-comments/{comment_id}/review", summary="审核短视频评论")
+async def moderate_video_comment(
+    comment_id: int,
+    request: VideoCommentModerationRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_roles(Role.REVIEWER, Role.ADMIN, Role.SUPERADMIN)),
+):
+    result = await db.execute(
+        select(VideoComment).where(VideoComment.id == comment_id).options(selectinload(VideoComment.video))
+    )
+    comment = result.scalar_one_or_none()
+    if not comment or comment.deleted_at is not None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="评论不存在")
+    if comment.user_id == current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="不能审核自己的评论")
+    if comment.status != 0:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="该评论当前不在待审核状态")
+
+    comment.status = 1 if request.action == "approve" else 2
+    comment.reviewed_at = datetime.now(timezone.utc)
+    comment.reviewed_by = current_user.id
+    comment.review_note = request.note.strip() if request.note else None
+    if request.action == "approve" and comment.video:
+        comment.video.comment_count = (comment.video.comment_count or 0) + 1
+    db.add(AuditLog(
+        actor_id=current_user.id,
+        action=f"video_comment_moderation.{request.action}",
+        target_type="video_comment",
+        target_id=str(comment.id),
+        details={"video_id": comment.video_id, "previous_status": 0, "current_status": comment.status},
+    ))
+    response = {"comment_id": comment.id, "status": comment.status, "message": "审核完成"}
+    author_id, video_id = comment.user_id, comment.video_id
+    video_title = comment.video.title if comment.video else "该短视频"
+    note = comment.review_note
+    await db.commit()
+    try:
+        if request.action == "approve":
+            await create_message(db, author_id, "短视频评论已通过", f"您在“{video_title}”下的评论已审核通过并公开展示。", message_type=1, related_id=video_id, related_type="short_video")
+        else:
+            reason = f"审核说明：{note}" if note else "请调整内容后重新提交。"
+            await create_message(db, author_id, "短视频评论未通过", f"您在“{video_title}”下的评论未通过审核，{reason}", message_type=1, related_id=video_id, related_type="short_video")
+    except Exception:
+        await db.rollback()
+    return response
 
 
 class FeedbackStatusUpdateRequest(BaseModel):
@@ -317,6 +509,7 @@ async def update_feedback_status(
                 content,
                 message_type=1,
                 related_id=feedback.id,
+                related_type="feedback",
             )
         except Exception:
             # 通知属于附属能力，不能影响已成功提交的反馈处理状态。

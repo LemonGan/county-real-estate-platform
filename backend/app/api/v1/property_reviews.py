@@ -15,12 +15,27 @@ from app.models.property import Property
 from app.models.property_review import PropertyReview
 
 router = APIRouter()
+REVIEW_IMAGE_PREFIX = "/static/properties/"
+MAX_REVIEW_IMAGES = 3
 
 
 class ReviewCreate(BaseModel):
     rating: float = Field(..., ge=1, le=5)
     content: Optional[str] = Field(default=None, max_length=500)
     images: Optional[List[str]] = None
+
+
+def normalize_review_images(images: Optional[List[str]]) -> list[str]:
+    """只接受平台上传的评价图片，避免向公开页面注入外部资源。"""
+    image_urls = images or []
+    if len(image_urls) > MAX_REVIEW_IMAGES:
+        raise HTTPException(status_code=400, detail=f"评价最多上传 {MAX_REVIEW_IMAGES} 张图片")
+    if len(set(image_urls)) != len(image_urls):
+        raise HTTPException(status_code=400, detail="评价图片不能重复")
+    for image_url in image_urls:
+        if not isinstance(image_url, str) or len(image_url) > 500 or not image_url.startswith(REVIEW_IMAGE_PREFIX):
+            raise HTTPException(status_code=400, detail="评价图片必须使用平台上传的图片")
+    return image_urls
 
 
 @router.get("/reviews/my", summary="获取当前用户的房源评价")
@@ -40,8 +55,12 @@ async def get_my_reviews(
                 "id": review.id,
                 "property_id": review.property_id,
                 "rating": review.rating,
+                "content": review.content or "",
+                "images": review.images.split(",") if review.images else [],
                 "status": review.status,
                 "is_verified": review.is_verified,
+                "review_note": review.review_note if review.is_verified == 2 else None,
+                "reviewed_at": review.reviewed_at.isoformat() if review.reviewed_at else None,
                 "created_at": review.created_at.isoformat() if review.created_at else None,
             }
             for review in reviews
@@ -136,6 +155,7 @@ async def create_review(
     property_obj = result.scalar_one_or_none()
     if not property_obj:
         raise HTTPException(status_code=404, detail="房源不存在或暂不可评价")
+    image_urls = normalize_review_images(review_data.images)
 
     # 只允许完成过该房源看房预约的本人评价，防止无实际体验的刷评。
     completed_appointment_query = select(Appointment.id).where(
@@ -159,6 +179,21 @@ async def create_review(
     existing = result.scalar_one_or_none()
     
     if existing:
+        if existing.is_verified == 2:
+            existing.rating = review_data.rating
+            existing.content = review_data.content
+            existing.images = ",".join(image_urls) if image_urls else None
+            existing.status = 1
+            existing.is_verified = 0
+            existing.reviewed_at = None
+            existing.reviewed_by = None
+            existing.review_note = None
+            await db.commit()
+            await db.refresh(existing)
+            return {
+                "id": existing.id,
+                "message": "评价已重新提交，等待审核",
+            }
         raise HTTPException(status_code=400, detail="您已评价过该房源")
     
     # 创建评价
@@ -167,7 +202,7 @@ async def create_review(
         user_id=current_user.id,
         rating=review_data.rating,
         content=review_data.content,
-        images=",".join(review_data.images) if review_data.images else None,
+        images=",".join(image_urls) if image_urls else None,
         status=1,
         is_verified=0  # 需要审核
     )

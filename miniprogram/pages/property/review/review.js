@@ -15,6 +15,11 @@ Page({
       total_count: 0
     },
     hasReviewed: false,
+    canResubmit: false,
+    myReview: null,
+    myReviewStatus: null,
+    reviewImages: [],
+    uploadingImages: false,
     isAddMode: false,
     showModal: false,
     myRating: 5,
@@ -32,7 +37,10 @@ Page({
     const propertyId = options.id || options.property_id
     this.setData({ propertyId: parseInt(propertyId) })
     this.loadReviews()
-    this.checkMyReview()
+  },
+
+  onShow() {
+    if (!this.data.isAddMode && this.data.propertyId) this.checkMyReview()
   },
 
   onReachBottom() {
@@ -54,7 +62,10 @@ Page({
       }, false)
       
       if (res && res.list) {
-        const newList = loadMore ? [...this.data.reviewList, ...res.list] : res.list
+        const newList = (loadMore ? [...this.data.reviewList, ...res.list] : res.list).map((item) => ({
+          ...item,
+          displayImages: (item.images || []).map((url) => this.toDisplayUrl(url))
+        }))
         this.setData({
           reviewList: newList,
           page,
@@ -75,7 +86,10 @@ Page({
 
   async checkMyReview() {
     const token = wx.getStorageSync('token')
-    if (!token) return
+    if (!token) {
+      this.setData({ hasReviewed: false, canResubmit: false, myReview: null, myReviewStatus: null })
+      return
+    }
     
     try {
       const res = await api.get('/properties/reviews/my')
@@ -83,7 +97,18 @@ Page({
       if (res && res.list) {
         const myReview = res.list.find(r => r.property_id == this.data.propertyId)
         if (myReview) {
-          this.setData({ hasReviewed: true })
+          const statusMap = {
+            0: { label: '审核中', className: 'pending', hint: '评价审核通过后会在房源页公开显示。' },
+            1: { label: '已通过', className: 'approved', hint: '你的评价已公开展示，感谢真实分享。' },
+            2: { label: '未通过', className: 'rejected', hint: '请修改内容后重新提交审核。' }
+          }
+          const status = statusMap[myReview.is_verified] || statusMap[0]
+          this.setData({
+            hasReviewed: true,
+            canResubmit: myReview.is_verified === 2,
+            myReview,
+            myReviewStatus: { ...status, note: myReview.review_note || '' }
+          })
         }
       }
     } catch (err) {
@@ -97,7 +122,14 @@ Page({
       wx.showToast({ title: '请先登录', icon: 'none' })
       return
     }
-    this.setData({ showModal: true })
+    const myReview = this.data.myReview
+    this.setData({
+      showModal: true,
+      myRating: this.data.canResubmit && myReview ? myReview.rating : 5,
+      content: this.data.canResubmit && myReview ? myReview.content : '',
+      contentLength: this.data.canResubmit && myReview && myReview.content ? myReview.content.length : 0,
+      reviewImages: this.data.canResubmit && myReview ? (myReview.images || []).map((url) => ({ url, displayUrl: this.toDisplayUrl(url) })) : []
+    })
   },
 
   closeModal() {
@@ -115,6 +147,55 @@ Page({
     })
   },
 
+  toDisplayUrl(url) {
+    if (!url || url.startsWith('http')) return url
+    const origin = (getApp().globalData.baseUrl || '').replace('/api/v1', '')
+    return origin + url
+  },
+
+  chooseReviewImages() {
+    if (this.data.uploadingImages) return
+    const remaining = 3 - this.data.reviewImages.length
+    if (remaining <= 0) {
+      wx.showToast({ title: '最多上传 3 张图片', icon: 'none' })
+      return
+    }
+    wx.chooseMedia({
+      count: remaining,
+      mediaType: ['image'],
+      sourceType: ['album', 'camera'],
+      success: async (res) => {
+        this.setData({ uploadingImages: true })
+        try {
+          const uploaded = []
+          for (const file of res.tempFiles) {
+            const result = await api.uploadImage(file.tempFilePath)
+            uploaded.push({ url: result.url, displayUrl: this.toDisplayUrl(result.url) })
+          }
+          this.setData({ reviewImages: this.data.reviewImages.concat(uploaded).slice(0, 3) })
+        } catch (err) {
+          wx.showToast({ title: err.message || '图片上传失败', icon: 'none' })
+        } finally {
+          this.setData({ uploadingImages: false })
+        }
+      }
+    })
+  },
+
+  removeReviewImage(e) {
+    const reviewImages = this.data.reviewImages.slice()
+    reviewImages.splice(e.currentTarget.dataset.index, 1)
+    this.setData({ reviewImages })
+  },
+
+  previewReviewImage(e) {
+    const index = e.currentTarget.dataset.index
+    wx.previewImage({
+      current: this.data.reviewImages[index].displayUrl,
+      urls: this.data.reviewImages.map((item) => item.displayUrl)
+    })
+  },
+
   async submitReview() {
     if (!this.data.content.trim()) {
       wx.showToast({ title: '请输入评价内容', icon: 'none' })
@@ -128,15 +209,21 @@ Page({
     try {
       const res = await api.post(`/properties/${this.data.propertyId}/reviews`, {
         rating: this.data.myRating,
-        content: this.data.content
+        content: this.data.content,
+        images: this.data.reviewImages.map((item) => item.url)
       })
       
       wx.hideLoading()
       
       if (res && res.id) {
-        wx.showToast({ title: '提交成功', icon: 'success' })
+        wx.showToast({ title: this.data.canResubmit ? '已重新提交审核' : '提交成功，等待审核', icon: 'success' })
         this.closeModal()
-        this.setData({ hasReviewed: true })
+        this.setData({
+          hasReviewed: true,
+          canResubmit: false,
+          myReviewStatus: { label: '审核中', className: 'pending', hint: '评价审核通过后会在房源页公开显示。', note: '' }
+        })
+        this.checkMyReview()
         this.loadReviews()
       } else {
         wx.showToast({ title: res.data.message || '提交失败', icon: 'none' })

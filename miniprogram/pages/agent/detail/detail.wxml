@@ -24,6 +24,12 @@
       </view>
     </view>
 
+    <view class="action-buttons">
+      <button class="action-btn secondary {{isFollowed ? 'following' : ''}}" bindtap="onFollow" loading="{{followLoading}}" disabled="{{followLoading}}">
+        {{isFollowed ? '已关注' : '+ 关注'}}{{followerCount ? ' · ' + followerCount + '人关注' : ''}}
+      </button>
+    </view>
+
     <view class="properties-section">
       <view class="section-header">
         <text class="section-title">Ta的在售房源</text>

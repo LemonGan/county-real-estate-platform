@@ -12,6 +12,7 @@ from app.models.user import User
 from app.models.appointment import Appointment
 from app.models.property import Property
 from app.models.property_favorite import PropertyFavorite
+from app.models.agent_follow import AgentFollow
 from app.schemas.agent import (
     AgentResponse, AgentListResponse
 )
@@ -327,6 +328,32 @@ async def get_appointment_stats(
 
 # ========== 经纪人详情API (需要 agent_id 参数) ==========
 
+
+async def _get_public_agent_id(db: AsyncSession, agent_id: int) -> int:
+    agent = (await db.execute(
+        select(User.id).where(User.id == agent_id, *_approved_agent_conditions())
+    )).scalar_one_or_none()
+    if agent is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="经纪人不存在或暂不可公开查看")
+    return agent
+
+
+@router.get("/{agent_id}/follow-status", summary="获取当前用户关注状态")
+async def get_agent_follow_status(
+    agent_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    await _get_public_agent_id(db, agent_id)
+    following = (await db.execute(
+        select(AgentFollow.id).where(AgentFollow.user_id == current_user.id, AgentFollow.agent_id == agent_id)
+    )).scalar_one_or_none() is not None
+    follower_count = (await db.execute(
+        select(func.count(AgentFollow.id)).where(AgentFollow.agent_id == agent_id)
+    )).scalar() or 0
+    return {"agent_id": agent_id, "following": following, "follower_count": follower_count}
+
+
 @router.get("/{agent_id}", response_model=AgentResponse, summary="获取经纪人详情")
 async def get_agent_detail(
     agent_id: int,
@@ -381,8 +408,40 @@ async def follow_agent(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
-    """关注功能尚未建表，明确返回未开放状态，避免伪造成功结果。"""
-    raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="关注经纪人功能暂未开放")
+    await _get_public_agent_id(db, agent_id)
+    if current_user.id == agent_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="不能关注自己")
+    existing = (await db.execute(
+        select(AgentFollow.id).where(AgentFollow.user_id == current_user.id, AgentFollow.agent_id == agent_id)
+    )).scalar_one_or_none()
+    changed = existing is None
+    if changed:
+        db.add(AgentFollow(user_id=current_user.id, agent_id=agent_id))
+        await db.commit()
+    follower_count = (await db.execute(
+        select(func.count(AgentFollow.id)).where(AgentFollow.agent_id == agent_id)
+    )).scalar() or 0
+    return {"agent_id": agent_id, "following": True, "changed": changed, "follower_count": follower_count}
+
+
+@router.delete("/{agent_id}/follow/", summary="取消关注经纪人")
+async def unfollow_agent(
+    agent_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    await _get_public_agent_id(db, agent_id)
+    existing = (await db.execute(
+        select(AgentFollow).where(AgentFollow.user_id == current_user.id, AgentFollow.agent_id == agent_id)
+    )).scalar_one_or_none()
+    changed = existing is not None
+    if existing:
+        await db.delete(existing)
+        await db.commit()
+    follower_count = (await db.execute(
+        select(func.count(AgentFollow.id)).where(AgentFollow.agent_id == agent_id)
+    )).scalar() or 0
+    return {"agent_id": agent_id, "following": False, "changed": changed, "follower_count": follower_count}
 
 
 @router.get("/{agent_id}/properties", summary="获取经纪人房源列表")
