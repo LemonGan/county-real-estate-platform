@@ -50,9 +50,48 @@
       min-height:100vh;
       background:linear-gradient(180deg,#edf2f0 0%,#f7f9f8 100%);
     }
-    #consoleView .workspace { display:block; min-height:100vh; }
-    #consoleView .sidebar { display:none; }
-    #consoleView .mainframe { min-width:0; }
+    #consoleView .workspace { display:flex; min-height:100vh; }
+    #consoleView .sidebar {
+      position:sticky;
+      top:0;
+      display:flex;
+      flex-direction:column;
+      width:248px;
+      height:100vh;
+      flex:0 0 248px;
+      padding:22px 16px;
+      color:#d7e9e2;
+      background:linear-gradient(180deg,#093d34 0%,#062f29 100%);
+      box-shadow:8px 0 28px rgba(8,44,35,.08);
+    }
+    #consoleView .mainframe { min-width:0; flex:1; }
+    #consoleView .side-menu { display:grid; gap:7px; margin-top:8px; }
+    #consoleView .side-menu button {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      width:100%;
+      padding:11px 12px;
+      border-radius:12px;
+      color:#bad4c9;
+      background:transparent;
+      box-shadow:none;
+      text-align:left;
+      font-size:13px;
+      font-weight:700;
+    }
+    #consoleView .side-menu button:hover { transform:none; box-shadow:none; background:rgba(215,244,229,.08); color:#fff; }
+    #consoleView .side-menu button.active { color:#fff; background:rgba(215,244,229,.14); }
+    #consoleView .side-menu .side-icon { width:22px; height:22px; color:#9fe2be; }
+    #consoleView .side-help {
+      margin-top:auto;
+      padding:15px 12px 0;
+      border-top:1px solid rgba(255,255,255,.12);
+      color:#8cb6a6;
+      font-size:12px;
+      line-height:1.6;
+    }
+    #consoleView .view-hidden { display:none !important; }
     #consoleView .topbar {
       position:sticky;
       top:0;
@@ -223,8 +262,17 @@
     #consoleView .property-panel { grid-column:span 5; }
     #consoleView .review-panel { grid-column:span 6; }
     #consoleView .video-comment-panel { grid-column:span 6; }
-    #consoleView .audit-panel { grid-column:span 5; }
-    #consoleView .feedback-panel { grid-column:span 7; }
+    #consoleView .audit-panel,
+    #consoleView .feedback-panel { grid-column:1 / -1; }
+    #consoleView[data-active-view="feedback"] .feedback-panel,
+    #consoleView[data-active-view="audit"] .audit-panel {
+      grid-column:1 / -1;
+    }
+    #consoleView[data-active-view="feedback"] .feedback-panel .items,
+    #consoleView[data-active-view="audit"] .audit-panel .items {
+      max-height:none;
+      min-height:420px;
+    }
     #consoleView .role-panel-wrap { grid-column:1 / -1; }
     #consoleView .permission-policy {
       margin:14px 14px 0;
@@ -319,12 +367,15 @@
     #consoleView .property-panel .items {
       min-height:170px;
     }
-    #consoleView .audit-panel .items,
     #consoleView .review-panel .items,
-    #consoleView .video-comment-panel .items,
-    #consoleView .feedback-panel .items {
+    #consoleView .video-comment-panel .items {
       max-height:275px;
       min-height:135px;
+    }
+    #consoleView .audit-panel .items,
+    #consoleView .feedback-panel .items {
+      max-height:none;
+      min-height:420px;
     }
     #consoleView .card {
       padding:13px;
@@ -540,9 +591,27 @@
       #consoleView main {
         width:min(100% - 28px,1248px);
       }
-      #consoleView .topnav {
-        display:none;
+      #consoleView .workspace {
+        display:block;
       }
+      #consoleView .sidebar {
+        position:static;
+        width:auto;
+        height:auto;
+        min-height:0;
+        padding:14px;
+      }
+      #consoleView .side-menu {
+        display:flex;
+        overflow:auto;
+        gap:8px;
+        margin:8px 0 0;
+      }
+      #consoleView .side-menu button {
+        min-width:max-content;
+      }
+      #consoleView .side-help,
+      #consoleView .topnav,
       #consoleView .topbar-status {
         display:none;
       }
@@ -619,10 +688,21 @@
 
   <div id="consoleView" class="hidden">
     <div class="workspace">
+      <aside class="sidebar" aria-label="后台模块导航">
+        <div class="sidebar-brand"><span class="brand-mark">灵房</span><span>运营管理台</span></div>
+        <div class="side-label">MODULES</div>
+        <nav class="side-menu">
+          <button type="button" class="active" data-view="review"><span class="side-icon">审</span><span>审核中心</span></button>
+          <button type="button" data-view="news"><span class="side-icon">讯</span><span>资讯运营</span></button>
+          <button type="button" data-view="feedback"><span class="side-icon">馈</span><span>用户反馈</span></button>
+          <button type="button" data-view="audit"><span class="side-icon">录</span><span>操作记录</span></button>
+          <button type="button" data-view="permissions"><span class="side-icon">权</span><span>成员权限</span></button>
+        </nav>
+        <div class="side-help">左侧切换模块，右侧只显示当前工作区。内容增长后按模块维护。</div>
+      </aside>
       <div class="mainframe">
         <header class="topbar"><div class="appbar-inner">
           <div class="app-brand"><span class="app-brand-mark">灵房</span><span>灵山房产<small>OPERATIONS CONSOLE</small></span></div>
-          <nav class="topnav" aria-label="管理导航"><button type="button" class="active" data-target="reviewWorkSection">审核中心</button><button type="button" data-target="roleSection">成员权限</button><button type="button" data-target="auditSection">操作记录</button></nav>
           <div class="topbar-status"><span class="live-dot"></span>服务正常</div><button id="logoutButton" class="secondary">退出</button>
         </div></header>
         <main>
@@ -688,6 +768,12 @@
       var feedbackSection = document.getElementById("feedbackSection");
       var permissionPolicyBody = document.getElementById("permissionPolicyBody");
       var currentPermissionSummary = document.getElementById("currentPermissionSummary");
+      var sidebarViewButtons = Array.prototype.slice.call(document.querySelectorAll(".side-menu button"));
+      var pageHead = document.querySelector("#consoleView .page-head");
+      var pageTitle = pageHead ? pageHead.querySelector("h1") : null;
+      var pageDesc = pageHead ? pageHead.querySelector("p:not(.eyebrow)") : null;
+      var pageEyebrow = pageHead ? pageHead.querySelector(".eyebrow") : null;
+      var metricsPanel = document.querySelector("#consoleView .metrics");
       var roleOptions = [{ key: "reviewer", label: "审核员" }, { key: "operations", label: "运营" }, { key: "admin", label: "管理员" }];
       var topNavButtons = Array.prototype.slice.call(document.querySelectorAll(".topnav button"));
       var navTargets = { reviewWorkSection: document.getElementById("reviewWorkSection"), roleSection: roleSection, auditSection: auditSection };
@@ -695,6 +781,45 @@
       var navScrollLockId = null;
       var navScrollLockTimer = null;
       var newsCategories = { market: "市场分析", guide: "购房指南", policy: "政策解读", knowledge: "房产知识" };
+      var activeAdminView = "review";
+
+      function panelOf(element) {
+        return element && element.closest ? element.closest(".panel") : null;
+      }
+      function adminViewConfig() {
+        return {
+          review: {
+            eyebrow: "审核与运营",
+            title: "审核中心",
+            desc: "集中处理经纪人申请、房源、评价和评论审核，优先解决待办事项。",
+            elements: [metricsPanel, panelOf(applicationItems), panelOf(propertyItems), reviewSection, videoCommentSection]
+          },
+          news: {
+            eyebrow: "内容运营",
+            title: "资讯运营",
+            desc: "新建、编辑、发布和下架购房指南、政策解读和市场资讯。",
+            elements: [newsSection]
+          },
+          feedback: {
+            eyebrow: "用户服务",
+            title: "用户反馈",
+            desc: "处理用户提交的问题、建议和异常反馈，形成闭环回复。",
+            elements: [feedbackSection]
+          },
+          audit: {
+            eyebrow: "安全审计",
+            title: "操作记录",
+            desc: "查看后台关键操作摘要，辅助追踪审核和权限变更。",
+            elements: [auditSection]
+          },
+          permissions: {
+            eyebrow: "成员治理",
+            title: "成员与权限",
+            desc: "查看后台权限规则，并由超级管理员维护成员角色。",
+            elements: [roleSection]
+          }
+        };
+      }
 
       function setMetric(id, value) {
         var target = document.getElementById(id);
@@ -704,6 +829,29 @@
       function setNotice(message, isError) {
         notice.textContent = message || "";
         notice.className = isError ? "notice error" : "notice";
+      }
+      function setAdminView(viewId) {
+        var views = adminViewConfig();
+        var targetView = views[viewId] ? viewId : "review";
+        activeAdminView = targetView;
+        consoleView.setAttribute("data-active-view", targetView);
+        Object.keys(views).forEach(function (key) {
+          (views[key].elements || []).forEach(function (element) {
+            if (element) element.classList.add("view-hidden");
+          });
+        });
+        (views[targetView].elements || []).forEach(function (element) {
+          if (element) element.classList.remove("view-hidden");
+        });
+        sidebarViewButtons.forEach(function (button) {
+          button.classList.toggle("active", button.getAttribute("data-view") === targetView);
+        });
+        if (pageEyebrow) pageEyebrow.textContent = views[targetView].eyebrow;
+        if (pageTitle) pageTitle.textContent = views[targetView].title;
+        if (pageDesc) pageDesc.textContent = views[targetView].desc;
+        if (!consoleView.classList.contains("hidden")) {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
       }
       function request(path, options) {
         options = options || {};
@@ -1327,6 +1475,11 @@
         if (/401|认证|登录/.test(error.message)) logout("登录状态已失效，请重新登录。");
         else setNotice(error.message || "操作失败，请稍后重试。", true);
       }
+      sidebarViewButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          setAdminView(button.getAttribute("data-view"));
+        });
+      });
       topNavButtons.forEach(function (button) {
         button.addEventListener("click", function () {
           scrollToSection(button.getAttribute("data-target"));
@@ -1343,6 +1496,7 @@
         consoleView.classList.remove("hidden");
         setNotice("");
         setActiveNav("reviewWorkSection");
+        setAdminView(activeAdminView || "review");
         loadApplications();
         loadProperties();
         loadPropertyReviews();
