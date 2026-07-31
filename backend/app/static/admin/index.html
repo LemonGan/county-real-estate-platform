@@ -453,6 +453,51 @@
     #consoleView .news-field textarea {
       min-height:180px;
     }
+    #consoleView .news-editor-tools {
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:8px;
+      margin-top:8px;
+    }
+    #consoleView .news-editor-tools button {
+      padding:6px 9px;
+      border-radius:8px;
+      font-size:11px;
+    }
+    #consoleView .news-content-count {
+      margin-left:auto;
+      color:#8c9b95;
+      font-size:11px;
+    }
+    #consoleView .news-preview {
+      margin-top:10px;
+      padding:14px;
+      border:1px dashed #d8e4de;
+      border-radius:12px;
+      background:#fbfdfc;
+    }
+    #consoleView .news-preview-title {
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+      color:#50645c;
+      font-size:12px;
+      font-weight:800;
+    }
+    #consoleView .news-preview-body {
+      color:#263b33;
+      font-size:13px;
+      line-height:1.75;
+    }
+    #consoleView .news-preview-body p {
+      margin:0 0 10px;
+    }
+    #consoleView .news-preview-body:empty::before {
+      content:"正文预览会显示在这里";
+      color:#9aa8a2;
+    }
     #consoleView .news-field label input {
       width:auto;
       margin-right:8px;
@@ -882,7 +927,7 @@
             <section id="videoCommentSection" class="panel video-comment-panel"><div class="heading"><div><h2>短视频评论审核</h2><div class="hint">通过后才会在公开评论区显示</div></div><button id="reloadVideoComments" class="secondary">刷新</button></div><div id="videoCommentItems" class="items"><div class="empty">正在加载…</div></div></section>
             <section id="auditSection" class="panel audit-panel"><div class="heading"><div><h2>操作记录</h2><div class="hint">按操作、对象、人员和时间范围追踪后台变更</div></div><button id="reloadAuditLogs" class="secondary">刷新</button></div><form id="auditFilters" class="feedback-filters audit-filters"><label>操作类型<select id="auditActionFilter"><option value="all">全部操作</option><option value="roles.updated">更新后台角色</option><option value="agent_application.approve">通过经纪人申请</option><option value="agent_application.reject">驳回经纪人申请</option><option value="agent_application.suspend">停用经纪人</option><option value="property_review.approve">通过房源审核</option><option value="property_review.reject">驳回房源审核</option><option value="property_review_moderation.approve">通过房源评价</option><option value="property_review_moderation.reject">驳回房源评价</option><option value="video_comment_moderation.approve">通过视频评论</option><option value="video_comment_moderation.reject">驳回视频评论</option><option value="feedback.status_updated">更新反馈状态</option><option value="news.created">创建资讯</option><option value="news.updated">更新资讯</option><option value="news.published">发布资讯</option><option value="news.deleted">删除资讯</option></select></label><label>对象类型<select id="auditTargetFilter"><option value="all">全部对象</option><option value="user">成员</option><option value="agent_application">经纪人申请</option><option value="property">房源</option><option value="property_review">房源评价</option><option value="video_comment">视频评论</option><option value="feedback">用户反馈</option><option value="news">资讯</option></select></label><label>关键词<input id="auditKeyword" maxlength="80" placeholder="操作人、对象 ID 或动作"></label><label>开始日期<input id="auditDateFrom" type="date"></label><label>结束日期<input id="auditDateTo" type="date"></label><button type="submit" class="secondary">筛选</button><button id="resetAuditFilters" type="button" class="secondary">重置</button></form><div id="auditSummary" class="feedback-summary">默认显示最近操作记录</div><div id="auditItems" class="items"><div class="empty">正在加载…</div></div></section>
             <section id="feedbackSection" class="panel feedback-panel"><div class="heading"><div><h2>用户反馈</h2><div class="hint">按状态、类型和关键词跟进用户问题</div></div><button id="reloadFeedback" class="secondary">刷新</button></div><form id="feedbackFilters" class="feedback-filters"><label>处理状态<select id="feedbackStatusFilter"><option value="active">待处理 + 处理中</option><option value="pending">待处理</option><option value="processing">处理中</option><option value="resolved">已处理</option><option value="closed">已关闭</option><option value="all">全部状态</option></select></label><label>反馈类型<select id="feedbackCategoryFilter"><option value="all">全部类型</option><option value="general">其他建议</option><option value="property">房源问题</option><option value="agent">经纪人服务</option><option value="feature">功能建议</option><option value="bug">异常报错</option></select></label><label>关键词<input id="feedbackKeyword" maxlength="80" placeholder="搜索内容、昵称或联系方式"></label><button type="submit" class="secondary">筛选</button><button id="resetFeedbackFilters" type="button" class="secondary">重置</button></form><div id="feedbackSummary" class="feedback-summary">默认显示待处理和处理中反馈</div><div id="feedbackItems" class="items"><div class="empty">正在加载…</div></div></section>
-            <section id="newsSection" class="panel news-panel"><div class="heading"><div><h2>资讯运营</h2><div class="hint">新建、编辑、发布和下架资讯</div></div><button id="reloadNews" class="secondary">刷新</button></div><form id="newsForm" class="news-form"><div class="news-grid"><div class="news-field"><label for="newsTitle">标题</label><input id="newsTitle" maxlength="200" placeholder="输入资讯标题" required></div><div class="news-field"><label for="newsCategory">分类</label><select id="newsCategory"><option value="market">市场分析</option><option value="guide">购房指南</option><option value="policy">政策解读</option><option value="knowledge">房产知识</option></select></div><div class="news-field"><label for="newsCategoryName">分类名称</label><input id="newsCategoryName" maxlength="50" placeholder="可留空，默认按分类生成"></div><div class="news-field"><label for="newsSortOrder">排序权重</label><input id="newsSortOrder" type="number" min="0" max="9999" value="0"></div><div class="news-field"><label for="newsCover">封面链接</label><input id="newsCover" maxlength="1000" placeholder="https://..."></div><div class="news-field"><label for="newsAuthor">作者名称</label><input id="newsAuthor" maxlength="50" placeholder="可留空，默认使用当前账号"></div><div class="news-field"><label for="newsAuthorAvatar">作者头像</label><input id="newsAuthorAvatar" maxlength="500" placeholder="https://..."></div><div class="news-field"><label for="newsTags">标签</label><input id="newsTags" placeholder="如：灵山,购房,政策（英文逗号分隔）"></div><div class="news-field"><label for="newsSummary">摘要</label><input id="newsSummary" maxlength="500" placeholder="给前台列表展示的摘要"></div><div class="news-field wide"><label for="newsContent">正文</label><textarea id="newsContent" placeholder="支持 HTML 片段；不填标签时会按纯文本段落保存" required></textarea></div><div class="news-field wide"><label><input id="newsPublish" type="checkbox"> 保存后直接发布</label><div class="news-tip">未勾选则保存为草稿，前台不会展示。</div></div></div><div class="news-form-actions"><button id="saveNewsButton" type="submit">保存资讯</button><button id="resetNewsButton" type="button" class="secondary">清空</button></div></form><form id="newsFilters" class="feedback-filters news-filters"><label>发布状态<select id="newsStatusFilter"><option value="all">全部状态</option><option value="published">已发布</option><option value="draft">草稿</option></select></label><label>资讯分类<select id="newsFilterCategory"><option value="all">全部分类</option><option value="market">市场分析</option><option value="guide">购房指南</option><option value="policy">政策解读</option><option value="knowledge">房产知识</option></select></label><label>关键词<input id="newsKeyword" maxlength="80" placeholder="搜索标题、摘要、作者"></label><button type="submit" class="secondary">筛选</button><button id="resetNewsFilters" type="button" class="secondary">重置</button></form><div id="newsListSummary" class="feedback-summary">默认显示全部资讯</div><div id="newsItems" class="items"><div class="empty">正在加载…</div></div></section>
+            <section id="newsSection" class="panel news-panel"><div class="heading"><div><h2>资讯运营</h2><div class="hint">新建、编辑、发布和下架资讯</div></div><button id="reloadNews" class="secondary">刷新</button></div><form id="newsForm" class="news-form"><div class="news-grid"><div class="news-field"><label for="newsTitle">标题</label><input id="newsTitle" maxlength="200" placeholder="输入资讯标题" required></div><div class="news-field"><label for="newsCategory">分类</label><select id="newsCategory"><option value="market">市场分析</option><option value="guide">购房指南</option><option value="policy">政策解读</option><option value="knowledge">房产知识</option></select></div><div class="news-field"><label for="newsCategoryName">分类名称</label><input id="newsCategoryName" maxlength="50" placeholder="可留空，默认按分类生成"></div><div class="news-field"><label for="newsSortOrder">排序权重</label><input id="newsSortOrder" type="number" min="0" max="9999" value="0"></div><div class="news-field"><label for="newsCover">封面链接</label><input id="newsCover" maxlength="1000" placeholder="https://..."></div><div class="news-field"><label for="newsAuthor">作者名称</label><input id="newsAuthor" maxlength="50" placeholder="可留空，默认使用当前账号"></div><div class="news-field"><label for="newsAuthorAvatar">作者头像</label><input id="newsAuthorAvatar" maxlength="500" placeholder="https://..."></div><div class="news-field"><label for="newsTags">标签</label><input id="newsTags" placeholder="如：灵山,购房,政策（英文逗号分隔）"></div><div class="news-field"><label for="newsSummary">摘要</label><input id="newsSummary" maxlength="500" placeholder="给前台列表展示的摘要"></div><div class="news-field wide"><label for="newsContent">正文</label><textarea id="newsContent" placeholder="支持 HTML 片段；不填标签时会按纯文本段落保存" required></textarea><div class="news-editor-tools"><button id="insertGuideTemplate" type="button" class="secondary">购房指南模板</button><button id="insertPolicyTemplate" type="button" class="secondary">政策解读模板</button><button id="insertMarketTemplate" type="button" class="secondary">市场分析模板</button><button id="refreshNewsPreview" type="button" class="secondary">刷新预览</button><span id="newsContentCount" class="news-content-count">0 字</span></div><div class="news-preview"><div class="news-preview-title"><span>正文预览</span><span>保存前快速检查排版</span></div><div id="newsPreviewBody" class="news-preview-body"></div></div></div><div class="news-field wide"><label><input id="newsPublish" type="checkbox"> 保存后直接发布</label><div class="news-tip">未勾选则保存为草稿，前台不会展示。</div></div></div><div class="news-form-actions"><button id="saveNewsButton" type="submit">保存资讯</button><button id="resetNewsButton" type="button" class="secondary">清空</button></div></form><form id="newsFilters" class="feedback-filters news-filters"><label>发布状态<select id="newsStatusFilter"><option value="all">全部状态</option><option value="published">已发布</option><option value="draft">草稿</option></select></label><label>资讯分类<select id="newsFilterCategory"><option value="all">全部分类</option><option value="market">市场分析</option><option value="guide">购房指南</option><option value="policy">政策解读</option><option value="knowledge">房产知识</option></select></label><label>关键词<input id="newsKeyword" maxlength="80" placeholder="搜索标题、摘要、作者"></label><button type="submit" class="secondary">筛选</button><button id="resetNewsFilters" type="button" class="secondary">重置</button></form><div id="newsListSummary" class="feedback-summary">默认显示全部资讯</div><div id="newsItems" class="items"><div class="empty">正在加载…</div></div></section>
             <section id="roleSection" class="panel role-panel-wrap"><div class="heading"><div><h2>成员与权限</h2><div class="hint">仅超级管理员可以分配后台角色</div></div><span id="userCount" class="count"></span></div><div id="permissionPolicy" class="permission-policy"><div class="permission-policy-head"><div><h2>后台权限规则</h2><div class="hint">角色与能力的统一说明</div></div><div id="currentPermissionSummary" class="count"></div></div><div id="permissionPolicyBody" class="policy-grid"><div class="empty">正在加载…</div></div></div><form id="userSearch" class="search member-filters"><input id="keyword" placeholder="按用户 ID、昵称或手机号查找成员"><select id="userRoleFilter"><option value="all">全部角色</option><option value="superadmin">超级管理员</option><option value="admin">管理员</option><option value="operations">运营</option><option value="reviewer">审核员</option><option value="agent">经纪人</option><option value="user">普通用户</option></select><button type="submit" class="secondary">查询</button><button id="resetUserFilters" type="button" class="secondary">重置</button></form><div id="memberPermissionNote" class="member-note">只有超级管理员可以保存成员角色；管理员角色会获得审核、资讯、反馈和审计权限，保存前会二次确认。</div><div id="userItems" class="items"><div class="empty">正在加载…</div></div></section>
           </div>
         </main>
@@ -934,6 +979,8 @@
       var newsTags = document.getElementById("newsTags");
       var newsSummary = document.getElementById("newsSummary");
       var newsContent = document.getElementById("newsContent");
+      var newsContentCount = document.getElementById("newsContentCount");
+      var newsPreviewBody = document.getElementById("newsPreviewBody");
       var newsPublish = document.getElementById("newsPublish");
       var saveNewsButton = document.getElementById("saveNewsButton");
       var editingNewsId = null;
@@ -1594,6 +1641,68 @@
       function newsCategoryLabel(value) {
         return newsCategories[value] || value || "资讯";
       }
+      function escapeHtml(value) {
+        return String(value || "").replace(/[&<>"']/g, function (ch) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[ch] || ch;
+        });
+      }
+      function sanitizeNewsHtml(html) {
+        return String(html || "")
+          .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "")
+          .replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, "")
+          .replace(/\son[a-z]+=("[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+          .replace(/javascript:/gi, "");
+      }
+      function buildNewsPreviewHtml(raw) {
+        var content = String(raw || "").trim();
+        if (!content) return "";
+        if (content.indexOf("<") >= 0 && content.indexOf(">") >= 0) {
+          return sanitizeNewsHtml(content);
+        }
+        return content.split(/\n+/).map(function (part) { return part.trim(); }).filter(Boolean).map(function (part) {
+          return "<p>" + escapeHtml(part) + "</p>";
+        }).join("");
+      }
+      function updateNewsPreview() {
+        var raw = newsContent.value || "";
+        if (newsContentCount) newsContentCount.textContent = raw.trim().length + " 字";
+        if (newsPreviewBody) newsPreviewBody.innerHTML = buildNewsPreviewHtml(raw);
+      }
+      function applyNewsTemplate(type) {
+        if (newsContent.value.trim() && !window.confirm("当前正文已有内容，确认用模板覆盖？")) return;
+        var templates = {
+          guide: {
+            category: "guide",
+            title: "灵山县购房前准备清单",
+            summary: "整理预算、区域、房源核验和看房前准备事项，帮助用户更稳地开始购房。",
+            tags: "灵山,购房指南,看房准备",
+            content: "购房前先确认自己的预算范围，包括首付、月供、税费和装修预留。\n\n第二步是明确区域优先级。建议把工作通勤、学校、家人照顾、生活配套放在同一张清单里比较。\n\n看房时重点核对产权信息、房屋现状、周边噪音、采光通风和停车条件。\n\n如果通过平台预约看房，建议提前写下关心的问题，到现场逐项确认。"
+          },
+          policy: {
+            category: "policy",
+            title: "近期房产政策要点解读",
+            summary: "用通俗语言整理政策变化、适用人群和购房决策影响。",
+            tags: "灵山,政策解读,购房政策",
+            content: "本篇重点梳理近期购房相关政策的核心变化。\n\n首先看适用范围：哪些购房人、房源类型或交易环节会受到影响。\n\n其次看办理材料和流程变化，避免用户到现场后反复补材料。\n\n最后给出购房建议：如果正在看房，应重点关注资格、贷款、税费和合同节点。"
+          },
+          market: {
+            category: "market",
+            title: "灵山县近期房源市场观察",
+            summary: "从房源供应、价格区间和用户关注点观察近期市场表现。",
+            tags: "灵山,市场分析,房源观察",
+            content: "近期灵山县房源关注点主要集中在价格、位置、配套和房屋状态。\n\n从供应看，用户更关注总价清晰、图片完整、位置描述准确的房源。\n\n从需求看，返乡置业、改善居住和学区配套仍是常见关注点。\n\n建议购房者多比较同区域、同面积段房源，不只看单价，也要看楼层、装修、产权和后期维护成本。"
+          }
+        };
+        var template = templates[type];
+        if (!template) return;
+        newsCategory.value = template.category;
+        newsCategoryName.value = newsCategoryLabel(template.category);
+        if (!newsTitle.value.trim()) newsTitle.value = template.title;
+        if (!newsSummary.value.trim()) newsSummary.value = template.summary;
+        newsTags.value = template.tags;
+        newsContent.value = template.content;
+        updateNewsPreview();
+      }
       function clearNewsForm() {
         editingNewsId = null;
         newsForm.reset();
@@ -1603,6 +1712,7 @@
         newsCategoryName.value = "";
         newsTags.value = "";
         saveNewsButton.textContent = "保存资讯";
+        updateNewsPreview();
       }
       function fillNewsForm(item) {
         editingNewsId = item.id;
@@ -1618,6 +1728,7 @@
         newsContent.value = item.content || "";
         newsPublish.checked = !!item.is_published;
         saveNewsButton.textContent = "更新资讯";
+        updateNewsPreview();
         newsTitle.focus();
       }
       function serializeTags(raw) {
@@ -1733,6 +1844,12 @@
           newsCategoryName.value = newsCategoryLabel(newsCategory.value);
         }
       });
+      newsContent.addEventListener("input", updateNewsPreview);
+      document.getElementById("refreshNewsPreview").addEventListener("click", updateNewsPreview);
+      document.getElementById("insertGuideTemplate").addEventListener("click", function () { applyNewsTemplate("guide"); });
+      document.getElementById("insertPolicyTemplate").addEventListener("click", function () { applyNewsTemplate("policy"); });
+      document.getElementById("insertMarketTemplate").addEventListener("click", function () { applyNewsTemplate("market"); });
+      updateNewsPreview();
       newsForm.addEventListener("submit", function (event) {
         event.preventDefault();
         var payload = collectNewsPayload();
