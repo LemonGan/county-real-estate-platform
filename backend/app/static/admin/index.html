@@ -223,7 +223,7 @@
     }
     #consoleView .metrics {
       display:grid;
-      grid-template-columns:repeat(5,minmax(0,1fr));
+      grid-template-columns:repeat(auto-fit,minmax(156px,1fr));
       gap:12px;
       margin:0 0 18px;
     }
@@ -250,6 +250,13 @@
       font-size:26px;
       line-height:1;
       letter-spacing:-.7px;
+    }
+    #consoleView .metric-sub {
+      display:block;
+      margin-top:6px;
+      color:#95a49e;
+      font-size:11px;
+      line-height:1.35;
     }
     #consoleView .metric-badge { display:none; }
     #consoleView .dashboard-grid {
@@ -856,12 +863,17 @@
         <main>
           <div class="page-head"><div><p class="eyebrow">审核与运营</p><h1>待办工作台</h1><p>优先处理待审核申请、房源与用户评价；所有权限变更和审核操作均会记录在审计日志中。</p></div><div class="today">广西 · 钦州 · 灵山县</div></div>
           <div id="notice" class="notice" role="status"></div>
-          <div class="metrics" aria-label="审核概览">
-            <div class="metric"><div id="metricApplications" class="metric-value">—</div><div class="metric-top"><span>待审核经纪人</span></div></div>
-            <div class="metric"><div id="metricProperties" class="metric-value">—</div><div class="metric-top"><span>待审核房源</span></div></div>
-            <div class="metric"><div id="metricReviews" class="metric-value">—</div><div class="metric-top"><span>待审核评价</span></div></div>
-            <div class="metric"><div id="metricVideoComments" class="metric-value">—</div><div class="metric-top"><span>待审核视频评论</span></div></div>
-            <div class="metric"><div id="metricAudit" class="metric-value">—</div><div class="metric-top"><span>最近操作记录</span></div></div>
+          <div class="metrics" aria-label="后台数据看板">
+            <div class="metric"><div id="metricUsers" class="metric-value">—</div><div class="metric-top"><span>用户总数</span><span id="metricUsersSub" class="metric-sub">—</span></div></div>
+            <div class="metric"><div id="metricApplications" class="metric-value">—</div><div class="metric-top"><span>待审经纪人</span><span id="metricApplicationsSub" class="metric-sub">—</span></div></div>
+            <div class="metric"><div id="metricPropertiesTotal" class="metric-value">—</div><div class="metric-top"><span>房源总数</span><span id="metricPropertiesTotalSub" class="metric-sub">—</span></div></div>
+            <div class="metric"><div id="metricProperties" class="metric-value">—</div><div class="metric-top"><span>待审房源</span><span id="metricPropertiesSub" class="metric-sub">—</span></div></div>
+            <div class="metric"><div id="metricReviews" class="metric-value">—</div><div class="metric-top"><span>待审评价</span><span id="metricReviewsSub" class="metric-sub">—</span></div></div>
+            <div class="metric"><div id="metricVideoComments" class="metric-value">—</div><div class="metric-top"><span>视频评论</span><span id="metricVideoCommentsSub" class="metric-sub">待审核</span></div></div>
+            <div class="metric"><div id="metricFeedbackActive" class="metric-value">—</div><div class="metric-top"><span>待处理反馈</span><span id="metricFeedbackSub" class="metric-sub">—</span></div></div>
+            <div class="metric"><div id="metricNewsPublished" class="metric-value">—</div><div class="metric-top"><span>已发布资讯</span><span id="metricNewsSub" class="metric-sub">—</span></div></div>
+            <div class="metric"><div id="metricAppointments" class="metric-value">—</div><div class="metric-top"><span>预约总数</span><span id="metricAppointmentsSub" class="metric-sub">—</span></div></div>
+            <div class="metric"><div id="metricAudit" class="metric-value">—</div><div class="metric-top"><span>操作记录</span><span id="metricAuditSub" class="metric-sub">—</span></div></div>
           </div>
           <div id="reviewWorkSection" class="dashboard-grid">
             <section class="panel applications-panel"><div class="heading"><div><h2>经纪人申请</h2><div class="hint">身份资料已自动脱敏</div></div><button id="reloadApplications" class="secondary">刷新</button></div><div id="applicationItems" class="items"><div class="empty">正在加载…</div></div></section>
@@ -994,6 +1006,43 @@
       function setMetric(id, value) {
         var target = document.getElementById(id);
         if (target) target.textContent = value;
+      }
+      function setMetricSub(id, value) {
+        var target = document.getElementById(id);
+        if (target) target.textContent = value || "—";
+      }
+      function loadDashboard() {
+        return request("/admin/dashboard").then(function (data) {
+          var pending = data.pending || {};
+          var users = data.users || {};
+          var properties = data.properties || {};
+          var appointments = data.appointments || {};
+          var news = data.news || {};
+          var feedback = data.feedback || {};
+          var audit = data.audit || {};
+          setMetric("metricUsers", users.total || 0);
+          setMetricSub("metricUsersSub", (users.approved_agents || 0) + " 位认证经纪人");
+          setMetric("metricApplications", pending.agent_applications || 0);
+          setMetricSub("metricApplicationsSub", "全部待办 " + (pending.total || 0));
+          setMetric("metricPropertiesTotal", properties.total || 0);
+          setMetricSub("metricPropertiesTotalSub", (properties.published || 0) + " 套公开展示");
+          setMetric("metricProperties", pending.properties || 0);
+          setMetricSub("metricPropertiesSub", "待审核入库");
+          setMetric("metricReviews", pending.property_reviews || 0);
+          setMetricSub("metricReviewsSub", "房源评价待审");
+          setMetric("metricVideoComments", pending.video_comments || 0);
+          setMetricSub("metricVideoCommentsSub", "短视频评论待审");
+          setMetric("metricFeedbackActive", feedback.active || 0);
+          setMetricSub("metricFeedbackSub", (feedback.resolved || 0) + " 条已处理");
+          setMetric("metricNewsPublished", news.published || 0);
+          setMetricSub("metricNewsSub", (news.draft || 0) + " 篇草稿 · " + (news.views || 0) + " 阅读");
+          setMetric("metricAppointments", appointments.total || 0);
+          setMetricSub("metricAppointmentsSub", (appointments.pending || 0) + " 个待确认");
+          setMetric("metricAudit", audit.total || 0);
+          setMetricSub("metricAuditSub", "累计关键操作");
+        }).catch(function (error) {
+          if (!(error.message.indexOf("403") >= 0 || error.message.indexOf("权限") >= 0)) handleError(error);
+        });
       }
 
       function setNotice(message, isError) {
@@ -1862,6 +1911,7 @@
         setNotice("");
         setActiveNav("reviewWorkSection");
         setAdminView(activeAdminView || "review");
+        loadDashboard();
         loadApplications();
         loadProperties();
         loadPropertyReviews();

@@ -13,6 +13,7 @@ from app.api.v1.messages import create_message
 from app.core.database import get_db
 from app.core.permissions import Role, build_permission_policy_payload, get_user_roles, require_roles
 from app.models.audit_log import AuditLog
+from app.models.appointment import Appointment
 from app.models.feedback import Feedback
 from app.models.news_article import NewsArticle
 from app.models.property import Property
@@ -157,6 +158,67 @@ async def get_permission_policy(
     current_user: User = Depends(get_current_active_user),
 ):
     return build_permission_policy_payload(current_user)
+
+
+@router.get("/dashboard", summary="获取后台数据看板")
+async def get_admin_dashboard(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_roles(Role.REVIEWER, Role.OPERATIONS, Role.ADMIN, Role.SUPERADMIN)),
+):
+    async def count_from(model, *conditions):
+        result = await db.execute(select(func.count()).select_from(model).where(*conditions))
+        return result.scalar_one() or 0
+
+    async def sum_news_field(field):
+        result = await db.execute(select(func.coalesce(func.sum(field), 0)).select_from(NewsArticle).where(NewsArticle.deleted_at.is_(None)))
+        return int(result.scalar_one() or 0)
+
+    pending_agent_applications = await count_from(User, User.deleted_at.is_(None), User.agent_application_status == "pending")
+    pending_properties = await count_from(Property, Property.deleted_at.is_(None), Property.audit_status == 0)
+    pending_property_reviews = await count_from(PropertyReview, PropertyReview.status == 1, PropertyReview.is_verified == 0)
+    pending_video_comments = await count_from(VideoComment, VideoComment.deleted_at.is_(None), VideoComment.status == 0)
+    active_feedback = await count_from(Feedback, Feedback.status.in_(["pending", "processing"]))
+
+    total_users = await count_from(User, User.deleted_at.is_(None))
+    approved_agents = await count_from(User, User.deleted_at.is_(None), User.is_agent.is_(True), User.agent_application_status == "approved")
+    total_properties = await count_from(Property, Property.deleted_at.is_(None))
+    published_properties = await count_from(Property, Property.deleted_at.is_(None), Property.audit_status == 1, Property.status == 1)
+    total_appointments = await count_from(Appointment, Appointment.deleted_at.is_(None))
+    pending_appointments = await count_from(Appointment, Appointment.deleted_at.is_(None), Appointment.status == 1)
+    total_news = await count_from(NewsArticle, NewsArticle.deleted_at.is_(None))
+    published_news = await count_from(NewsArticle, NewsArticle.deleted_at.is_(None), NewsArticle.is_published.is_(True))
+    draft_news = await count_from(NewsArticle, NewsArticle.deleted_at.is_(None), NewsArticle.is_published.is_(False))
+    total_feedback = await count_from(Feedback)
+    resolved_feedback = await count_from(Feedback, Feedback.status == "resolved")
+    audit_logs = await count_from(AuditLog)
+
+    pending_total = pending_agent_applications + pending_properties + pending_property_reviews + pending_video_comments + active_feedback + pending_appointments
+
+    return {
+        "pending": {
+            "total": pending_total,
+            "agent_applications": pending_agent_applications,
+            "properties": pending_properties,
+            "property_reviews": pending_property_reviews,
+            "video_comments": pending_video_comments,
+            "feedback": active_feedback,
+            "appointments": pending_appointments,
+        },
+        "users": {"total": total_users, "approved_agents": approved_agents},
+        "properties": {"total": total_properties, "published": published_properties, "pending": pending_properties},
+        "appointments": {"total": total_appointments, "pending": pending_appointments},
+        "news": {
+            "total": total_news,
+            "published": published_news,
+            "draft": draft_news,
+            "views": await sum_news_field(NewsArticle.view_count),
+            "likes": await sum_news_field(NewsArticle.like_count),
+            "collects": await sum_news_field(NewsArticle.collect_count),
+        },
+        "feedback": {"total": total_feedback, "active": active_feedback, "resolved": resolved_feedback},
+        "audit": {"total": audit_logs},
+        "generated_at": datetime.now(timezone.utc),
+    }
 
 
 @router.get("/users", summary="获取后台角色管理用户列表")
