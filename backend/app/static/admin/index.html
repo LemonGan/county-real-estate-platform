@@ -526,6 +526,97 @@
       color:#a3afa9;
       font-size:12px;
     }
+    #consoleView .feedback-filters {
+      display:grid;
+      grid-template-columns:160px 180px minmax(220px,1fr) auto auto;
+      gap:10px;
+      align-items:end;
+      padding:14px 18px;
+      border-bottom:1px solid #edf1ef;
+      background:#fbfcfc;
+    }
+    #consoleView .feedback-filters label {
+      display:grid;
+      gap:6px;
+      color:#52655f;
+      font-size:12px;
+      font-weight:700;
+    }
+    #consoleView .feedback-filters select,
+    #consoleView .feedback-filters input {
+      width:100%;
+      padding:9px 11px;
+      border:1px solid #dfe7e3;
+      border-radius:10px;
+      background:#fff;
+      color:#253a32;
+      font-size:12px;
+    }
+    #consoleView .feedback-filters button {
+      padding:9px 13px;
+      border-radius:9px;
+      font-size:12px;
+    }
+    #consoleView .feedback-summary {
+      padding:10px 18px 0;
+      color:#7a8c84;
+      font-size:12px;
+    }
+    #consoleView .feedback-card .meta.content {
+      margin-top:9px;
+      padding:10px;
+      border-radius:10px;
+      background:#f7faf8;
+      color:#334940;
+      line-height:1.65;
+      white-space:pre-wrap;
+    }
+    #consoleView .feedback-modal {
+      position:fixed;
+      inset:0;
+      z-index:50;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:rgba(7,32,25,.45);
+    }
+    #consoleView .feedback-modal-card {
+      width:min(720px,100%);
+      max-height:min(82vh,760px);
+      overflow:auto;
+      border-radius:18px;
+      border:1px solid #e1e8e5;
+      background:#fff;
+      box-shadow:0 24px 70px rgba(5,35,27,.24);
+    }
+    #consoleView .feedback-modal-head {
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:14px;
+      padding:18px 20px;
+      border-bottom:1px solid #edf1ef;
+    }
+    #consoleView .feedback-modal-body {
+      display:grid;
+      gap:10px;
+      padding:18px 20px;
+    }
+    #consoleView .feedback-detail-content {
+      padding:13px;
+      border-radius:12px;
+      background:#f7faf8;
+      color:#263d34;
+      line-height:1.7;
+      white-space:pre-wrap;
+    }
+    #consoleView .feedback-modal-actions {
+      display:flex;
+      justify-content:flex-end;
+      gap:9px;
+      padding:0 20px 20px;
+    }
     #consoleView .search {
       gap:9px;
       padding:12px 15px;
@@ -647,6 +738,9 @@
       #consoleView .news-field.wide {
         grid-column:1;
       }
+      #consoleView .feedback-filters {
+        grid-template-columns:1fr;
+      }
       #consoleView .policy-grid {
         grid-template-columns:1fr;
       }
@@ -721,7 +815,7 @@
             <section id="reviewSection" class="panel review-panel"><div class="heading"><div><h2>用户评价审核</h2><div class="hint">仅完成看房预约的用户可提交</div></div><button id="reloadReviews" class="secondary">刷新</button></div><div id="reviewItems" class="items"><div class="empty">正在加载…</div></div></section>
             <section id="videoCommentSection" class="panel video-comment-panel"><div class="heading"><div><h2>短视频评论审核</h2><div class="hint">通过后才会在公开评论区显示</div></div><button id="reloadVideoComments" class="secondary">刷新</button></div><div id="videoCommentItems" class="items"><div class="empty">正在加载…</div></div></section>
             <section id="auditSection" class="panel audit-panel"><div class="heading"><div><h2>操作记录</h2><div class="hint">只显示不含敏感资料的摘要</div></div><button id="reloadAuditLogs" class="secondary">刷新</button></div><div id="auditItems" class="items"><div class="empty">正在加载…</div></div></section>
-            <section id="feedbackSection" class="panel feedback-panel"><div class="heading"><div><h2>用户反馈</h2><div class="hint">待处理与处理中反馈</div></div><button id="reloadFeedback" class="secondary">刷新</button></div><div id="feedbackItems" class="items"><div class="empty">正在加载…</div></div></section>
+            <section id="feedbackSection" class="panel feedback-panel"><div class="heading"><div><h2>用户反馈</h2><div class="hint">按状态、类型和关键词跟进用户问题</div></div><button id="reloadFeedback" class="secondary">刷新</button></div><form id="feedbackFilters" class="feedback-filters"><label>处理状态<select id="feedbackStatusFilter"><option value="active">待处理 + 处理中</option><option value="pending">待处理</option><option value="processing">处理中</option><option value="resolved">已处理</option><option value="closed">已关闭</option><option value="all">全部状态</option></select></label><label>反馈类型<select id="feedbackCategoryFilter"><option value="all">全部类型</option><option value="general">其他建议</option><option value="property">房源问题</option><option value="agent">经纪人服务</option><option value="feature">功能建议</option><option value="bug">异常报错</option></select></label><label>关键词<input id="feedbackKeyword" maxlength="80" placeholder="搜索内容、昵称或联系方式"></label><button type="submit" class="secondary">筛选</button><button id="resetFeedbackFilters" type="button" class="secondary">重置</button></form><div id="feedbackSummary" class="feedback-summary">默认显示待处理和处理中反馈</div><div id="feedbackItems" class="items"><div class="empty">正在加载…</div></div></section>
             <section id="newsSection" class="panel news-panel"><div class="heading"><div><h2>资讯运营</h2><div class="hint">新建、编辑、发布和下架资讯</div></div><button id="reloadNews" class="secondary">刷新</button></div><form id="newsForm" class="news-form"><div class="news-grid"><div class="news-field"><label for="newsTitle">标题</label><input id="newsTitle" maxlength="200" placeholder="输入资讯标题" required></div><div class="news-field"><label for="newsCategory">分类</label><select id="newsCategory"><option value="market">市场分析</option><option value="guide">购房指南</option><option value="policy">政策解读</option><option value="knowledge">房产知识</option></select></div><div class="news-field"><label for="newsCategoryName">分类名称</label><input id="newsCategoryName" maxlength="50" placeholder="可留空，默认按分类生成"></div><div class="news-field"><label for="newsSortOrder">排序权重</label><input id="newsSortOrder" type="number" min="0" max="9999" value="0"></div><div class="news-field"><label for="newsCover">封面链接</label><input id="newsCover" maxlength="1000" placeholder="https://..."></div><div class="news-field"><label for="newsAuthor">作者名称</label><input id="newsAuthor" maxlength="50" placeholder="可留空，默认使用当前账号"></div><div class="news-field"><label for="newsAuthorAvatar">作者头像</label><input id="newsAuthorAvatar" maxlength="500" placeholder="https://..."></div><div class="news-field"><label for="newsTags">标签</label><input id="newsTags" placeholder="如：灵山,购房,政策（英文逗号分隔）"></div><div class="news-field"><label for="newsSummary">摘要</label><input id="newsSummary" maxlength="500" placeholder="给前台列表展示的摘要"></div><div class="news-field wide"><label for="newsContent">正文</label><textarea id="newsContent" placeholder="支持 HTML 片段；不填标签时会按纯文本段落保存" required></textarea></div><div class="news-field wide"><label><input id="newsPublish" type="checkbox"> 保存后直接发布</label><div class="news-tip">未勾选则保存为草稿，前台不会展示。</div></div></div><div class="news-form-actions"><button id="saveNewsButton" type="submit">保存资讯</button><button id="resetNewsButton" type="button" class="secondary">清空</button></div></form><div id="newsItems" class="items"><div class="empty">正在加载…</div></div></section>
             <section id="roleSection" class="panel role-panel-wrap"><div class="heading"><div><h2>成员与权限</h2><div class="hint">仅超级管理员可以分配后台角色</div></div><span id="userCount" class="count"></span></div><div id="permissionPolicy" class="permission-policy"><div class="permission-policy-head"><div><h2>后台权限规则</h2><div class="hint">角色与能力的统一说明</div></div><div id="currentPermissionSummary" class="count"></div></div><div id="permissionPolicyBody" class="policy-grid"><div class="empty">正在加载…</div></div></div><form id="userSearch" class="search"><input id="keyword" placeholder="按用户 ID 或昵称查找成员"><button type="submit" class="secondary">查询</button></form><div id="userItems" class="items"><div class="empty">正在加载…</div></div></section>
           </div>
@@ -741,6 +835,12 @@
       var videoCommentItems = document.getElementById("videoCommentItems");
       var auditItems = document.getElementById("auditItems");
       var feedbackItems = document.getElementById("feedbackItems");
+      var feedbackFilters = document.getElementById("feedbackFilters");
+      var feedbackStatusFilter = document.getElementById("feedbackStatusFilter");
+      var feedbackCategoryFilter = document.getElementById("feedbackCategoryFilter");
+      var feedbackKeyword = document.getElementById("feedbackKeyword");
+      var feedbackSummary = document.getElementById("feedbackSummary");
+      var resetFeedbackFilters = document.getElementById("resetFeedbackFilters");
       var newsSection = document.getElementById("newsSection");
       var newsItems = document.getElementById("newsItems");
       var newsForm = document.getElementById("newsForm");
@@ -1164,7 +1264,8 @@
           "property_review_moderation.approve": "通过房源评价",
           "property_review_moderation.reject": "驳回房源评价",
           "video_comment_moderation.approve": "通过视频评论",
-          "video_comment_moderation.reject": "驳回视频评论"
+          "video_comment_moderation.reject": "驳回视频评论",
+          "feedback.status_updated": "更新反馈状态"
         };
         return labels[action] || action;
       }
@@ -1205,35 +1306,76 @@
       }
       function feedbackCategoryLabel(category) {
         var labels = { general: "其他建议", property: "房源问题", agent: "经纪人服务", feature: "功能建议", bug: "异常报错" };
-        return labels[category] || category;
+        return labels[category] || category || "其他建议";
+      }
+      function feedbackStatusLabel(status) {
+        var labels = { pending: "待处理", processing: "处理中", resolved: "已处理", closed: "已关闭" };
+        return labels[status] || status || "未知";
+      }
+      function feedbackStatusClass(status) {
+        if (status === "resolved") return "badge published";
+        if (status === "closed") return "badge draft";
+        if (status === "processing") return "badge";
+        return "badge alert";
+      }
+      function feedbackQueryString() {
+        var params = [];
+        params.push("status=" + encodeURIComponent(feedbackStatusFilter.value || "active"));
+        params.push("category=" + encodeURIComponent(feedbackCategoryFilter.value || "all"));
+        params.push("page=1");
+        params.push("page_size=50");
+        var keyword = feedbackKeyword.value.trim();
+        if (keyword) params.push("keyword=" + encodeURIComponent(keyword));
+        return params.join("&");
+      }
+      function feedbackUserText(item) {
+        var parts = [item.nickname || "用户"];
+        if (item.user_id) parts.push("ID " + item.user_id);
+        if (item.phone) parts.push(item.phone);
+        return parts.join(" · ");
       }
       function loadFeedback() {
         feedbackItems.innerHTML = '<div class="empty">正在加载…</div>';
-        return request("/admin/feedback").then(function (data) {
+        if (feedbackSummary) feedbackSummary.textContent = "正在加载反馈列表…";
+        return request("/admin/feedback?" + feedbackQueryString()).then(function (data) {
           feedbackSection.classList.remove("hidden");
           feedbackItems.innerHTML = "";
           var items = data.items || [];
-          if (!items.length) { feedbackItems.innerHTML = '<div class="empty">暂无待处理反馈</div>'; return; }
+          if (feedbackSummary) feedbackSummary.textContent = "共 " + (data.total || 0) + " 条，当前显示 " + items.length + " 条";
+          if (!items.length) { feedbackItems.innerHTML = '<div class="empty">没有匹配的用户反馈</div>'; return; }
           items.forEach(function (item) {
             var card = document.createElement("article");
-            card.className = "card";
+            card.className = "card feedback-card";
             var title = document.createElement("div");
             title.className = "card-title";
             title.textContent = feedbackCategoryLabel(item.category) + " · 反馈 #" + item.feedback_id;
             card.appendChild(title);
-            addMeta(card, "提交用户", item.nickname);
-            addMeta(card, "状态", item.status === "processing" ? "处理中" : "待处理");
-            addMeta(card, "时间", item.created_at ? new Date(item.created_at).toLocaleString() : "");
+            var statusBadge = document.createElement("span");
+            statusBadge.className = feedbackStatusClass(item.status);
+            statusBadge.textContent = feedbackStatusLabel(item.status);
+            var badgeRow = document.createElement("div");
+            badgeRow.className = "badge-row";
+            badgeRow.appendChild(statusBadge);
+            card.appendChild(badgeRow);
+            addMeta(card, "提交用户", feedbackUserText(item));
+            addMeta(card, "提交时间", item.created_at ? new Date(item.created_at).toLocaleString() : "");
+            if (item.contact) addMeta(card, "联系方式", item.contact);
+            if (item.handled_at) addMeta(card, "处理时间", new Date(item.handled_at).toLocaleString());
             var content = document.createElement("div");
-            content.className = "meta";
+            content.className = "meta content";
             content.textContent = item.content;
             card.appendChild(content);
+            if (item.admin_response) addMeta(card, "处理回复", item.admin_response);
             var actions = document.createElement("div");
             actions.className = "actions";
+            actions.appendChild(button("查看详情", "secondary", function () { openFeedbackDetail(item.feedback_id); }));
             if (item.status === "pending") {
-              actions.appendChild(button("标记处理中", "secondary", function () { updateFeedback(item.feedback_id, "processing"); }));
+              actions.appendChild(button("标记处理中", "secondary", function () { updateFeedback(item.feedback_id, "processing", item.admin_response); }));
             }
-            actions.appendChild(button("处理完成", "", function () { updateFeedback(item.feedback_id, "resolved"); }));
+            if (item.status !== "resolved" && item.status !== "closed") {
+              actions.appendChild(button("处理完成", "", function () { updateFeedback(item.feedback_id, "resolved", item.admin_response); }));
+              actions.appendChild(button("关闭", "secondary", function () { updateFeedback(item.feedback_id, "closed", item.admin_response); }));
+            }
             card.appendChild(actions);
             feedbackItems.appendChild(card);
           });
@@ -1242,11 +1384,59 @@
           if (!(error.message.indexOf("403") >= 0 || error.message.indexOf("权限") >= 0)) handleError(error);
         });
       }
-      function updateFeedback(feedbackId, statusValue) {
-        var response = window.prompt(statusValue === "resolved" ? "填写给用户的处理回复（可选，最多 500 字）：" : "填写处理备注（可选，最多 500 字）：", "");
+      function openFeedbackDetail(feedbackId) {
+        request("/admin/feedback/" + feedbackId).then(function (item) {
+          var overlay = document.createElement("div");
+          overlay.className = "feedback-modal";
+          var modal = document.createElement("div");
+          modal.className = "feedback-modal-card";
+          var head = document.createElement("div");
+          head.className = "feedback-modal-head";
+          var titleWrap = document.createElement("div");
+          var title = document.createElement("h2");
+          title.textContent = feedbackCategoryLabel(item.category) + " · 反馈 #" + item.feedback_id;
+          var hint = document.createElement("div");
+          hint.className = "hint";
+          hint.textContent = feedbackStatusLabel(item.status) + " · " + (item.created_at ? new Date(item.created_at).toLocaleString() : "");
+          titleWrap.appendChild(title);
+          titleWrap.appendChild(hint);
+          head.appendChild(titleWrap);
+          head.appendChild(button("关闭", "secondary", function () { overlay.remove(); }));
+          modal.appendChild(head);
+          var body = document.createElement("div");
+          body.className = "feedback-modal-body";
+          addMeta(body, "提交用户", feedbackUserText(item));
+          addMeta(body, "联系方式", item.contact);
+          addMeta(body, "来源", item.source);
+          addMeta(body, "处理人ID", item.handled_by);
+          addMeta(body, "处理时间", item.handled_at ? new Date(item.handled_at).toLocaleString() : "");
+          var content = document.createElement("div");
+          content.className = "feedback-detail-content";
+          content.textContent = item.content || "无反馈内容";
+          body.appendChild(content);
+          addMeta(body, "处理回复", item.admin_response);
+          modal.appendChild(body);
+          var actions = document.createElement("div");
+          actions.className = "feedback-modal-actions";
+          if (item.status === "pending") {
+            actions.appendChild(button("标记处理中", "secondary", function () { overlay.remove(); updateFeedback(item.feedback_id, "processing", item.admin_response); }));
+          }
+          if (item.status !== "resolved" && item.status !== "closed") {
+            actions.appendChild(button("处理完成", "", function () { overlay.remove(); updateFeedback(item.feedback_id, "resolved", item.admin_response); }));
+            actions.appendChild(button("关闭反馈", "secondary", function () { overlay.remove(); updateFeedback(item.feedback_id, "closed", item.admin_response); }));
+          }
+          modal.appendChild(actions);
+          overlay.appendChild(modal);
+          overlay.addEventListener("click", function (event) { if (event.target === overlay) overlay.remove(); });
+          document.body.appendChild(overlay);
+        }).catch(handleError);
+      }
+      function updateFeedback(feedbackId, statusValue, existingResponse) {
+        var statusText = feedbackStatusLabel(statusValue);
+        var response = window.prompt("填写给用户的处理回复（可选，最多 500 字）：", existingResponse || "");
         if (response === null) return;
         request("/admin/feedback/" + feedbackId + "/status", { method: "POST", body: JSON.stringify({ status: statusValue, response: response }) })
-          .then(function () { setNotice(statusValue === "resolved" ? "反馈已标记为已解决。" : "反馈已标记为处理中。"); return loadFeedback(); })
+          .then(function () { setNotice("反馈已更新为“" + statusText + "”。"); return Promise.all([loadFeedback(), loadAuditLogs()]); })
           .catch(handleError);
       }
       function loadPermissionPolicy() {
@@ -1536,6 +1726,10 @@
       document.getElementById("reloadVideoComments").addEventListener("click", loadVideoComments);
       document.getElementById("reloadAuditLogs").addEventListener("click", loadAuditLogs);
       document.getElementById("reloadFeedback").addEventListener("click", loadFeedback);
+      feedbackFilters.addEventListener("submit", function (event) { event.preventDefault(); loadFeedback(); });
+      feedbackStatusFilter.addEventListener("change", loadFeedback);
+      feedbackCategoryFilter.addEventListener("change", loadFeedback);
+      resetFeedbackFilters.addEventListener("click", function () { feedbackStatusFilter.value = "active"; feedbackCategoryFilter.value = "all"; feedbackKeyword.value = ""; loadFeedback(); });
       document.getElementById("reloadNews").addEventListener("click", loadNews);
       document.getElementById("userSearch").addEventListener("submit", function (event) { event.preventDefault(); loadUsers(); });
       if (token) showConsole();

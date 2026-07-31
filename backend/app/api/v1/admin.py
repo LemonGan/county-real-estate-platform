@@ -4,7 +4,7 @@ from typing import List, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
-from sqlalchemy import or_, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -72,6 +72,45 @@ def _mask_phone(phone: str | None) -> str | None:
     if len(phone) <= 7:
         return "*" * len(phone)
     return f"{phone[:3]}****{phone[-4:]}"
+
+
+def _mask_contact(contact: str | None) -> str | None:
+    if not contact:
+        return None
+    value = contact.strip()
+    if not value:
+        return None
+    if "@" in value:
+        name, _, domain = value.partition("@")
+        if not domain:
+            return "***"
+        prefix = name[:2] if len(name) > 2 else name[:1]
+        return f"{prefix}***@{domain}"
+    digits = "".join(ch for ch in value if ch.isdigit())
+    if len(digits) >= 7:
+        return _mask_phone(digits)
+    if len(value) <= 4:
+        return "*" * len(value)
+    return f"{value[:2]}***{value[-2:]}"
+
+
+def _serialize_admin_feedback(feedback: Feedback, nickname: str | None = None, phone: str | None = None) -> dict:
+    return {
+        "feedback_id": feedback.id,
+        "user_id": feedback.user_id,
+        "category": feedback.category,
+        "content": feedback.content,
+        "contact": _mask_contact(feedback.contact),
+        "source": feedback.source,
+        "status": feedback.status,
+        "admin_response": feedback.admin_response,
+        "handled_by": feedback.handled_by,
+        "handled_at": feedback.handled_at,
+        "nickname": nickname or "用户",
+        "phone": _mask_phone(phone),
+        "created_at": feedback.created_at,
+        "updated_at": feedback.updated_at,
+    }
 
 
 def _normalize_html_content(content: str) -> str:
@@ -666,30 +705,75 @@ async def delete_news_article(
     return {"news_id": news_id, "message": "资讯已删除"}
 
 
-@router.get("/feedback", summary="获取待处理用户反馈")
+@router.get("/feedback", summary="获取用户反馈列表")
 async def list_feedback(
-    limit: int = Query(default=50, ge=1, le=100),
+    status_filter: str = Query(default="active", alias="status", max_length=20),
+    category: str | None = Query(default=None, max_length=30),
+    keyword: str | None = Query(default=None, max_length=80),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=50, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_roles(Role.OPERATIONS, Role.ADMIN, Role.SUPERADMIN)),
+):
+    allowed_status = {"active", "all", "pending", "processing", "resolved", "closed"}
+    if status_filter not in allowed_status:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="反馈状态参数无效")
+
+    conditions = []
+    if status_filter == "active":
+        conditions.append(Feedback.status.in_(["pending", "processing"]))
+    elif status_filter != "all":
+        conditions.append(Feedback.status == status_filter)
+
+    if category and category != "all":
+        conditions.append(Feedback.category == category)
+
+    keyword_value = keyword.strip() if keyword else ""
+    if keyword_value:
+        like_value = f"%{keyword_value}%"
+        conditions.append(or_(
+            Feedback.content.like(like_value),
+            Feedback.contact.like(like_value),
+            User.nickname.like(like_value),
+            User.phone.like(like_value),
+        ))
+
+    total_result = await db.execute(
+        select(func.count())
+        .select_from(Feedback)
+        .outerjoin(User, Feedback.user_id == User.id)
+        .where(*conditions)
+    )
+    total = total_result.scalar_one() or 0
+    order_columns = (Feedback.created_at.asc(), Feedback.id.asc()) if status_filter in {"active", "pending", "processing"} else (Feedback.created_at.desc(), Feedback.id.desc())
+    result = await db.execute(
+        select(Feedback, User.nickname, User.phone)
+        .outerjoin(User, Feedback.user_id == User.id)
+        .where(*conditions)
+        .order_by(*order_columns)
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+    )
+    items = [_serialize_admin_feedback(feedback, nickname, phone) for feedback, nickname, phone in result.all()]
+    return {"items": items, "total": total, "page": page, "page_size": page_size}
+
+
+@router.get("/feedback/{feedback_id}", summary="获取用户反馈详情")
+async def get_feedback_detail(
+    feedback_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_roles(Role.OPERATIONS, Role.ADMIN, Role.SUPERADMIN)),
 ):
     result = await db.execute(
-        select(Feedback, User.nickname)
+        select(Feedback, User.nickname, User.phone)
         .outerjoin(User, Feedback.user_id == User.id)
-        .where(Feedback.status.in_(["pending", "processing"]))
-        .order_by(Feedback.created_at.asc(), Feedback.id.asc())
-        .limit(limit)
+        .where(Feedback.id == feedback_id)
     )
-    items = []
-    for feedback, nickname in result.all():
-        items.append({
-            "feedback_id": feedback.id,
-            "category": feedback.category,
-            "content": feedback.content,
-            "status": feedback.status,
-            "nickname": nickname or "用户",
-            "created_at": feedback.created_at,
-        })
-    return {"items": items, "total": len(items)}
+    row = result.first()
+    if not row:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="反馈不存在")
+    feedback, nickname, phone = row
+    return _serialize_admin_feedback(feedback, nickname, phone)
 
 
 @router.post("/feedback/{feedback_id}/status", summary="更新用户反馈处理状态")
