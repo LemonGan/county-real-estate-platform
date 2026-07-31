@@ -5,7 +5,13 @@
     <text class="subtitle">你的建议会帮助我们把灵山房产做得更好。</text>
   </view>
 
-  <view class="form-card">
+  <view class="login-card" wx:if="{{loginRequired}}">
+    <text class="login-title">登录后可提交和查看反馈</text>
+    <text class="login-desc">提交反馈、查看处理进度和回复都需要先登录。</text>
+    <button class="login-button" bindtap="goToLogin">去登录</button>
+  </view>
+
+  <view class="form-card" wx:else>
     <text class="field-label">反馈类型</text>
     <view class="category-list">
       <view wx:for="{{categories}}" wx:key="key" class="category {{category === item.key ? 'active' : ''}}" data-key="{{item.key}}" bindtap="chooseCategory">{{item.label}}</view>
@@ -21,17 +27,19 @@
     <button class="submit-button" loading="{{submitting}}" disabled="{{submitting}}" bindtap="submit">提交反馈</button>
   </view>
 
-  <view class="history-head">
-    <view><text class="history-title">我的反馈</text><text class="history-subtitle">可查看处理进度和回复</text></view>
-    <text class="history-count">{{feedbacks.length}} 条</text>
-  </view>
-  <view class="history-card" wx:if="{{feedbacks.length}}">
-    <view class="feedback-item" wx:for="{{feedbacks}}" wx:key="id">
-      <view class="feedback-top"><text class="feedback-category">{{item.category}}</text><text class="status status-{{item.status}}">{{item.status_label}}</text></view>
-      <text class="feedback-content">{{item.content}}</text>
-      <text class="feedback-time">{{item.created_display}}</text>
-      <view class="response" wx:if="{{item.admin_response}}"><text class="response-label">处理回复</text><text class="response-content">{{item.admin_response}}</text></view>
+  <block wx:if="{{!loginRequired}}">
+    <view class="history-head">
+      <view><text class="history-title">我的反馈</text><text class="history-subtitle">可查看处理进度和回复</text></view>
+      <text class="history-count">{{feedbacks.length}} 条</text>
     </view>
-  </view>
-  <view class="history-empty" wx:elif="{{!loading}}">还没有提交过反馈</view>
+    <view class="history-card" wx:if="{{feedbacks.length}}">
+      <view class="feedback-item" wx:for="{{feedbacks}}" wx:key="id">
+        <view class="feedback-top"><text class="feedback-category">{{item.category_label}}</text><text class="status status-{{item.status}}">{{item.status_label}}</text></view>
+        <text class="feedback-content">{{item.content}}</text>
+        <text class="feedback-time">{{item.created_display}}</text>
+        <view class="response" wx:if="{{item.admin_response}}"><text class="response-label">处理回复</text><text class="response-content">{{item.admin_response}}</text></view>
+      </view>
+    </view>
+    <view class="history-empty" wx:elif="{{!loading}}">还没有提交过反馈</view>
+  </block>
 </view>

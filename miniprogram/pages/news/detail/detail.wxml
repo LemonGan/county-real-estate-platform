@@ -59,7 +59,14 @@
     </view>
   </view>
 
-  <view class="bottom-bar" wx:if="{{!loading}}">
+  <view class="detail-empty" wx:if="{{!loading && !news}}">
+    <image class="detail-empty-icon" src="/assets/icons/empty-news.png" />
+    <view class="detail-empty-title">资讯暂时无法查看</view>
+    <view class="detail-empty-desc">可能已下架或网络暂时不可用，请返回列表重新选择。</view>
+    <button class="detail-empty-btn" bindtap="goHome">返回首页</button>
+  </view>
+
+  <view class="bottom-bar" wx:if="{{!loading && news}}">
     <view class="bar-item" bindtap="goHome">
       <image class="bar-icon" src="/assets/icons/home.png" />
       <text class="bar-text">首页</text>

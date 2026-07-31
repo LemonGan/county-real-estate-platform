@@ -15,6 +15,11 @@ const STATUS_LABELS = {
   closed: '已关闭'
 }
 
+const CATEGORY_LABELS = CATEGORY_OPTIONS.reduce((result, item) => {
+  result[item.key] = item.label
+  return result
+}, {})
+
 Page({
   data: {
     categories: CATEGORY_OPTIONS,
@@ -23,7 +28,8 @@ Page({
     contact: '',
     feedbacks: [],
     loading: false,
-    submitting: false
+    submitting: false,
+    loginRequired: false
   },
 
   onShow() {
@@ -38,19 +44,29 @@ Page({
     this.setData({ [e.currentTarget.dataset.field]: e.detail.value })
   },
 
+  goToLogin() {
+    wx.navigateTo({ url: '/pages/login/login' })
+  },
+
   async loadFeedbacks() {
     if (this.data.loading) return
-    this.setData({ loading: true })
+    const token = wx.getStorageSync('token')
+    if (!token) {
+      this.setData({ feedbacks: [], loading: false, loginRequired: true })
+      return
+    }
+    this.setData({ loading: true, loginRequired: false })
     try {
       const res = await api.get('/feedback/mine', { page: 1, page_size: 20 }, true)
       const feedbacks = (res.items || []).map(item => ({
         ...item,
+        category_label: CATEGORY_LABELS[item.category] || item.category,
         status_label: STATUS_LABELS[item.status] || item.status,
         created_display: item.created_at ? String(item.created_at).replace('T', ' ').slice(0, 16) : ''
       }))
       this.setData({ feedbacks })
     } catch (err) {
-      this.setData({ feedbacks: [] })
+      this.setData({ feedbacks: [], loginRequired: /未登录|登录|401/.test(err.message || '') })
     } finally {
       this.setData({ loading: false })
     }

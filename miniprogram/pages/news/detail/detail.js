@@ -42,6 +42,7 @@ Page({
       cover_url: item.cover_url || '/assets/images/news-cover-1.jpg',
       summary: item.summary || '',
       publish_time_text: item.publish_time_text || item.publish_time || '',
+      author: item.author || item.author_name || '平台运营',
       tags: item.tags || []
     }
   },

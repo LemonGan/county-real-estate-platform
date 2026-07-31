@@ -241,3 +241,46 @@
   background: linear-gradient(135deg, #0f6f5f 0%, #1f8a70 100%);
   color: #fff;
 }
+
+.detail-empty {
+  margin: 160rpx 36rpx 0;
+  padding: 56rpx 36rpx;
+  border-radius: 28rpx;
+  background: #fff;
+  text-align: center;
+  box-shadow: 0 12rpx 28rpx rgba(15, 23, 42, 0.05);
+}
+
+.detail-empty-icon {
+  width: 120rpx;
+  height: 120rpx;
+  opacity: .76;
+}
+
+.detail-empty-title {
+  margin-top: 24rpx;
+  color: #1f2937;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.detail-empty-desc {
+  margin-top: 12rpx;
+  color: #8b94a6;
+  font-size: 24rpx;
+  line-height: 1.6;
+}
+
+.detail-empty-btn {
+  width: 260rpx;
+  height: 76rpx;
+  margin-top: 30rpx;
+  border-radius: 999rpx;
+  background: #0f6f5f;
+  color: #fff;
+  font-size: 26rpx;
+}
+
+.detail-empty-btn::after {
+  border: none;
+}
