@@ -562,6 +562,27 @@
       color:#7a8c84;
       font-size:12px;
     }
+    #consoleView .audit-filters {
+      grid-template-columns:170px 160px minmax(180px,1fr) 150px 150px auto auto;
+    }
+    #consoleView .audit-card .card-title {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    #consoleView .audit-target {
+      display:inline-flex;
+      align-items:center;
+      min-height:22px;
+      padding:0 8px;
+      border-radius:999px;
+      background:#eef4f1;
+      color:#53665e;
+      font-size:11px;
+      font-weight:700;
+      white-space:nowrap;
+    }
     #consoleView .feedback-card .meta.content {
       margin-top:9px;
       padding:10px;
@@ -741,6 +762,9 @@
       #consoleView .feedback-filters {
         grid-template-columns:1fr;
       }
+      #consoleView .audit-filters {
+        grid-template-columns:1fr;
+      }
       #consoleView .policy-grid {
         grid-template-columns:1fr;
       }
@@ -814,7 +838,7 @@
             <section class="panel property-panel"><div class="heading"><div><h2>房源审核</h2><div class="hint">通过后才会公开展示</div></div><button id="reloadProperties" class="secondary">刷新</button></div><div id="propertyItems" class="items"><div class="empty">正在加载…</div></div></section>
             <section id="reviewSection" class="panel review-panel"><div class="heading"><div><h2>用户评价审核</h2><div class="hint">仅完成看房预约的用户可提交</div></div><button id="reloadReviews" class="secondary">刷新</button></div><div id="reviewItems" class="items"><div class="empty">正在加载…</div></div></section>
             <section id="videoCommentSection" class="panel video-comment-panel"><div class="heading"><div><h2>短视频评论审核</h2><div class="hint">通过后才会在公开评论区显示</div></div><button id="reloadVideoComments" class="secondary">刷新</button></div><div id="videoCommentItems" class="items"><div class="empty">正在加载…</div></div></section>
-            <section id="auditSection" class="panel audit-panel"><div class="heading"><div><h2>操作记录</h2><div class="hint">只显示不含敏感资料的摘要</div></div><button id="reloadAuditLogs" class="secondary">刷新</button></div><div id="auditItems" class="items"><div class="empty">正在加载…</div></div></section>
+            <section id="auditSection" class="panel audit-panel"><div class="heading"><div><h2>操作记录</h2><div class="hint">按操作、对象、人员和时间范围追踪后台变更</div></div><button id="reloadAuditLogs" class="secondary">刷新</button></div><form id="auditFilters" class="feedback-filters audit-filters"><label>操作类型<select id="auditActionFilter"><option value="all">全部操作</option><option value="roles.updated">更新后台角色</option><option value="agent_application.approve">通过经纪人申请</option><option value="agent_application.reject">驳回经纪人申请</option><option value="agent_application.suspend">停用经纪人</option><option value="property_review.approve">通过房源审核</option><option value="property_review.reject">驳回房源审核</option><option value="property_review_moderation.approve">通过房源评价</option><option value="property_review_moderation.reject">驳回房源评价</option><option value="video_comment_moderation.approve">通过视频评论</option><option value="video_comment_moderation.reject">驳回视频评论</option><option value="feedback.status_updated">更新反馈状态</option><option value="news.created">创建资讯</option><option value="news.updated">更新资讯</option><option value="news.published">发布资讯</option><option value="news.deleted">删除资讯</option></select></label><label>对象类型<select id="auditTargetFilter"><option value="all">全部对象</option><option value="user">成员</option><option value="agent_application">经纪人申请</option><option value="property">房源</option><option value="property_review">房源评价</option><option value="video_comment">视频评论</option><option value="feedback">用户反馈</option><option value="news">资讯</option></select></label><label>关键词<input id="auditKeyword" maxlength="80" placeholder="操作人、对象 ID 或动作"></label><label>开始日期<input id="auditDateFrom" type="date"></label><label>结束日期<input id="auditDateTo" type="date"></label><button type="submit" class="secondary">筛选</button><button id="resetAuditFilters" type="button" class="secondary">重置</button></form><div id="auditSummary" class="feedback-summary">默认显示最近操作记录</div><div id="auditItems" class="items"><div class="empty">正在加载…</div></div></section>
             <section id="feedbackSection" class="panel feedback-panel"><div class="heading"><div><h2>用户反馈</h2><div class="hint">按状态、类型和关键词跟进用户问题</div></div><button id="reloadFeedback" class="secondary">刷新</button></div><form id="feedbackFilters" class="feedback-filters"><label>处理状态<select id="feedbackStatusFilter"><option value="active">待处理 + 处理中</option><option value="pending">待处理</option><option value="processing">处理中</option><option value="resolved">已处理</option><option value="closed">已关闭</option><option value="all">全部状态</option></select></label><label>反馈类型<select id="feedbackCategoryFilter"><option value="all">全部类型</option><option value="general">其他建议</option><option value="property">房源问题</option><option value="agent">经纪人服务</option><option value="feature">功能建议</option><option value="bug">异常报错</option></select></label><label>关键词<input id="feedbackKeyword" maxlength="80" placeholder="搜索内容、昵称或联系方式"></label><button type="submit" class="secondary">筛选</button><button id="resetFeedbackFilters" type="button" class="secondary">重置</button></form><div id="feedbackSummary" class="feedback-summary">默认显示待处理和处理中反馈</div><div id="feedbackItems" class="items"><div class="empty">正在加载…</div></div></section>
             <section id="newsSection" class="panel news-panel"><div class="heading"><div><h2>资讯运营</h2><div class="hint">新建、编辑、发布和下架资讯</div></div><button id="reloadNews" class="secondary">刷新</button></div><form id="newsForm" class="news-form"><div class="news-grid"><div class="news-field"><label for="newsTitle">标题</label><input id="newsTitle" maxlength="200" placeholder="输入资讯标题" required></div><div class="news-field"><label for="newsCategory">分类</label><select id="newsCategory"><option value="market">市场分析</option><option value="guide">购房指南</option><option value="policy">政策解读</option><option value="knowledge">房产知识</option></select></div><div class="news-field"><label for="newsCategoryName">分类名称</label><input id="newsCategoryName" maxlength="50" placeholder="可留空，默认按分类生成"></div><div class="news-field"><label for="newsSortOrder">排序权重</label><input id="newsSortOrder" type="number" min="0" max="9999" value="0"></div><div class="news-field"><label for="newsCover">封面链接</label><input id="newsCover" maxlength="1000" placeholder="https://..."></div><div class="news-field"><label for="newsAuthor">作者名称</label><input id="newsAuthor" maxlength="50" placeholder="可留空，默认使用当前账号"></div><div class="news-field"><label for="newsAuthorAvatar">作者头像</label><input id="newsAuthorAvatar" maxlength="500" placeholder="https://..."></div><div class="news-field"><label for="newsTags">标签</label><input id="newsTags" placeholder="如：灵山,购房,政策（英文逗号分隔）"></div><div class="news-field"><label for="newsSummary">摘要</label><input id="newsSummary" maxlength="500" placeholder="给前台列表展示的摘要"></div><div class="news-field wide"><label for="newsContent">正文</label><textarea id="newsContent" placeholder="支持 HTML 片段；不填标签时会按纯文本段落保存" required></textarea></div><div class="news-field wide"><label><input id="newsPublish" type="checkbox"> 保存后直接发布</label><div class="news-tip">未勾选则保存为草稿，前台不会展示。</div></div></div><div class="news-form-actions"><button id="saveNewsButton" type="submit">保存资讯</button><button id="resetNewsButton" type="button" class="secondary">清空</button></div></form><div id="newsItems" class="items"><div class="empty">正在加载…</div></div></section>
             <section id="roleSection" class="panel role-panel-wrap"><div class="heading"><div><h2>成员与权限</h2><div class="hint">仅超级管理员可以分配后台角色</div></div><span id="userCount" class="count"></span></div><div id="permissionPolicy" class="permission-policy"><div class="permission-policy-head"><div><h2>后台权限规则</h2><div class="hint">角色与能力的统一说明</div></div><div id="currentPermissionSummary" class="count"></div></div><div id="permissionPolicyBody" class="policy-grid"><div class="empty">正在加载…</div></div></div><form id="userSearch" class="search"><input id="keyword" placeholder="按用户 ID 或昵称查找成员"><button type="submit" class="secondary">查询</button></form><div id="userItems" class="items"><div class="empty">正在加载…</div></div></section>
@@ -834,6 +858,14 @@
       var reviewItems = document.getElementById("reviewItems");
       var videoCommentItems = document.getElementById("videoCommentItems");
       var auditItems = document.getElementById("auditItems");
+      var auditFilters = document.getElementById("auditFilters");
+      var auditActionFilter = document.getElementById("auditActionFilter");
+      var auditTargetFilter = document.getElementById("auditTargetFilter");
+      var auditKeyword = document.getElementById("auditKeyword");
+      var auditDateFrom = document.getElementById("auditDateFrom");
+      var auditDateTo = document.getElementById("auditDateTo");
+      var auditSummary = document.getElementById("auditSummary");
+      var resetAuditFilters = document.getElementById("resetAuditFilters");
       var feedbackItems = document.getElementById("feedbackItems");
       var feedbackFilters = document.getElementById("feedbackFilters");
       var feedbackStatusFilter = document.getElementById("feedbackStatusFilter");
@@ -1277,23 +1309,47 @@
         });
         return pairs.join("；") || "无额外摘要";
       }
+      function auditTargetLabel(targetType) {
+        var labels = { user: "成员", agent_application: "经纪人申请", property: "房源", property_review: "房源评价", video_comment: "视频评论", feedback: "用户反馈", news: "资讯" };
+        return labels[targetType] || targetType || "对象";
+      }
+      function auditQueryString() {
+        var params = [];
+        params.push("action=" + encodeURIComponent(auditActionFilter.value || "all"));
+        params.push("target_type=" + encodeURIComponent(auditTargetFilter.value || "all"));
+        params.push("page=1");
+        params.push("page_size=100");
+        var keyword = auditKeyword.value.trim();
+        if (keyword) params.push("keyword=" + encodeURIComponent(keyword));
+        if (auditDateFrom.value) params.push("date_from=" + encodeURIComponent(auditDateFrom.value));
+        if (auditDateTo.value) params.push("date_to=" + encodeURIComponent(auditDateTo.value));
+        return params.join("&");
+      }
       function loadAuditLogs() {
         auditItems.innerHTML = '<div class="empty">正在加载…</div>';
-        return request("/admin/audit-logs").then(function (data) {
+        if (auditSummary) auditSummary.textContent = "正在加载操作记录…";
+        return request("/admin/audit-logs?" + auditQueryString()).then(function (data) {
           auditSection.classList.remove("hidden");
           auditItems.innerHTML = "";
           var items = data.items || [];
-          setMetric("metricAudit", items.length);
-          if (!items.length) { auditItems.innerHTML = '<div class="empty">暂无审核记录</div>'; return; }
+          setMetric("metricAudit", data.total || items.length);
+          if (auditSummary) auditSummary.textContent = "共 " + (data.total || 0) + " 条，当前显示 " + items.length + " 条";
+          if (!items.length) { auditItems.innerHTML = '<div class="empty">没有匹配的操作记录</div>'; return; }
           items.forEach(function (item) {
             var card = document.createElement("article");
-            card.className = "card";
+            card.className = "card audit-card";
             var title = document.createElement("div");
             title.className = "card-title";
-            title.textContent = auditActionLabel(item.action);
+            var titleText = document.createElement("span");
+            titleText.textContent = auditActionLabel(item.action);
+            var targetTag = document.createElement("span");
+            targetTag.className = "audit-target";
+            targetTag.textContent = auditTargetLabel(item.target_type);
+            title.appendChild(titleText);
+            title.appendChild(targetTag);
             card.appendChild(title);
-            addMeta(card, "操作人", item.actor);
-            addMeta(card, "对象", (item.target_type || "对象") + " #" + (item.target_id || ""));
+            addMeta(card, "操作人", item.actor + (item.actor_phone ? " · " + item.actor_phone : ""));
+            addMeta(card, "对象", auditTargetLabel(item.target_type) + " #" + (item.target_id || ""));
             addMeta(card, "时间", item.created_at ? new Date(item.created_at).toLocaleString() : "");
             addMeta(card, "摘要", auditDetailText(item.details));
             auditItems.appendChild(card);
@@ -1725,6 +1781,10 @@
       document.getElementById("reloadReviews").addEventListener("click", loadPropertyReviews);
       document.getElementById("reloadVideoComments").addEventListener("click", loadVideoComments);
       document.getElementById("reloadAuditLogs").addEventListener("click", loadAuditLogs);
+      auditFilters.addEventListener("submit", function (event) { event.preventDefault(); loadAuditLogs(); });
+      auditActionFilter.addEventListener("change", loadAuditLogs);
+      auditTargetFilter.addEventListener("change", loadAuditLogs);
+      resetAuditFilters.addEventListener("click", function () { auditActionFilter.value = "all"; auditTargetFilter.value = "all"; auditKeyword.value = ""; auditDateFrom.value = ""; auditDateTo.value = ""; loadAuditLogs(); });
       document.getElementById("reloadFeedback").addEventListener("click", loadFeedback);
       feedbackFilters.addEventListener("submit", function (event) { event.preventDefault(); loadFeedback(); });
       feedbackStatusFilter.addEventListener("change", loadFeedback);

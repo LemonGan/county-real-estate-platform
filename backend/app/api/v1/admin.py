@@ -222,38 +222,98 @@ async def update_user_roles(
     return {"user_id": target_user.id, "roles": target_user.roles}
 
 
-@router.get("/audit-logs", summary="获取后台审核记录")
+def _parse_date_filter(value: str | None, end_of_day: bool = False) -> datetime | None:
+    if not value:
+        return None
+    raw_value = value.strip()
+    if not raw_value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(raw_value)
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="日期参数格式无效")
+    if len(raw_value) == 10:
+        parsed = parsed.replace(hour=23, minute=59, second=59, microsecond=999999) if end_of_day else parsed.replace(hour=0, minute=0, second=0, microsecond=0)
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed
+
+
+@router.get("/audit-logs", summary="获取后台操作记录")
 async def list_audit_logs(
-    limit: int = Query(default=100, ge=1, le=200),
+    action: str | None = Query(default=None, max_length=80),
+    target_type: str | None = Query(default=None, max_length=50),
+    keyword: str | None = Query(default=None, max_length=80),
+    date_from: str | None = Query(default=None, max_length=30),
+    date_to: str | None = Query(default=None, max_length=30),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=100, ge=1, le=200),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_roles(Role.ADMIN, Role.SUPERADMIN)),
 ):
-    result = await db.execute(
-        select(AuditLog, User.nickname)
+    conditions = []
+    if action and action != "all":
+        conditions.append(AuditLog.action == action)
+    if target_type and target_type != "all":
+        conditions.append(AuditLog.target_type == target_type)
+
+    keyword_value = keyword.strip() if keyword else ""
+    if keyword_value:
+        like_value = f"%{keyword_value}%"
+        conditions.append(or_(
+            AuditLog.action.like(like_value),
+            AuditLog.target_type.like(like_value),
+            AuditLog.target_id.like(like_value),
+            User.nickname.like(like_value),
+            User.phone.like(like_value),
+        ))
+
+    start_at = _parse_date_filter(date_from)
+    end_at = _parse_date_filter(date_to, end_of_day=True)
+    if start_at:
+        conditions.append(AuditLog.created_at >= start_at)
+    if end_at:
+        conditions.append(AuditLog.created_at <= end_at)
+
+    total_result = await db.execute(
+        select(func.count())
+        .select_from(AuditLog)
         .outerjoin(User, AuditLog.actor_id == User.id)
+        .where(*conditions)
+    )
+    total = total_result.scalar_one() or 0
+    result = await db.execute(
+        select(AuditLog, User.nickname, User.phone)
+        .outerjoin(User, AuditLog.actor_id == User.id)
+        .where(*conditions)
         .order_by(AuditLog.created_at.desc(), AuditLog.id.desc())
-        .limit(limit)
+        .offset((page - 1) * page_size)
+        .limit(page_size)
     )
     allowed_detail_keys = {
         "before", "after", "roles",
         "previous_status", "current_status",
-        "previous_audit_status", "current_audit_status", "current_status",
+        "previous_audit_status", "current_audit_status",
         "property_id", "previous_verification", "current_verification",
+        "title", "is_published", "publish_time",
     }
     items = []
-    for audit_log, actor_nickname in result.all():
+    for audit_log, actor_nickname, actor_phone in result.all():
         raw_details = audit_log.details if isinstance(audit_log.details, dict) else {}
         details = {key: raw_details[key] for key in allowed_detail_keys if key in raw_details}
+        actor = actor_nickname or (f"管理员 #{audit_log.actor_id}" if audit_log.actor_id else "系统")
         items.append({
             "id": audit_log.id,
             "action": audit_log.action,
             "target_type": audit_log.target_type,
             "target_id": audit_log.target_id,
-            "actor": actor_nickname or (f"管理员 #{audit_log.actor_id}" if audit_log.actor_id else "系统"),
+            "actor_id": audit_log.actor_id,
+            "actor": actor,
+            "actor_phone": _mask_phone(actor_phone),
             "details": details,
             "created_at": audit_log.created_at,
         })
-    return {"items": items, "total": len(items)}
+    return {"items": items, "total": total, "page": page, "page_size": page_size}
 
 
 @router.get("/properties/pending", summary="获取待审核房源")
