@@ -614,19 +614,51 @@ class FeedbackStatusUpdateRequest(BaseModel):
 
 @router.get("/news", summary="获取后台资讯列表")
 async def list_news_articles(
-    limit: int = Query(default=50, ge=1, le=100),
+    limit: int | None = Query(default=None, ge=1, le=100),
+    publish_status: str = Query(default="all", max_length=20),
+    category: str | None = Query(default=None, max_length=50),
+    keyword: str | None = Query(default=None, max_length=80),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=50, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_roles(Role.OPERATIONS, Role.ADMIN, Role.SUPERADMIN)),
 ):
+    allowed_publish_status = {"all", "published", "draft"}
+    if publish_status not in allowed_publish_status:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="资讯发布状态参数无效")
+
+    conditions = [NewsArticle.deleted_at.is_(None)]
+    if publish_status == "published":
+        conditions.append(NewsArticle.is_published.is_(True))
+    elif publish_status == "draft":
+        conditions.append(NewsArticle.is_published.is_(False))
+
+    if category and category != "all":
+        conditions.append(NewsArticle.category == category)
+
+    keyword_value = keyword.strip() if keyword else ""
+    if keyword_value:
+        like_value = f"%{keyword_value}%"
+        conditions.append(or_(
+            NewsArticle.title.like(like_value),
+            NewsArticle.summary.like(like_value),
+            NewsArticle.category_name.like(like_value),
+            NewsArticle.author_name.like(like_value),
+        ))
+
+    total_result = await db.execute(select(func.count()).select_from(NewsArticle).where(*conditions))
+    total = total_result.scalar_one() or 0
+    effective_page_size = limit or page_size
     result = await db.execute(
         select(NewsArticle)
-        .where(NewsArticle.deleted_at.is_(None))
+        .where(*conditions)
         .order_by(NewsArticle.sort_order.desc(), NewsArticle.publish_time.desc(), NewsArticle.id.desc())
-        .limit(limit)
+        .offset((page - 1) * effective_page_size)
+        .limit(effective_page_size)
         .options(selectinload(NewsArticle.author))
     )
     articles = result.scalars().all()
-    return {"items": [_serialize_news(article) for article in articles], "total": len(articles)}
+    return {"items": [_serialize_news(article) for article in articles], "total": total, "page": page, "page_size": effective_page_size}
 
 
 @router.post("/news", summary="创建资讯")
