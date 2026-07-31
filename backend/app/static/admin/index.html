@@ -652,6 +652,26 @@
       padding:9px 11px;
       font-size:12px;
     }
+    #consoleView .search select {
+      min-width:150px;
+      padding:9px 11px;
+      border:1px solid #dfe7e3;
+      border-radius:10px;
+      background:#fff;
+      color:#253a32;
+      font-size:12px;
+    }
+    #consoleView .member-note {
+      padding:10px 18px 0;
+      color:#73857e;
+      font-size:12px;
+      line-height:1.6;
+    }
+    #consoleView .member-detail-grid {
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px 14px;
+    }
     #consoleView .search button {
       padding:8px 13px;
       font-size:12px;
@@ -779,6 +799,9 @@
         grid-template-columns:1fr;
         max-height:none;
       }
+      #consoleView .member-detail-grid {
+        grid-template-columns:1fr;
+      }
     }
   </style>
 </head>
@@ -848,7 +871,7 @@
             <section id="auditSection" class="panel audit-panel"><div class="heading"><div><h2>操作记录</h2><div class="hint">按操作、对象、人员和时间范围追踪后台变更</div></div><button id="reloadAuditLogs" class="secondary">刷新</button></div><form id="auditFilters" class="feedback-filters audit-filters"><label>操作类型<select id="auditActionFilter"><option value="all">全部操作</option><option value="roles.updated">更新后台角色</option><option value="agent_application.approve">通过经纪人申请</option><option value="agent_application.reject">驳回经纪人申请</option><option value="agent_application.suspend">停用经纪人</option><option value="property_review.approve">通过房源审核</option><option value="property_review.reject">驳回房源审核</option><option value="property_review_moderation.approve">通过房源评价</option><option value="property_review_moderation.reject">驳回房源评价</option><option value="video_comment_moderation.approve">通过视频评论</option><option value="video_comment_moderation.reject">驳回视频评论</option><option value="feedback.status_updated">更新反馈状态</option><option value="news.created">创建资讯</option><option value="news.updated">更新资讯</option><option value="news.published">发布资讯</option><option value="news.deleted">删除资讯</option></select></label><label>对象类型<select id="auditTargetFilter"><option value="all">全部对象</option><option value="user">成员</option><option value="agent_application">经纪人申请</option><option value="property">房源</option><option value="property_review">房源评价</option><option value="video_comment">视频评论</option><option value="feedback">用户反馈</option><option value="news">资讯</option></select></label><label>关键词<input id="auditKeyword" maxlength="80" placeholder="操作人、对象 ID 或动作"></label><label>开始日期<input id="auditDateFrom" type="date"></label><label>结束日期<input id="auditDateTo" type="date"></label><button type="submit" class="secondary">筛选</button><button id="resetAuditFilters" type="button" class="secondary">重置</button></form><div id="auditSummary" class="feedback-summary">默认显示最近操作记录</div><div id="auditItems" class="items"><div class="empty">正在加载…</div></div></section>
             <section id="feedbackSection" class="panel feedback-panel"><div class="heading"><div><h2>用户反馈</h2><div class="hint">按状态、类型和关键词跟进用户问题</div></div><button id="reloadFeedback" class="secondary">刷新</button></div><form id="feedbackFilters" class="feedback-filters"><label>处理状态<select id="feedbackStatusFilter"><option value="active">待处理 + 处理中</option><option value="pending">待处理</option><option value="processing">处理中</option><option value="resolved">已处理</option><option value="closed">已关闭</option><option value="all">全部状态</option></select></label><label>反馈类型<select id="feedbackCategoryFilter"><option value="all">全部类型</option><option value="general">其他建议</option><option value="property">房源问题</option><option value="agent">经纪人服务</option><option value="feature">功能建议</option><option value="bug">异常报错</option></select></label><label>关键词<input id="feedbackKeyword" maxlength="80" placeholder="搜索内容、昵称或联系方式"></label><button type="submit" class="secondary">筛选</button><button id="resetFeedbackFilters" type="button" class="secondary">重置</button></form><div id="feedbackSummary" class="feedback-summary">默认显示待处理和处理中反馈</div><div id="feedbackItems" class="items"><div class="empty">正在加载…</div></div></section>
             <section id="newsSection" class="panel news-panel"><div class="heading"><div><h2>资讯运营</h2><div class="hint">新建、编辑、发布和下架资讯</div></div><button id="reloadNews" class="secondary">刷新</button></div><form id="newsForm" class="news-form"><div class="news-grid"><div class="news-field"><label for="newsTitle">标题</label><input id="newsTitle" maxlength="200" placeholder="输入资讯标题" required></div><div class="news-field"><label for="newsCategory">分类</label><select id="newsCategory"><option value="market">市场分析</option><option value="guide">购房指南</option><option value="policy">政策解读</option><option value="knowledge">房产知识</option></select></div><div class="news-field"><label for="newsCategoryName">分类名称</label><input id="newsCategoryName" maxlength="50" placeholder="可留空，默认按分类生成"></div><div class="news-field"><label for="newsSortOrder">排序权重</label><input id="newsSortOrder" type="number" min="0" max="9999" value="0"></div><div class="news-field"><label for="newsCover">封面链接</label><input id="newsCover" maxlength="1000" placeholder="https://..."></div><div class="news-field"><label for="newsAuthor">作者名称</label><input id="newsAuthor" maxlength="50" placeholder="可留空，默认使用当前账号"></div><div class="news-field"><label for="newsAuthorAvatar">作者头像</label><input id="newsAuthorAvatar" maxlength="500" placeholder="https://..."></div><div class="news-field"><label for="newsTags">标签</label><input id="newsTags" placeholder="如：灵山,购房,政策（英文逗号分隔）"></div><div class="news-field"><label for="newsSummary">摘要</label><input id="newsSummary" maxlength="500" placeholder="给前台列表展示的摘要"></div><div class="news-field wide"><label for="newsContent">正文</label><textarea id="newsContent" placeholder="支持 HTML 片段；不填标签时会按纯文本段落保存" required></textarea></div><div class="news-field wide"><label><input id="newsPublish" type="checkbox"> 保存后直接发布</label><div class="news-tip">未勾选则保存为草稿，前台不会展示。</div></div></div><div class="news-form-actions"><button id="saveNewsButton" type="submit">保存资讯</button><button id="resetNewsButton" type="button" class="secondary">清空</button></div></form><form id="newsFilters" class="feedback-filters news-filters"><label>发布状态<select id="newsStatusFilter"><option value="all">全部状态</option><option value="published">已发布</option><option value="draft">草稿</option></select></label><label>资讯分类<select id="newsFilterCategory"><option value="all">全部分类</option><option value="market">市场分析</option><option value="guide">购房指南</option><option value="policy">政策解读</option><option value="knowledge">房产知识</option></select></label><label>关键词<input id="newsKeyword" maxlength="80" placeholder="搜索标题、摘要、作者"></label><button type="submit" class="secondary">筛选</button><button id="resetNewsFilters" type="button" class="secondary">重置</button></form><div id="newsListSummary" class="feedback-summary">默认显示全部资讯</div><div id="newsItems" class="items"><div class="empty">正在加载…</div></div></section>
-            <section id="roleSection" class="panel role-panel-wrap"><div class="heading"><div><h2>成员与权限</h2><div class="hint">仅超级管理员可以分配后台角色</div></div><span id="userCount" class="count"></span></div><div id="permissionPolicy" class="permission-policy"><div class="permission-policy-head"><div><h2>后台权限规则</h2><div class="hint">角色与能力的统一说明</div></div><div id="currentPermissionSummary" class="count"></div></div><div id="permissionPolicyBody" class="policy-grid"><div class="empty">正在加载…</div></div></div><form id="userSearch" class="search"><input id="keyword" placeholder="按用户 ID 或昵称查找成员"><button type="submit" class="secondary">查询</button></form><div id="userItems" class="items"><div class="empty">正在加载…</div></div></section>
+            <section id="roleSection" class="panel role-panel-wrap"><div class="heading"><div><h2>成员与权限</h2><div class="hint">仅超级管理员可以分配后台角色</div></div><span id="userCount" class="count"></span></div><div id="permissionPolicy" class="permission-policy"><div class="permission-policy-head"><div><h2>后台权限规则</h2><div class="hint">角色与能力的统一说明</div></div><div id="currentPermissionSummary" class="count"></div></div><div id="permissionPolicyBody" class="policy-grid"><div class="empty">正在加载…</div></div></div><form id="userSearch" class="search member-filters"><input id="keyword" placeholder="按用户 ID、昵称或手机号查找成员"><select id="userRoleFilter"><option value="all">全部角色</option><option value="superadmin">超级管理员</option><option value="admin">管理员</option><option value="operations">运营</option><option value="reviewer">审核员</option><option value="agent">经纪人</option><option value="user">普通用户</option></select><button type="submit" class="secondary">查询</button><button id="resetUserFilters" type="button" class="secondary">重置</button></form><div id="memberPermissionNote" class="member-note">只有超级管理员可以保存成员角色；管理员角色会获得审核、资讯、反馈和审计权限，保存前会二次确认。</div><div id="userItems" class="items"><div class="empty">正在加载…</div></div></section>
           </div>
         </main>
       </div>
@@ -903,6 +926,8 @@
       var saveNewsButton = document.getElementById("saveNewsButton");
       var editingNewsId = null;
       var userItems = document.getElementById("userItems");
+      var userRoleFilter = document.getElementById("userRoleFilter");
+      var resetUserFilters = document.getElementById("resetUserFilters");
       var notice = document.getElementById("notice");
       var loginView = document.getElementById("loginView");
       var consoleView = document.getElementById("consoleView");
@@ -1680,13 +1705,77 @@
         clearNewsForm();
       });
 
-      function loadUsers() {
+      function roleLabel(role) {
+        var labels = { user: "普通用户", agent: "经纪人", reviewer: "审核员", operations: "运营", admin: "管理员", superadmin: "超级管理员" };
+        return labels[role] || role;
+      }
+      function roleText(roles) {
+        return (roles || []).map(roleLabel).join("、") || "普通用户";
+      }
+      function userQueryString() {
         var keyword = document.getElementById("keyword").value.trim();
+        var params = [];
+        if (keyword) params.push("keyword=" + encodeURIComponent(keyword));
+        params.push("role=" + encodeURIComponent(userRoleFilter.value || "all"));
+        params.push("page=1");
+        params.push("page_size=50");
+        return params.length ? "?" + params.join("&") : "";
+      }
+      function confirmMemberRoleChange(user, roles) {
+        var currentRoles = user.roles || [];
+        var addingAdmin = roles.indexOf("admin") >= 0 && currentRoles.indexOf("admin") < 0;
+        var removingAdmin = currentRoles.indexOf("admin") >= 0 && roles.indexOf("admin") < 0;
+        var removingAllBackoffice = !roles.length && currentRoles.some(function (role) { return ["reviewer", "operations", "admin"].indexOf(role) >= 0; });
+        if (addingAdmin) {
+          return window.confirm("确认要给“" + (user.nickname || "用户 #" + user.user_id) + "”分配管理员角色？该角色可审核、运营内容、处理反馈并查看操作记录。");
+        }
+        if (removingAdmin) {
+          return window.confirm("确认移除该成员的管理员角色？保存后将立即失去管理员能力。");
+        }
+        if (removingAllBackoffice) {
+          return window.confirm("确认移除该成员所有后台角色？保存后该成员将不能进入对应后台模块。");
+        }
+        return true;
+      }
+      function openMemberDetail(user) {
+        var overlay = document.createElement("div");
+        overlay.className = "feedback-modal";
+        var modal = document.createElement("div");
+        modal.className = "feedback-modal-card";
+        var head = document.createElement("div");
+        head.className = "feedback-modal-head";
+        var titleWrap = document.createElement("div");
+        var title = document.createElement("h2");
+        title.textContent = (user.nickname || "未命名用户") + " · 用户 #" + user.user_id;
+        var hint = document.createElement("div");
+        hint.className = "hint";
+        hint.textContent = roleText(user.roles);
+        titleWrap.appendChild(title);
+        titleWrap.appendChild(hint);
+        head.appendChild(titleWrap);
+        head.appendChild(button("关闭", "secondary", function () { overlay.remove(); }));
+        modal.appendChild(head);
+        var body = document.createElement("div");
+        body.className = "feedback-modal-body member-detail-grid";
+        addMeta(body, "手机号", user.phone);
+        addMeta(body, "当前角色", roleText(user.roles));
+        addMeta(body, "账号状态", user.is_active ? "正常" : "停用");
+        addMeta(body, "实名认证", user.is_verified ? "已认证" : "未认证");
+        addMeta(body, "经纪人", user.is_agent ? "是" : "否");
+        addMeta(body, "经纪人申请", user.agent_application_status);
+        addMeta(body, "经纪公司", user.agent_company);
+        addMeta(body, "注册时间", user.created_at ? new Date(user.created_at).toLocaleString() : "");
+        addMeta(body, "最后登录", user.last_login_at ? new Date(user.last_login_at).toLocaleString() : "");
+        modal.appendChild(body);
+        overlay.appendChild(modal);
+        overlay.addEventListener("click", function (event) { if (event.target === overlay) overlay.remove(); });
+        document.body.appendChild(overlay);
+      }
+      function loadUsers() {
         userItems.innerHTML = '<div class="empty">正在加载…</div>';
-        var query = keyword ? "?keyword=" + encodeURIComponent(keyword) : "";
-        return request("/admin/users" + query).then(function (data) {
+        return request("/admin/users" + userQueryString()).then(function (data) {
           roleSection.classList.remove("hidden");
-          document.getElementById("userCount").textContent = "当前显示 " + (data.total || 0) + " 位";
+          document.getElementById("userCount").textContent = "共 " + (data.total || 0) + " 位，当前显示 " + ((data.items || []).length) + " 位";
           userItems.innerHTML = "";
           var items = data.items || [];
           if (!items.length) { userItems.innerHTML = '<div class="empty">未找到用户</div>'; return; }
@@ -1698,8 +1787,12 @@
             title.textContent = (user.nickname || "未命名用户") + " · 用户 #" + user.user_id;
             card.appendChild(title);
             addMeta(card, "手机号", user.phone);
-            addMeta(card, "当前角色", (user.roles || []).join("、"));
+            addMeta(card, "当前角色", roleText(user.roles));
             addMeta(card, "经纪人状态", user.agent_application_status);
+            var detailActions = document.createElement("div");
+            detailActions.className = "actions";
+            detailActions.appendChild(button("查看详情", "secondary", function () { openMemberDetail(user); }));
+            card.appendChild(detailActions);
             if ((user.roles || []).indexOf("superadmin") >= 0) {
               var fixed = document.createElement("div");
               fixed.className = "hint";
@@ -1723,8 +1816,9 @@
               panel.appendChild(checks);
               panel.appendChild(button("保存角色", "", function () {
                 var roles = Array.prototype.slice.call(checks.querySelectorAll("input:checked")).map(function (input) { return input.value; });
+                if (!confirmMemberRoleChange(user, roles)) return;
                 request("/admin/users/" + user.user_id + "/roles", { method: "PUT", body: JSON.stringify({ roles: roles }) })
-                  .then(function () { setNotice("用户 #" + user.user_id + " 的角色已更新。"); return loadUsers(); })
+                  .then(function () { setNotice("用户 #" + user.user_id + " 的角色已更新。"); return Promise.all([loadUsers(), loadAuditLogs()]); })
                   .catch(handleError);
               }));
               card.appendChild(panel);
@@ -1821,6 +1915,8 @@
       newsFilterCategory.addEventListener("change", loadNews);
       resetNewsFilters.addEventListener("click", function () { newsStatusFilter.value = "all"; newsFilterCategory.value = "all"; newsKeyword.value = ""; loadNews(); });
       document.getElementById("userSearch").addEventListener("submit", function (event) { event.preventDefault(); loadUsers(); });
+      userRoleFilter.addEventListener("change", loadUsers);
+      resetUserFilters.addEventListener("click", function () { document.getElementById("keyword").value = ""; userRoleFilter.value = "all"; loadUsers(); });
       if (token) showConsole();
     }());
   </script>

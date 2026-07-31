@@ -162,19 +162,32 @@ async def get_permission_policy(
 @router.get("/users", summary="获取后台角色管理用户列表")
 async def list_users_for_role_management(
     keyword: str | None = Query(default=None, min_length=1, max_length=50),
-    limit: int = Query(default=50, ge=1, le=100),
+    role: str = Query(default="all", max_length=30),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=50, ge=1, le=100),
+    limit: int | None = Query(default=None, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_roles(Role.SUPERADMIN)),
 ):
-    query = select(User)
-    if keyword:
-        filters = [User.nickname.ilike(f"%{keyword.strip()}%")]
-        if keyword.strip().isdigit():
-            filters.append(User.id == int(keyword.strip()))
-        query = query.where(or_(*filters))
+    allowed_role_filters = {"all", Role.USER.value, Role.AGENT.value, Role.REVIEWER.value, Role.OPERATIONS.value, Role.ADMIN.value, Role.SUPERADMIN.value}
+    if role not in allowed_role_filters:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="成员角色筛选参数无效")
 
-    result = await db.execute(query.order_by(User.id.desc()).limit(limit))
-    users = result.scalars().all()
+    conditions = [User.deleted_at.is_(None)]
+    if keyword:
+        keyword_value = keyword.strip()
+        filters = [User.nickname.ilike(f"%{keyword_value}%"), User.phone.ilike(f"%{keyword_value}%")]
+        if keyword_value.isdigit():
+            filters.append(User.id == int(keyword_value))
+        conditions.append(or_(*filters))
+
+    result = await db.execute(select(User).where(*conditions).order_by(User.id.desc()))
+    all_users = result.scalars().all()
+    filtered_users = [user for user in all_users if role == "all" or role in get_user_roles(user)]
+    total = len(filtered_users)
+    effective_page_size = limit or page_size
+    offset = (page - 1) * effective_page_size
+    users = filtered_users[offset:offset + effective_page_size]
     return {
         "items": [
             {
@@ -183,11 +196,18 @@ async def list_users_for_role_management(
                 "phone": _mask_phone(user.phone),
                 "roles": sorted(get_user_roles(user)),
                 "is_agent": user.is_agent,
+                "is_active": user.is_active,
+                "is_verified": user.is_verified,
                 "agent_application_status": user.agent_application_status,
+                "agent_company": user.agent_company,
+                "created_at": user.created_at,
+                "last_login_at": user.last_login_at,
             }
             for user in users
         ],
-        "total": len(users),
+        "total": total,
+        "page": page,
+        "page_size": effective_page_size,
     }
 
 
