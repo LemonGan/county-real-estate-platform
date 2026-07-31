@@ -133,7 +133,7 @@ Page({
    */
   async loadNews() {
     try {
-      const res = await api.get('/news/', {
+      const res = await api.get('/news', {
         page: 1,
         page_size: 5
       }, false)
@@ -141,7 +141,7 @@ Page({
       this.setData({
         newsList: (res.items || []).map(item => ({
           ...item,
-          publish_time_text: this.formatPublishTime(item.created_at)
+          publish_time_text: item.publish_time_text || this.formatPublishTime(item.publish_time || '')
         }))
       })
     } catch (err) {
@@ -153,10 +153,12 @@ Page({
    * 格式化发布时间
    */
   formatPublishTime(dateStr) {
+    if (!dateStr || typeof dateStr !== 'string') return ''
     const now = new Date()
     // 将日期字符串转换为 iOS 兼容格式 (yyyy-MM-ddTHH:mm:ss)
     const iosDateStr = dateStr.replace(/\s+/g, 'T')
     const date = new Date(iosDateStr)
+    if (Number.isNaN(date.getTime())) return dateStr
     const diff = now - date
     const days = Math.floor(diff / (1000 * 60 * 60 * 24))
 

@@ -1,24 +1,24 @@
 <!--pages/news/list/list.wxml-->
 <view class="news-page">
-  <!-- 分类标签 -->
   <view class="category-tabs">
-    <scroll-view class="tabs-scroll" scroll-x="{{true}}">
-      <view
-        class="tab-item {{currentCategory === item.value ? 'active' : ''}}"
-        wx:for="{{categories}}"
-        wx:key="value"
-        data-value="{{item.value}}"
-        bindtap="switchCategory"
-      >
-        {{item.label}}
+    <scroll-view class="tabs-scroll" scroll-x="true" show-scrollbar="false">
+      <view class="tabs-inner">
+        <view
+          class="tab-item {{currentCategory === item.value ? 'active' : ''}}"
+          wx:for="{{categories}}"
+          wx:key="value"
+          data-value="{{item.value}}"
+          bindtap="switchCategory"
+        >
+          {{item.label}}
+        </view>
       </view>
     </scroll-view>
   </view>
 
-  <!-- 资讯列表 -->
-  <view class="news-list">
+  <view class="news-list" wx:if="{{newsList.length > 0}}">
     <view
-      class="news-item"
+      class="news-card"
       wx:for="{{newsList}}"
       wx:key="id"
       bindtap="goToNewsDetail"
@@ -26,37 +26,37 @@
     >
       <image class="news-thumb" src="{{item.cover_url}}" mode="aspectFill" />
       <view class="news-content">
+        <view class="news-topline">
+          <text class="news-category">{{item.category_name}}</text>
+          <text class="news-time">{{item.publish_time_text}}</text>
+        </view>
         <view class="news-title ellipsis-2">{{item.title}}</view>
-        <view class="news-summary ellipsis">{{item.summary}}</view>
+        <view class="news-summary ellipsis-2">{{item.summary}}</view>
         <view class="news-meta">
           <view class="meta-left">
-            <text class="news-category">{{item.category_name}}</text>
             <text class="news-author">{{item.author}}</text>
+            <text class="news-view">{{item.view_count}}阅读</text>
           </view>
-          <text class="news-time">{{item.publish_time}}</text>
+          <text class="news-arrow">查看</text>
         </view>
       </view>
     </view>
   </view>
 
-  <!-- 空状态 -->
   <view class="empty-state" wx:if="{{newsList.length === 0 && !loading}}">
     <image class="empty-icon" src="/assets/icons/empty-news.png" />
     <view class="empty-text">暂无运营资讯</view>
   </view>
 
-  <!-- 加载状态 -->
   <view class="loading-state" wx:if="{{loading}}">
     <view class="loading-spinner"></view>
     <view class="loading-text">加载中...</view>
   </view>
 
-  <!-- 加载更多 -->
   <view class="load-more" wx:if="{{hasMore && newsList.length > 0 && !loading}}">
     <text class="load-more-text">上拉加载更多</text>
   </view>
 
-  <!-- 没有更多 -->
   <view class="no-more" wx:if="{{!hasMore && newsList.length > 0}}">
     <text>没有更多了</text>
   </view>

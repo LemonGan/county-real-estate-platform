@@ -13,6 +13,7 @@ from app.crud.user import get_user_by_id
 
 # OAuth2密码流
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+oauth2_optional_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
 
 
 async def get_current_user(
@@ -52,6 +53,26 @@ async def get_current_user(
     
     return user
 
+
+
+
+async def get_current_user_optional(
+    token: str | None = Depends(oauth2_optional_scheme),
+    db: AsyncSession = Depends(get_db)
+) -> Optional[User]:
+    if not token:
+        return None
+    try:
+        payload = decode_token(token)
+    except Exception:
+        return None
+    user_id: Optional[int] = payload.get("sub")
+    if user_id is None:
+        return None
+    user = await get_user_by_id(db, user_id=user_id)
+    if user is None:
+        return None
+    return user
 
 async def get_current_active_user(
     current_user: User = Depends(get_current_user)

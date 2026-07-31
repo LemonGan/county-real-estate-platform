@@ -15,6 +15,8 @@ from app.models.video_recommendation import VideoRecommendation
 from app.models.audit_log import AuditLog
 from app.models.feedback import Feedback
 from app.models.message import Message
+from app.models.news_article import NewsArticle
+from app.models.news_interaction import NewsInteraction
 from app.models.agent_follow import AgentFollow
 from app.models.video_interaction import VideoLike, VideoFavorite, VideoComment, VideoCommentLike
 
@@ -38,6 +40,8 @@ __all__ = [
     "AuditLog",
     "Feedback",
     "Message",
+    "NewsArticle",
+    "NewsInteraction",
     "AgentFollow",
     "VideoLike",
     "VideoFavorite",

@@ -11,9 +11,10 @@ from sqlalchemy.orm import selectinload
 from app.api.deps import get_current_active_user
 from app.api.v1.messages import create_message
 from app.core.database import get_db
-from app.core.permissions import Role, get_user_roles, require_roles
+from app.core.permissions import Role, build_permission_policy_payload, get_user_roles, require_roles
 from app.models.audit_log import AuditLog
 from app.models.feedback import Feedback
+from app.models.news_article import NewsArticle
 from app.models.property import Property
 from app.models.property_review import PropertyReview
 from app.models.short_video import ShortVideo
@@ -37,12 +38,86 @@ class PropertyReviewModerationRequest(BaseModel):
     note: str | None = Field(default=None, max_length=500)
 
 
+class NewsArticleCreateRequest(BaseModel):
+    title: str = Field(..., min_length=1, max_length=200)
+    summary: str | None = Field(default=None, max_length=500)
+    content: str = Field(..., min_length=1)
+    cover_url: str | None = Field(default=None, max_length=1000)
+    category: str = Field(..., min_length=1, max_length=50)
+    category_name: str | None = Field(default=None, max_length=50)
+    tags: List[str] | None = None
+    author_name: str | None = Field(default=None, max_length=50)
+    author_avatar: str | None = Field(default=None, max_length=500)
+    sort_order: int = Field(default=0, ge=0, le=9999)
+    is_published: bool = False
+
+
+class NewsArticleUpdateRequest(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=200)
+    summary: str | None = Field(default=None, max_length=500)
+    content: str | None = Field(default=None)
+    cover_url: str | None = Field(default=None, max_length=1000)
+    category: str | None = Field(default=None, min_length=1, max_length=50)
+    category_name: str | None = Field(default=None, max_length=50)
+    tags: List[str] | None = None
+    author_name: str | None = Field(default=None, max_length=50)
+    author_avatar: str | None = Field(default=None, max_length=500)
+    sort_order: int | None = Field(default=None, ge=0, le=9999)
+    is_published: bool | None = None
+
+
 def _mask_phone(phone: str | None) -> str | None:
     if not phone:
         return None
     if len(phone) <= 7:
         return "*" * len(phone)
     return f"{phone[:3]}****{phone[-4:]}"
+
+
+def _normalize_html_content(content: str) -> str:
+    content = content.strip()
+    if not content:
+        return content
+    if "<" in content and ">" in content:
+        return content
+    paragraphs = [part.strip() for part in content.splitlines() if part.strip()]
+    if not paragraphs:
+        return ""
+    return "".join(f"<p>{paragraph}</p>" for paragraph in paragraphs)
+
+
+def _serialize_news(article: NewsArticle) -> dict:
+    author_name = article.author_name or (article.author.nickname if article.author and article.author.nickname else None) or "未命名作者"
+    author_avatar = article.author_avatar or (article.author.avatar if article.author and article.author.avatar else "")
+    return {
+        "id": article.id,
+        "title": article.title,
+        "summary": article.summary or "",
+        "content": article.content,
+        "cover_url": article.cover_url or "",
+        "category": article.category,
+        "category_name": article.category_name or article.category,
+        "tags": article.tags or [],
+        "author_id": article.author_id,
+        "author_name": author_name,
+        "author_avatar": author_avatar,
+        "is_published": article.is_published,
+        "publish_time": article.publish_time,
+        "sort_order": article.sort_order or 0,
+        "view_count": article.view_count or 0,
+        "like_count": article.like_count or 0,
+        "collect_count": article.collect_count or 0,
+        "share_count": article.share_count or 0,
+        "created_at": article.created_at,
+        "updated_at": article.updated_at,
+    }
+
+
+@router.get("/permissions", summary="获取后台权限规则")
+async def get_permission_policy(
+    current_user: User = Depends(get_current_active_user),
+):
+    return build_permission_policy_payload(current_user)
 
 
 @router.get("/users", summary="获取后台角色管理用户列表")
@@ -436,6 +511,159 @@ async def moderate_video_comment(
 class FeedbackStatusUpdateRequest(BaseModel):
     status: Literal["processing", "resolved", "closed"]
     response: str | None = Field(default=None, max_length=500)
+
+
+@router.get("/news", summary="获取后台资讯列表")
+async def list_news_articles(
+    limit: int = Query(default=50, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_roles(Role.OPERATIONS, Role.ADMIN, Role.SUPERADMIN)),
+):
+    result = await db.execute(
+        select(NewsArticle)
+        .where(NewsArticle.deleted_at.is_(None))
+        .order_by(NewsArticle.sort_order.desc(), NewsArticle.publish_time.desc(), NewsArticle.id.desc())
+        .limit(limit)
+        .options(selectinload(NewsArticle.author))
+    )
+    articles = result.scalars().all()
+    return {"items": [_serialize_news(article) for article in articles], "total": len(articles)}
+
+
+@router.post("/news", summary="创建资讯")
+async def create_news_article(
+    request: NewsArticleCreateRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_roles(Role.OPERATIONS, Role.ADMIN, Role.SUPERADMIN)),
+):
+    article = NewsArticle(
+        title=request.title.strip(),
+        summary=request.summary.strip() if request.summary else None,
+        content=_normalize_html_content(request.content),
+        cover_url=request.cover_url.strip() if request.cover_url else None,
+        category=request.category.strip(),
+        category_name=request.category_name.strip() if request.category_name else None,
+        tags=request.tags or [],
+        author_id=current_user.id,
+        author_name=request.author_name.strip() if request.author_name else (current_user.nickname or current_user.real_name or current_user.phone),
+        author_avatar=request.author_avatar.strip() if request.author_avatar else (current_user.avatar or None),
+        sort_order=request.sort_order,
+        is_published=request.is_published,
+        publish_time=datetime.now(timezone.utc) if request.is_published else None,
+    )
+    db.add(article)
+    await db.flush()
+    db.add(AuditLog(
+        actor_id=current_user.id,
+        action="news.created",
+        target_type="news",
+        target_id=str(article.id),
+        details={"title": article.title, "is_published": article.is_published},
+    ))
+    await db.commit()
+    result = await db.execute(select(NewsArticle).where(NewsArticle.id == article.id).options(selectinload(NewsArticle.author)))
+    return _serialize_news(result.scalar_one())
+
+
+@router.put("/news/{news_id}", summary="更新资讯")
+async def update_news_article(
+    news_id: int,
+    request: NewsArticleUpdateRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_roles(Role.OPERATIONS, Role.ADMIN, Role.SUPERADMIN)),
+):
+    result = await db.execute(select(NewsArticle).where(NewsArticle.id == news_id, NewsArticle.deleted_at.is_(None)).options(selectinload(NewsArticle.author)))
+    article = result.scalar_one_or_none()
+    if not article:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="资讯不存在")
+
+    before = {
+        "title": article.title,
+        "category": article.category,
+        "is_published": article.is_published,
+        "sort_order": article.sort_order,
+    }
+    if request.title is not None:
+        article.title = request.title.strip()
+    if request.summary is not None:
+        article.summary = request.summary.strip() if request.summary else None
+    if request.content is not None:
+        article.content = _normalize_html_content(request.content)
+    if request.cover_url is not None:
+        article.cover_url = request.cover_url.strip() if request.cover_url else None
+    if request.category is not None:
+        article.category = request.category.strip()
+    if request.category_name is not None:
+        article.category_name = request.category_name.strip() if request.category_name else None
+    if request.tags is not None:
+        article.tags = request.tags
+    if request.author_name is not None:
+        article.author_name = request.author_name.strip() if request.author_name else None
+    if request.author_avatar is not None:
+        article.author_avatar = request.author_avatar.strip() if request.author_avatar else None
+    if request.sort_order is not None:
+        article.sort_order = request.sort_order
+    if request.is_published is not None:
+        article.is_published = request.is_published
+        article.publish_time = datetime.now(timezone.utc) if request.is_published and article.publish_time is None else article.publish_time
+        if not request.is_published:
+            article.publish_time = None
+    db.add(AuditLog(
+        actor_id=current_user.id,
+        action="news.updated",
+        target_type="news",
+        target_id=str(article.id),
+        details={"before": before, "after": {"title": article.title, "category": article.category, "is_published": article.is_published, "sort_order": article.sort_order}},
+    ))
+    await db.commit()
+    result = await db.execute(select(NewsArticle).where(NewsArticle.id == article.id).options(selectinload(NewsArticle.author)))
+    return _serialize_news(result.scalar_one())
+
+
+@router.post("/news/{news_id}/publish", summary="发布资讯")
+async def publish_news_article(
+    news_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_roles(Role.OPERATIONS, Role.ADMIN, Role.SUPERADMIN)),
+):
+    result = await db.execute(select(NewsArticle).where(NewsArticle.id == news_id, NewsArticle.deleted_at.is_(None)).options(selectinload(NewsArticle.author)))
+    article = result.scalar_one_or_none()
+    if not article:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="资讯不存在")
+    article.is_published = True
+    article.publish_time = datetime.now(timezone.utc)
+    db.add(AuditLog(
+        actor_id=current_user.id,
+        action="news.published",
+        target_type="news",
+        target_id=str(article.id),
+        details={"title": article.title, "publish_time": article.publish_time.isoformat() if article.publish_time else None},
+    ))
+    await db.commit()
+    result = await db.execute(select(NewsArticle).where(NewsArticle.id == article.id).options(selectinload(NewsArticle.author)))
+    return _serialize_news(result.scalar_one())
+
+
+@router.delete("/news/{news_id}", summary="删除资讯")
+async def delete_news_article(
+    news_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_roles(Role.OPERATIONS, Role.ADMIN, Role.SUPERADMIN)),
+):
+    result = await db.execute(select(NewsArticle).where(NewsArticle.id == news_id, NewsArticle.deleted_at.is_(None)).options(selectinload(NewsArticle.author)))
+    article = result.scalar_one_or_none()
+    if not article:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="资讯不存在")
+    article.deleted_at = datetime.now(timezone.utc)
+    db.add(AuditLog(
+        actor_id=current_user.id,
+        action="news.deleted",
+        target_type="news",
+        target_id=str(article.id),
+        details={"title": article.title},
+    ))
+    await db.commit()
+    return {"news_id": news_id, "message": "资讯已删除"}
 
 
 @router.get("/feedback", summary="获取待处理用户反馈")

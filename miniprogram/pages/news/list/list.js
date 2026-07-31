@@ -47,6 +47,16 @@ Page({
     }
   },
 
+  normalizeNewsItem(item) {
+    return {
+      ...item,
+      cover_url: item.cover_url || '/assets/images/news-cover-1.jpg',
+      summary: item.summary || '暂无摘要',
+      publish_time_text: item.publish_time_text || item.publish_time || '',
+      tags: item.tags || []
+    }
+  },
+
   // 切换分类
   switchCategory(e) {
     const category = e.currentTarget.dataset.value
@@ -70,12 +80,14 @@ Page({
         params.category = this.data.currentCategory
       }
 
-      const res = await api.get('/news/', params, false)
+      const res = await api.get('/news', params, false)
+      const items = (res.items || []).map(this.normalizeNewsItem)
+      const total = typeof res.total === 'number' ? res.total : items.length
 
       this.setData({
-        newsList: res.items || [],
+        newsList: items,
         loading: false,
-        hasMore: (res.items || []).length >= this.data.pageSize
+        hasMore: this.data.currentPage * this.data.pageSize < total
       })
     } catch (error) {
       console.error('加载资讯列表失败:', error)
@@ -91,11 +103,12 @@ Page({
   async loadMoreNews() {
     if (this.data.loading || !this.data.hasMore) return
 
-    this.setData({ loading: true, currentPage: this.data.currentPage + 1 })
+    const nextPage = this.data.currentPage + 1
+    this.setData({ loading: true })
 
     try {
       const params = {
-        page: this.data.currentPage,
+        page: nextPage,
         page_size: this.data.pageSize
       }
 
@@ -103,12 +116,15 @@ Page({
         params.category = this.data.currentCategory
       }
 
-      const res = await api.get('/news/', params, false)
+      const res = await api.get('/news', params, false)
+      const items = (res.items || []).map(this.normalizeNewsItem)
+      const total = typeof res.total === 'number' ? res.total : this.data.newsList.length + items.length
 
       this.setData({
-        newsList: [...this.data.newsList, ...(res.items || [])],
+        newsList: [...this.data.newsList, ...items],
         loading: false,
-        hasMore: (res.items || []).length >= this.data.pageSize
+        currentPage: nextPage,
+        hasMore: nextPage * this.data.pageSize < total
       })
     } catch (error) {
       console.error('加载更多资讯失败:', error)

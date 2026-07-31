@@ -1,36 +1,36 @@
 <!--pages/news/detail/detail.wxml-->
 <view class="news-detail-page">
-  <!-- 加载中 -->
   <view class="loading-container" wx:if="{{loading}}">
     <view class="loading-spinner"></view>
   </view>
 
-  <!-- 资讯详情 -->
   <view class="news-detail" wx:if="{{!loading && news}}">
-    <!-- 封面图 -->
     <image class="news-cover" src="{{news.cover_url}}" mode="aspectFill" />
 
-    <!-- 文章头部 -->
     <view class="article-header">
+      <view class="article-category">{{news.category_name}}</view>
       <view class="article-title">{{news.title}}</view>
       <view class="article-meta">
         <view class="meta-left">
           <image class="author-avatar" src="{{news.author_avatar || '/assets/images/default-avatar.png'}}" />
-          <text class="author-name">{{news.author}}</text>
-          <text class="article-time">{{news.publish_time}}</text>
+          <view class="author-block">
+            <text class="author-name">{{news.author}}</text>
+            <text class="article-time">{{news.publish_time_text || news.publish_time}}</text>
+          </view>
         </view>
         <view class="meta-right">
           <text class="view-count">{{news.view_count}}阅读</text>
         </view>
       </view>
+      <view class="tag-row" wx:if="{{news.tags && news.tags.length}}">
+        <text class="tag-item" wx:for="{{news.tags}}" wx:key="*this">#{{item}}</text>
+      </view>
     </view>
 
-    <!-- 文章内容 -->
     <view class="article-content">
-      <rich-text nodes="{{news.content}}"></rich-text>
+      <rich-text nodes="{{news.content}}" class="article-richtext"></rich-text>
     </view>
 
-    <!-- 文章底部信息 -->
     <view class="article-footer">
       <view class="footer-stats">
         <view class="stat-item">
@@ -40,6 +40,10 @@
         <view class="stat-item" bindtap="likeNews">
           <text class="stat-icon">{{isLiked ? '❤️' : '🤍'}}</text>
           <text class="stat-text">{{news.like_count}}</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-icon">⭐</text>
+          <text class="stat-text">{{news.collect_count}}</text>
         </view>
       </view>
       <view class="footer-actions">
@@ -55,7 +59,6 @@
     </view>
   </view>
 
-  <!-- 底部导航栏 -->
   <view class="bottom-bar" wx:if="{{!loading}}">
     <view class="bar-item" bindtap="goHome">
       <image class="bar-icon" src="/assets/icons/home.png" />

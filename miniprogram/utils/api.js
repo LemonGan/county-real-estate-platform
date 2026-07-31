@@ -13,18 +13,16 @@ function request(url, method = 'GET', data = {}, needAuth = true) {
     }
 
     const header = { 'content-type': 'application/json' };
+    const token = wx.getStorageSync('token');
 
-    if (needAuth) {
-      const token = wx.getStorageSync('token');
-      if (token) {
-        header['Authorization'] = `Bearer ${token}`;
-      } else {
-        if (showLoading) wx.hideLoading();
-        wx.showToast({ title: '请先登录', icon: 'none' });
-        setTimeout(() => { wx.navigateTo({ url: '/pages/login/login' }); }, 1500);
-        reject(new Error('未登录'));
-        return;
-      }
+    if (token) {
+      header['Authorization'] = `Bearer ${token}`;
+    } else if (needAuth) {
+      if (showLoading) wx.hideLoading();
+      wx.showToast({ title: '请先登录', icon: 'none' });
+      setTimeout(() => { wx.navigateTo({ url: '/pages/login/login' }); }, 1500);
+      reject(new Error('未登录'));
+      return;
     }
 
     wx.request({
