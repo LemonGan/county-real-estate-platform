@@ -1,5 +1,24 @@
 // API请求封装工具
 const app = getApp()
+const DEFAULT_BASE_URL = 'https://api.imlemon.top/api/v1'
+
+function getBaseUrl() {
+  const configured = app && app.globalData && app.globalData.baseUrl
+  const baseUrl = configured || DEFAULT_BASE_URL
+
+  // 真机预览/体验版不能请求旧的 HTTP/IP 调试地址；发现旧地址时强制回落到正式 HTTPS 域名。
+  if (/^http:\/\//.test(baseUrl) || baseUrl.indexOf('8.138.129.142') >= 0 || baseUrl.indexOf(':8881') >= 0) {
+    if (app && app.globalData) app.globalData.baseUrl = DEFAULT_BASE_URL
+    return DEFAULT_BASE_URL
+  }
+
+  return baseUrl.replace(/\/$/, '')
+}
+
+function buildUrl(path) {
+  const safePath = String(path || '')
+  return getBaseUrl() + (safePath.startsWith('/') ? safePath : '/' + safePath)
+}
 
 /**
  * 发起HTTP请求
@@ -26,7 +45,7 @@ function request(url, method = 'GET', data = {}, needAuth = true) {
     }
 
     wx.request({
-      url: `${app.globalData.baseUrl}${url}`,
+      url: buildUrl(url),
       method: method,
       data: data,
       header: header,
@@ -81,7 +100,7 @@ function uploadImage(filePath) {
       return;
     }
     wx.uploadFile({
-      url: `${app.globalData.baseUrl}/upload`,
+      url: buildUrl('/upload'),
       filePath: filePath,
       name: 'file',
       header: { 'Authorization': `Bearer ${token}` },
