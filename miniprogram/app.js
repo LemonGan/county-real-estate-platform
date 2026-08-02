@@ -5,6 +5,8 @@ App({
     token: null,
     // 生产环境只使用已在微信公众平台登记的 HTTPS 域名。
     baseUrl: 'https://api.imlemon.top/api/v1',
+    // 临时联调开关：仅 develop 环境生效，体验版/正式版仍强制 HTTPS。
+    apiMode: 'http-test',
     isLogin: false, 
     location: null
   },

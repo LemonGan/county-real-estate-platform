@@ -1,8 +1,23 @@
 // API请求封装工具
 const app = getApp()
 const DEFAULT_BASE_URL = 'https://api.imlemon.top/api/v1'
+const HTTP_TEST_BASE_URL = 'http://8.138.129.142:8881/api/v1'
+
+function getEnvVersion() {
+  try {
+    const accountInfo = wx.getAccountInfoSync()
+    return accountInfo && accountInfo.miniProgram && accountInfo.miniProgram.envVersion
+  } catch (error) {
+    return ''
+  }
+}
 
 function getBaseUrl() {
+  // 明文 HTTP 只允许在开发环境临时联调，不会进入体验版或正式版。
+  if (app && app.globalData && app.globalData.apiMode === 'http-test' && getEnvVersion() === 'develop') {
+    return HTTP_TEST_BASE_URL
+  }
+
   const configured = app && app.globalData && app.globalData.baseUrl
   const baseUrl = configured || DEFAULT_BASE_URL
 
